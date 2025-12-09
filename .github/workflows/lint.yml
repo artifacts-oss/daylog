@@ -22,7 +22,7 @@ jobs:
           node-version: '18' # or your preferred version
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --ignore-scripts
 
       - name: Run linter
         run: npm run lint
