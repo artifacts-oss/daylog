@@ -35,11 +35,17 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           
-      - name: Update version in docker-compose.yml
+      - name: Update version in .env.example
         run: |
           TAG_NAME=${{ github.event.release.tag_name }}
-          sed -i "s|:latest|:$TAG_NAME|g" docker-compose.yml
-          echo "✅ docker-compose.yml updated to $TAG_NAME"
+          
+          if grep -q "APP_VERSION=" .env.example; then
+            sed -i "s|APP_VERSION=.*|APP_VERSION=$TAG_NAME|g" .env.example
+          else
+            echo -e "\nAPP_VERSION=$TAG_NAME" >> .env.example
+          fi
+          
+          echo "✅ .env.example updated with version $TAG_NAME"
 
       - name: Upload Release Assets
         uses: softprops/action-gh-release@v1
