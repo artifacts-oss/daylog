@@ -13,42 +13,42 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051
         with:
           images: ${{ secrets.DOCKER_USERNAME }}/daylog
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           
-      - name: Update version in .env.example
+      - name: Update TAG_NAME in .env.example
         run: |
-          TAG_NAME=${{ github.event.release.tag_name }}
+          RELEASE_TAG=${{ github.event.release.tag_name }}
           
-          if grep -q "APP_VERSION=" .env.example; then
-            sed -i "s|APP_VERSION=.*|APP_VERSION=$TAG_NAME|g" .env.example
+          if grep -q "TAG_NAME=" .env.example; then
+            sed -i "s|TAG_NAME=.*|TAG_NAME=$RELEASE_TAG|g" .env.example
           else
-            echo -e "\nAPP_VERSION=$TAG_NAME" >> .env.example
+            echo -e "\nTAG_NAME=$RELEASE_TAG" >> .env.example
           fi
           
-          echo "✅ .env.example updated with version $TAG_NAME"
+          echo "✅ .env.example updated: TAG_NAME=$RELEASE_TAG"
 
       - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         with:
           files: |
             docker-compose.yml
