@@ -10,6 +10,7 @@ import { isBase64, isUrl } from '@/utils/text';
 import fs from 'fs';
 import { NoteWithBoards } from './types';
 import getSorting from '@/utils/sorting';
+import { revalidatePath } from 'next/cache';
 
 export async function createNote(
   data: Prisma.NoteCreateInput,
@@ -35,6 +36,8 @@ export async function updateNote(note: Note): Promise<Note | null> {
       ...updateNote,
     },
   });
+
+  revalidatePath(`/boards/${note.boardsId}/notes`);
 
   return updatedNote;
 }
