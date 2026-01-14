@@ -14,11 +14,22 @@ export async function setAdmin(
   userId: number,
   role: string
 ): Promise<User | null> {
-  const user = await prisma.user.update({
+  const { user } = await getCurrentSession();
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.role !== 'admin') {
+    return null;
+  }
+
+  const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: { role: role },
   });
-  return user;
+
+  return updatedUser;
 }
 
 export type SettingsType = {
@@ -61,6 +72,16 @@ export async function saveSettings(
   state: SettingsFormState,
   formData: FormData
 ) {
+  const { user } = await getCurrentSession();
+
+  if (!user || user.role !== 'admin') {
+    return {
+      success: false,
+      data: null,
+      message: 'Not allowed',
+    };
+  }
+
   const formSettings = formData.getAll('settings') as string[];
 
   const mfa = formSettings.includes('mfa');
@@ -93,10 +114,19 @@ export async function saveSettings(
 }
 
 export async function deleteUser(userId: number) {
-  const session = await getCurrentSession();
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  if (user && user.id !== session.user?.id) {
-    await prisma.user.delete({ where: { id: user.id } });
+  const { user } = await getCurrentSession();
+
+  if (!user) {
+    return null;
   }
-  return user;
+
+  if (user.role !== 'admin') {
+    return null;
+  }
+
+  const deletedUser = await prisma.user.findUnique({ where: { id: userId } });
+  if (deletedUser && deletedUser.id !== user.id) {
+    await prisma.user.delete({ where: { id: deletedUser.id } });
+  }
+  return deletedUser;
 }

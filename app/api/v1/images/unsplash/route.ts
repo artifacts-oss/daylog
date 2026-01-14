@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
     },
   });
-  
+
   if (!response.ok) {
     return new Response('Failed to fetch images', { status: response.status });
   }

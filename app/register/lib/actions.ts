@@ -4,6 +4,7 @@ import { getSettings } from '@/app/admin/lib/actions';
 import { prisma } from '@/prisma/client';
 import { hashPassword } from '@/utils/crypto';
 import { FormState, SignupFormSchema } from './definitions';
+import { getCurrentSession } from '@/app/login/lib/actions';
 
 export async function signup(state: FormState, formData: FormData) {
   const data = {
@@ -19,6 +20,17 @@ export async function signup(state: FormState, formData: FormData) {
     return {
       errors: result.error.flatten().fieldErrors,
       data: data,
+      success: false,
+    };
+  }
+
+  const isRegistrationAllowed = await validateAllowRegistration();
+
+  const { user } = await getCurrentSession();
+
+  if (!isRegistrationAllowed && (!user || user?.role !== 'admin')) {
+    return {
+      message: 'Registration is not allowed.',
       success: false,
     };
   }
@@ -59,7 +71,7 @@ export async function signup(state: FormState, formData: FormData) {
   }
 }
 
-export async function validateAllowRegistration() : Promise<boolean> {
+export async function validateAllowRegistration(): Promise<boolean> {
   const settings = await getSettings();
   const allowReg = settings?.allowReg ?? false;
   return allowReg;

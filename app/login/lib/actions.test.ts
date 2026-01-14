@@ -2,11 +2,8 @@ import { prismaMock } from '@/prisma/singleton';
 import { redirect } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  createSession,
-  generateSessionToken,
   getCurrentSession,
   getUserMFA,
-  invalidateSession,
   signin,
   validateAdminUserNotExists,
   validateMFA,
@@ -91,29 +88,6 @@ describe('validateAdminUserNotExists', () => {
   });
 });
 
-describe('generateSessionToken', () => {
-  it('should generate a session token', async () => {
-    const token = await generateSessionToken();
-
-    expect(token).toBe('mocked-token');
-  });
-});
-
-describe('createSession', () => {
-  it('should create a session', async () => {
-    const session = await createSession('mocked-token', 1);
-
-    expect(session).toEqual({
-      id: 'mocked-session-id',
-      userId: 1,
-      expiresAt: expect.any(Date),
-    });
-    expect(prismaMock.session.create).toHaveBeenCalledWith({
-      data: session,
-    });
-  });
-});
-
 describe('validateSessionToken', () => {
   it('should return session and user if token is valid', async () => {
     const mockSession = {
@@ -157,16 +131,6 @@ describe('validateSessionToken', () => {
       where: { id: 'mocked-session-id' },
     });
     expect(result).toEqual({ session: null, user: null });
-  });
-});
-
-describe('invalidateSession', () => {
-  it('should delete the session', async () => {
-    await invalidateSession('mocked-session-id');
-
-    expect(prismaMock.session.delete).toHaveBeenCalledWith({
-      where: { id: 'mocked-session-id' },
-    });
   });
 });
 
@@ -317,7 +281,7 @@ describe('signin', () => {
     expect(result.message).toBe('Invalid email or password.');
   });
 
-  
+
 });
 
 describe('getCurrentSession', () => {

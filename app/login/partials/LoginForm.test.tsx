@@ -19,12 +19,15 @@ const state: {
 };
 
 const mocks = vi.hoisted(() => ({
+  signin: vi.fn(),
   useActionState: vi.fn(() => [state, vi.fn(), false]),
+  getCurrentSession: vi.fn(() => Promise.resolve(null)),
   validateAllowRegistration: vi.fn(() => Promise.resolve(true)),
 }));
 
 vi.mock('../lib/actions', () => ({
-  signin: vi.fn(),
+  signin: mocks.signin,
+  getCurrentSession: mocks.getCurrentSession,
 }));
 
 vi.mock('@/app/register/lib/actions', () => ({

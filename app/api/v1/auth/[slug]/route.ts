@@ -3,7 +3,7 @@ import { validateAdminUserExists } from '@/app/register/init/lib/actions';
 import { validateAllowRegistration } from '@/app/register/lib/actions';
 import { NextRequest } from 'next/server';
 
-export async function GET(req: NextRequest, 
+export async function GET(req: NextRequest,
   { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const token = req.nextUrl.searchParams.get('token') || '';
@@ -39,8 +39,15 @@ export async function GET(req: NextRequest,
   }
 
   if (slug === 'session') {
-    const { session } = await getCurrentSession(req, token);
-    return new Response(JSON.stringify({ session }), {
+    const { user } = await getCurrentSession(req, token);
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'User session not found' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ user }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -32,6 +32,11 @@ export default async function Notes({
   const { id } = await params;
   const { sort = user.sortNotesBy, perPage = 12, openNew = 'false' } = await searchParams;
   const board = await getBoard(parseInt(id));
+
+  if (!board) {
+    return redirect('/boards');
+  }
+
   const currentSort = sort as string;
   const currentPerPage = perPage as string;
   const openNewNote = openNew === 'true';

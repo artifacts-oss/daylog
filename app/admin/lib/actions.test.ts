@@ -20,6 +20,8 @@ vi.mock('@/app/login/lib/actions', () => ({
 }));
 
 describe('actions', () => {
+  const mockSession = { user: { id: 1, name: 'John Doe', role: 'user' } };
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -36,14 +38,16 @@ describe('actions', () => {
 
   describe('setAdmin', () => {
     it('should update user role', async () => {
+      mockSession.user.role = 'admin';
       const mockUser: Partial<User> = {
-        id: 1,
-        name: 'John Doe',
+        id: 2,
+        name: 'Max Doe',
         role: 'admin',
       };
+      mocks.getCurrentSession.mockResolvedValue(mockSession);
       prismaMock.user.update.mockResolvedValue(mockUser as User);
 
-      const user = await setAdmin(1, 'admin');
+      const user = await setAdmin(2, 'admin');
       expect(user).toEqual(mockUser);
     });
   });
@@ -78,6 +82,7 @@ describe('actions', () => {
 
   describe('saveSettings', () => {
     it('should save settings to database', async () => {
+      mockSession.user.role = 'admin';
       const formData = new FormData();
       formSettings.forEach((item) => {
         formData.append(`settings`, item);
@@ -86,6 +91,8 @@ describe('actions', () => {
       prismaMock.setting.findMany.mockResolvedValue(
         formSettings.map((key) => ({ key, value: 'true' }))
       );
+
+      mocks.getCurrentSession.mockResolvedValue(mockSession);
 
       const result = await saveSettings({}, formData);
 
@@ -102,20 +109,20 @@ describe('actions', () => {
 
   describe('deleteUser', () => {
     it('should delete user if not current session user', async () => {
-      const mockSession = { user: { id: 2 } };
-      const mockUser: Partial<User> = { id: 1, name: 'John Doe' };
+      mockSession.user.role = 'admin';
       mocks.getCurrentSession.mockResolvedValue(mockSession);
+      const mockUser: Partial<User> = { id: 2, name: 'Max Doe' };
       prismaMock.user.findUnique.mockResolvedValue(mockUser as User);
 
-      const user = await deleteUser(1);
-      expect(prismaMock.user.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+      const user = await deleteUser(2);
+      expect(prismaMock.user.delete).toHaveBeenCalledWith({ where: { id: 2 } });
       expect(user).toEqual(mockUser);
     });
 
     it('should not delete user if it is the current session user', async () => {
-      const mockSession = { user: { id: 1 } };
-      const mockUser: Partial<User> = { id: 1, name: 'John Doe' };
+      mockSession.user.role = 'admin';
       mocks.getCurrentSession.mockResolvedValue(mockSession);
+      const mockUser: Partial<User> = { id: 1, name: 'John Doe' };
       prismaMock.user.findUnique.mockResolvedValue(mockUser as User);
 
       const user = await deleteUser(1);

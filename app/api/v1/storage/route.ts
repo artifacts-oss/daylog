@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const key = req.nextUrl.searchParams.get('key');
+    const key = req.nextUrl.searchParams.get('key') || '';
 
     if (!key) {
       return new Response('Key is required', { status: 400 });

@@ -11,6 +11,7 @@ import {
   updatePassword,
   updateProfile,
 } from './actions';
+import { User } from '@/prisma/generated/client';
 
 const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
@@ -72,7 +73,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
 
       mocks.getCurrentSession.mockResolvedValue({ user: { id: 1 } });
       mocks.validateSessionToken.mockResolvedValue(true);
@@ -82,6 +83,16 @@ describe('Profile Actions', () => {
       expect(result).toBeUndefined();
       expect(revalidatePath).toHaveBeenCalledWith('/profile/1');
       expect(redirect).toHaveBeenCalledWith('/profile/1');
+    });
+
+    it('should return error if form data is invalid', async () => {
+      const formData = new FormData();
+      formData.append('id', '1');
+      // Testing incomplete form data - missing name and email
+
+      const result = await updateProfile({}, formData);
+
+      expect(result?.errors).not.toBeNull();
     });
 
     it('should return error if email already exists', async () => {
@@ -101,12 +112,57 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
 
       const result = await updateProfile({}, formData);
 
       expect(result).toEqual({
         message: 'Email already exists.',
+        success: false,
+      });
+    });
+
+    it('cannot update profile if user is not authorized', async () => {
+      const formData = new FormData();
+      formData.append('id', '1');
+      formData.append('name', 'John Doe');
+      formData.append('email', 'john@example.com');
+
+      mocks.getCurrentSession.mockResolvedValue({
+        user: null,
+        session: null,
+      });
+      mocks.validateSessionToken.mockResolvedValue(false);
+
+      const result = await updateProfile({}, formData);
+
+      expect(result).toEqual({
+        message: 'Not allowed',
+        success: false,
+      });
+    });
+
+    it('cannot update profile if user is not the owner and is not admin', async () => {
+      const formData = new FormData();
+      formData.append('id', '2');
+      formData.append('name', 'John Doe');
+      formData.append('email', 'john@example.com');
+
+      mocks.getCurrentSession.mockResolvedValue({
+        user: {
+          id: 1,
+          name: 'Jane Doe',
+          email: 'jane@example.com',
+          role: 'user',
+        },
+        session: null,
+      });
+      mocks.validateSessionToken.mockResolvedValue(true);
+
+      const result = await updateProfile({}, formData);
+
+      expect(result).toEqual({
+        message: 'Not allowed',
         success: false,
       });
     });
@@ -132,7 +188,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       prismaMock.user.update.mockResolvedValue({
         id: 1,
         name: null,
@@ -144,7 +200,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       mocks.hashPassword.mockReturnValue(hashedPassword);
 
       const result = await updatePassword({}, formData);
@@ -173,7 +229,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       mocks.hashPassword.mockReturnValue(hashedPassword);
       const result = await updatePassword({}, formData);
 
@@ -201,7 +257,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
 
       const result = await backupData({}, formData);
 
@@ -240,7 +296,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       prismaMock.user.delete.mockResolvedValue({
         id: 1,
         name: null,
@@ -252,7 +308,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
 
       const result = await deleteAccount({}, formData);
 
@@ -293,7 +349,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
 
       const result = await getProfile(2);
 
@@ -315,7 +371,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
 
       const result = await getProfile(2);
 
@@ -341,7 +397,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       prismaMock.user.update.mockResolvedValue({
         id: 1,
         name: null,
@@ -353,7 +409,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       mocks.validateTOTP.mockReturnValue(true);
 
       const result = await updateMFA({}, formData);
@@ -398,7 +454,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       prismaMock.user.update.mockResolvedValue({
         id: 1,
         name: null,
@@ -410,7 +466,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       mocks.validateTOTP.mockReturnValue(true);
 
       const result = await deleteMFA({}, formData);
@@ -437,7 +493,7 @@ describe('Profile Actions', () => {
         terms: '',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
-      });
+      } as User);
       mocks.validateTOTP.mockReturnValue(false);
 
       const result = await deleteMFA({}, formData);

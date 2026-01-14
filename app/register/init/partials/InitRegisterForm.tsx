@@ -40,8 +40,8 @@ export default function InitRegisterForm() {
           <div className="alert alert-success alert-dismissible" role="alert">
             <h3 className="mb-1">Account created</h3>
             <p>Admin account created successfully.</p>
-            <Link href="/login">
-              <a className="btn btn-primary">Go to login</a>
+            <Link className="btn btn-primary" href="/login">
+              Go to login
             </Link>
             <a
               className="btn-close"
@@ -61,9 +61,8 @@ export default function InitRegisterForm() {
                 id="name"
                 name="name"
                 defaultValue={state?.data?.name?.toString()}
-                className={`form-control ${
-                  state?.errors?.name && 'is-invalid'
-                }`}
+                className={`form-control ${state?.errors?.name && 'is-invalid'
+                  }`}
                 placeholder="Enter name"
               />
               {state?.errors?.name && (
@@ -80,9 +79,8 @@ export default function InitRegisterForm() {
                 id="email"
                 name="email"
                 defaultValue={state?.data?.email?.toString()}
-                className={`form-control ${
-                  state?.errors?.email && 'is-invalid'
-                }`}
+                className={`form-control ${state?.errors?.email && 'is-invalid'
+                  }`}
                 placeholder="Enter email"
               />
               {state?.errors?.email &&
@@ -102,16 +100,14 @@ export default function InitRegisterForm() {
                   type={isShowPassword ? 'text' : 'password'}
                   name="password"
                   defaultValue={state?.data?.password?.toString()}
-                  className={`form-control ${
-                    state?.errors?.password && 'border-danger'
-                  }`}
+                  className={`form-control ${state?.errors?.password && 'border-danger'
+                    }`}
                   placeholder="Password"
                   autoComplete="off"
                 />
                 <span
-                  className={`input-group-text  ${
-                    state?.errors?.password && 'border-danger'
-                  }`}
+                  className={`input-group-text  ${state?.errors?.password && 'border-danger'
+                    }`}
                 >
                   <input
                     id={'showPassword'}
@@ -151,9 +147,8 @@ export default function InitRegisterForm() {
               <button
                 disabled={pending}
                 type="submit"
-                className={`btn btn-primary w-100 ${
-                  pending ? 'btn-loading disabled' : null
-                }`}
+                className={`btn btn-primary w-100 ${pending ? 'btn-loading disabled' : null
+                  }`}
               >
                 Create admin account
               </button>

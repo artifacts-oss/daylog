@@ -22,6 +22,15 @@ export default async function NotePage({
   }
   const board = await getBoard(parseInt((await params).id));
   const note = await getNote(parseInt((await params).noteId));
+
+  if (!board) {
+    return redirect('/boards');
+  }
+
+  if (!note) {
+    return redirect(`/boards/${board?.id}/notes`);
+  }
+
   const breadcrumbs = [
     { name: 'Home', href: '/' },
     { name: 'Boards', href: '/boards' },

@@ -9,10 +9,15 @@ const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
   getNotesCount: vi.fn(),
   getNotes: vi.fn(),
+  getBoard: vi.fn(),
 }));
 
 vi.mock('@/app/login/lib/actions', () => ({
   getCurrentSession: mocks.getCurrentSession,
+}));
+
+vi.mock('@/app/boards/lib/actions', () => ({
+  getBoard: mocks.getBoard,
 }));
 
 vi.mock('./lib/actions', () => ({
@@ -53,6 +58,7 @@ describe('Home Page', () => {
     });
     mocks.getNotes.mockResolvedValue([{ id: 1 }]);
     mocks.getNotesCount.mockResolvedValue(1);
+    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board' });
 
     render(await Notes(defaultParams));
 
@@ -65,9 +71,23 @@ describe('Home Page', () => {
     });
     mocks.getNotes.mockResolvedValue([]);
     mocks.getNotesCount.mockResolvedValue(0);
+    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board' });
 
     render(await Notes(defaultParams));
 
     expect(screen.getByText('Your notes are empty')).toBeInTheDocument();
   });
+
+  it('should redirect to all boards if board not exists', async () => {
+    mocks.getCurrentSession.mockResolvedValue({
+      user: { id: 1, name: 'Test User' },
+    });
+    mocks.getNotes.mockResolvedValue([]);
+    mocks.getNotesCount.mockResolvedValue(0);
+    mocks.getBoard.mockResolvedValue(null);
+
+    await Notes(defaultParams);
+
+    expect(redirect).toHaveBeenCalledWith('/boards');
+  })
 });

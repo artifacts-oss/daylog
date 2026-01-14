@@ -47,15 +47,24 @@ export async function updateProfile(
     };
   }
 
+  const { user } = await getCurrentSession();
+
+  if (!user || (user.id !== data.id && user.role !== 'admin')) {
+    return {
+      message: 'Not allowed',
+      success: false,
+    };
+  }
+
   try {
     // Check if the user already exists
-    const user = await prisma.user.findUnique({
+    const existentUser = await prisma.user.findUnique({
       where: {
         NOT: { id: data.id },
         email: result.data.email,
       },
     });
-    if (user) {
+    if (existentUser) {
       return {
         message: 'Email already exists.',
         success: false,
@@ -71,8 +80,7 @@ export async function updateProfile(
     });
 
     // If the user is updating their own profile, revalidate the session
-    const session = await getCurrentSession();
-    if (session.user !== null && session.user.id === data.id) {
+    if (user.id === data.id) {
       const cookieStore = await cookies();
       const token = cookieStore.get('session')?.value ?? null;
       if (token !== null) {
@@ -107,8 +115,16 @@ export async function updatePassword(
     confirm: formData.get('confirm'),
   };
 
-  const session = await getCurrentSession();
-  const isAdmin = session.user?.role === 'admin';
+  const { user } = await getCurrentSession();
+
+  if (!user) {
+    return {
+      message: 'Not allowed',
+      success: false,
+    };
+  }
+
+  const isAdmin = user.role === 'admin';
 
   let result;
   if (!isAdmin) {
@@ -165,7 +181,7 @@ export async function updatePassword(
       },
     });
 
-    if(session.user?.id !== data.id && isAdmin) {
+    if (user?.id !== data.id && isAdmin) {
       await prisma.session.deleteMany({
         where: { userId: data.id },
       });
@@ -194,6 +210,15 @@ export async function backupData(state: BackupFormState, formData: FormData) {
   if (!result.success) {
     return {
       message: 'Invalid user ID.',
+      success: false,
+    };
+  }
+
+  const { user } = await getCurrentSession();
+
+  if (!user || user.id !== data.userId) {
+    return {
+      message: 'Not allowed',
       success: false,
     };
   }
@@ -255,7 +280,15 @@ export async function deleteAccount(
     };
   }
 
-  let accountDeleted = true;
+  const { user } = await getCurrentSession();
+  if (!user || (user.role !== 'admin' && user.id !== data.userId)) {
+    return {
+      message: 'Not allowed',
+      success: false,
+    };
+  }
+
+  let accountDeleted = false;
   try {
     // Check if the user exists
     const user = await prisma.user.findUnique({
@@ -299,8 +332,8 @@ export async function deleteAccount(
 }
 
 export async function getProfile(userId: number) {
-  const session = await getCurrentSession();
-  if (session.user === null) {
+  const { user } = await getCurrentSession();
+  if (user === null) {
     return redirect('/login');
   }
 
@@ -311,7 +344,7 @@ export async function getProfile(userId: number) {
   // If the user is an admin, they can view any user's profile
   if (
     record &&
-    (session.user.role === 'admin' || record?.id === session.user.id)
+    (user.role === 'admin' || record?.id === user.id)
   ) {
     return record;
   } else {
@@ -332,6 +365,15 @@ export async function updateMFA(state: UpdateMFAFormState, formData: FormData) {
     return {
       errors: result.error.flatten().fieldErrors,
       data: data,
+      success: false,
+    };
+  }
+
+  const { user } = await getCurrentSession();
+
+  if (!user || (user.id !== data.id && user.role !== 'admin')) {
+    return {
+      message: 'Not allowed',
       success: false,
     };
   }
@@ -388,6 +430,12 @@ export async function deleteMFA(state: DeleteMFAFormState, formData: FormData) {
       data: data,
       success: false,
     };
+  }
+
+  const { user } = await getCurrentSession();
+
+  if (!user || user.id !== data.id) {
+    throw new Error('Not allowed');
   }
 
   try {

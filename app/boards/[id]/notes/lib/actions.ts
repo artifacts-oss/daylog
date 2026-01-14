@@ -17,6 +17,11 @@ export async function createNote(
   boardId: number
 ): Promise<number | null> {
   const { user } = await getCurrentSession();
+
+  if (!user) {
+    return null;
+  }
+
   const note: Prisma.NoteCreateInput = {
     title: data.title,
     content: data.content,
@@ -29,6 +34,11 @@ export async function createNote(
 
 export async function updateNote(note: Note): Promise<Note | null> {
   const { user } = await getCurrentSession();
+
+  if (!user) {
+    return null;
+  }
+
   const { id, ...updateNote } = note;
   const updatedNote = await prisma.note.update({
     where: { id, boards: { id: note.boardsId!, userId: user?.id } },
@@ -44,6 +54,11 @@ export async function updateNote(note: Note): Promise<Note | null> {
 
 export async function deleteNote(note: Note): Promise<Note | null> {
   const { user } = await getCurrentSession();
+
+  if (!user) {
+    return null;
+  }
+
   const deleted = await prisma.note.delete({
     where: { id: note.id, boards: { userId: user?.id } },
   });
@@ -69,6 +84,10 @@ export async function getNotes(
 ): Promise<NoteWithBoards[] | null> {
   const { user } = await getCurrentSession();
 
+  if (!user) {
+    return null;
+  }
+
   const sorting = getSorting(sort);
   const notes = await prisma.note.findMany({
     where:
@@ -85,6 +104,11 @@ export async function getNotes(
 
 export async function setUserNotesSort(sort: string): Promise<void> {
   const { user } = await getCurrentSession();
+
+  if (!user) {
+    return;
+  }
+
   await prisma.user.update({
     where: { id: user?.id },
     data: { sortNotesBy: sort },
@@ -106,6 +130,10 @@ export async function saveImage(
 ): Promise<string | null> {
   try {
     const { user } = await getCurrentSession();
+
+    if (!user) {
+      return null;
+    }
 
     if (!isBase64(imageUrl) && !isUrl(imageUrl)) {
       throw new Error(
@@ -137,6 +165,11 @@ export async function deleteImage(
 ): Promise<void> {
   try {
     const { user } = await getCurrentSession();
+
+    if (!user) {
+      return;
+    }
+
     const removed = removeFile(filePath);
     if (removed) {
       await prisma.note.update({
@@ -155,6 +188,10 @@ export async function savePicture(
 ): Promise<string | null> {
   try {
     const { user } = await getCurrentSession();
+
+    if (!user) {
+      return null;
+    }
 
     if (!isBase64(imageUrl) && !isUrl(imageUrl)) {
       throw new Error(
@@ -194,6 +231,10 @@ export async function deletePicture(
   try {
     const { user } = await getCurrentSession();
 
+    if (!user) {
+      return;
+    }
+
     const note = await prisma.note.findUnique({
       where: { id: noteId, boards: { userId: user?.id } },
     });
@@ -224,6 +265,10 @@ export async function deletePicture(
 export async function getPictures(noteId: number): Promise<Picture[]> {
   try {
     const { user } = await getCurrentSession();
+
+    if (!user) {
+      return [];
+    }
 
     const note = await prisma.note.findUnique({
       where: { id: noteId, boards: { userId: user?.id } },

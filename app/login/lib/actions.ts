@@ -25,14 +25,14 @@ export async function validateAdminUserNotExists(): Promise<boolean> {
   return !admin;
 }
 
-export async function generateSessionToken(): Promise<string> {
+async function generateSessionToken(): Promise<string> {
   const bytes = new Uint8Array(20);
   crypto.getRandomValues(bytes);
   const token = encodeBase32(bytes);
   return token;
 }
 
-export async function createSession(
+async function createSession(
   token: string,
   userId: number
 ): Promise<Session> {
@@ -80,10 +80,6 @@ export async function validateSessionToken(
     });
   }
   return { session, user };
-}
-
-export async function invalidateSession(sessionId: string): Promise<void> {
-  await prisma.session.delete({ where: { id: sessionId } });
 }
 
 export type SessionValidationResult =

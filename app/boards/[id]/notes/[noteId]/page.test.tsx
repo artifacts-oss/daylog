@@ -8,7 +8,12 @@ import NotePage from './page';
 
 const mocks = vi.hoisted(() => ({
   getNote: vi.fn(),
+  getBoard: vi.fn(),
   getCurrentSession: vi.fn(),
+}));
+
+vi.mock('@/app/boards/lib/actions', () => ({
+  getBoard: mocks.getBoard,
 }));
 
 vi.mock('../lib/actions', () => ({
@@ -43,10 +48,24 @@ describe('Note Page', () => {
     mocks.getCurrentSession.mockResolvedValue({
       user: { id: 1, name: 'Test User' },
     });
+    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board' });
     mocks.getNote.mockResolvedValue({ id: 1, title: 'Test Note' });
 
     render(await NotePage({ params: Promise.resolve({ id: '1', noteId: '1' }) }));
 
     expect(screen.getByTestId('note')).toBeInTheDocument();
   });
+
+
+  it('should redirect to all notes if note not exists', async () => {
+    mocks.getCurrentSession.mockResolvedValue({
+      user: { id: 1, name: 'Test User' },
+    });
+    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board' });
+    mocks.getNote.mockResolvedValue(null);
+
+    await NotePage({ params: Promise.resolve({ id: '1', noteId: '1' }) });
+
+    expect(redirect).toHaveBeenCalledWith('/boards/1/notes');
+  })
 });

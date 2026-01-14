@@ -1,5 +1,5 @@
 import { prismaMock } from '@/prisma/singleton';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { signup, validateAllowRegistration } from './actions';
 import { User } from '@/prisma/generated/client';
 
@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   hashPassword: vi.fn().mockReturnValue('mocked-hash'),
   SignupFormSchema: vi.fn(),
   redirect: vi.fn(),
+  getCurrentSession: vi.fn(),
 }));
 
 vi.mock('@/app/admin/lib/actions', () => ({
@@ -22,6 +23,10 @@ vi.mock('next/navigation', () => ({
   redirect: mocks.redirect,
 }));
 
+vi.mock('@/app/login/lib/actions', () => ({
+  getCurrentSession: mocks.getCurrentSession,
+}));
+
 describe('signup', () => {
   const securePassword = 'SecurePassword123#';
   const unsecurePassword = 'UnsecurePassword';
@@ -32,6 +37,11 @@ describe('signup', () => {
     }
     return formData;
   };
+
+  beforeEach(() => {
+    mocks.getSettings.mockResolvedValue({ allowReg: true });
+    mocks.getCurrentSession.mockResolvedValue({ user: null });
+  });
 
   it('should return errors if form data is invalid', async () => {
     const formData = mockFormData({
@@ -134,6 +144,34 @@ describe('signup', () => {
       'An error occurred while creating your account.'
     );
   });
+
+  it('should return not allowed message if registration allowed configuration is false', async () => {
+    mocks.getSettings.mockResolvedValue({ allowReg: false });
+    const formData = mockFormData({
+      name: 'John',
+      email: 'john@example.com',
+      password: securePassword,
+      terms: 'on',
+    });
+    const result = await signup({}, formData);
+
+    expect(result.success).toBe(false);
+    expect(result.message).toBe('Registration is not allowed.');
+  })
+
+  it('admin can registrate user even if registration is not allowed', async () => {
+    mocks.getCurrentSession.mockResolvedValue({ user: { role: 'admin' } });
+    mocks.getSettings.mockResolvedValue({ allowReg: false });
+    const formData = mockFormData({
+      name: 'John',
+      email: 'john@example.com',
+      password: securePassword,
+      terms: 'on',
+    });
+    const result = await signup({}, formData);
+
+    expect(result.success).toBe(true);
+  })
 });
 
 describe('validateAllowRegistration', () => {

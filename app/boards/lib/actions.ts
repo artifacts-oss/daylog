@@ -15,6 +15,10 @@ export async function createBoard(
 ): Promise<number | null> {
   const { user } = await getCurrentSession();
 
+  if (!user) {
+    return null;
+  }
+
   const record = await prisma.board.create({
     data: { ...board, user: { connect: { id: user?.id } } },
     select: { id: true },
@@ -25,6 +29,11 @@ export async function createBoard(
 
 export async function updateBoard(board: Board): Promise<Board | null> {
   const { user } = await getCurrentSession();
+
+  if (!user) {
+    return null;
+  }
+
   const { id, ...updateBoard } = board;
   const updatedBoard = await prisma.board.update({
     where: { id, userId: user?.id },
@@ -39,6 +48,10 @@ export async function updateBoard(board: Board): Promise<Board | null> {
 export async function deleteBoard(board: Board): Promise<Board | null> {
   const { user } = await getCurrentSession();
 
+  if (!user) {
+    return null;
+  }
+
   const deleted = await prisma.board.delete({
     where: { id: board.id, userId: user?.id },
   });
@@ -49,6 +62,10 @@ export async function deleteBoard(board: Board): Promise<Board | null> {
 export async function getBoardsCount(): Promise<number> {
   const { user } = await getCurrentSession();
 
+  if (!user) {
+    return 0;
+  }
+
   const count = await prisma.board.count({
     where: { userId: user?.id },
   });
@@ -58,6 +75,10 @@ export async function getBoardsCount(): Promise<number> {
 
 export async function getBoards(sort: string, perPage: number = 10): Promise<Board[] | null> {
   const { user } = await getCurrentSession();
+
+  if (!user) {
+    return null;
+  }
 
   const sorting = getSorting(sort);
   const boards = await prisma.board.findMany({
@@ -80,6 +101,10 @@ export async function setUserBoardsSort(sort: string): Promise<void> {
 export async function getBoard(boardId: number): Promise<Board | null> {
   const { user } = await getCurrentSession();
 
+  if (!user) {
+    return null;
+  }
+
   const board = await prisma.board.findFirst({
     where: { id: boardId, userId: user?.id },
   });
@@ -93,6 +118,10 @@ export async function saveImage(
 ): Promise<string | null> {
   try {
     const { user } = await getCurrentSession();
+
+    if (!user) {
+      return null;
+    }
 
     if (!isBase64(imageUrl) && !isUrl(imageUrl)) {
       throw new Error(
@@ -124,6 +153,11 @@ export async function deleteImage(
 ): Promise<void> {
   try {
     const { user } = await getCurrentSession();
+
+    if (!user) {
+      return;
+    }
+
     const removed = removeFile(filePath);
     if (removed) {
       await prisma.board.update({
