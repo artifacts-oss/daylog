@@ -71,7 +71,7 @@ docker run -d \
 1. **Download docker-compose.yml file:**
 
 ```bash
-wget https://cdn.jsdelivr.net/gh/digitalartifactory/daylog@latest/docker-compose.yml
+wget https://github.com/digitalartifactory/daylog/releases/latest/download/docker-compose.yml
 ```
 
 2. **Setup .env file:**
@@ -79,7 +79,7 @@ wget https://cdn.jsdelivr.net/gh/digitalartifactory/daylog@latest/docker-compose
 Download the .env.example file and rename it to .env.
 
 ```bash
-wget https://cdn.jsdelivr.net/gh/digitalartifactory/daylog@latest/.env.example -O .env
+wget https://github.com/digitalartifactory/daylog/releases/latest/download/default.env.example -O .env
 ```
 
 You can keep the default values or you can change them.
