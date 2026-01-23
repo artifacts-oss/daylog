@@ -22,9 +22,9 @@ export async function GET(req: NextRequest,
     });
   }
 
-  if (slug === 'admin') {
+if (slug === 'admin') {
     const adminExists = await validateAdminUserExists();
-    return new Response(JSON.stringify({ exists: adminExists }), {
+    return new Response(JSON.stringify({ initialized: adminExists }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -32,22 +32,31 @@ export async function GET(req: NextRequest,
 
   if (slug === 'register') {
     const allowedRegistration = await validateAllowRegistration();
-    return new Response(JSON.stringify({ allowed: allowedRegistration }), {
+    return new Response(JSON.stringify({ registration: allowedRegistration }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 
-  if (slug === 'session') {
+if (slug === 'session') {
     const { user } = await getCurrentSession(req, token);
     if (!user) {
-      return new Response(JSON.stringify({ error: 'User session not found' }), {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ user }), {
+    const safeUser = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      mfa: user.mfa,
+      terms: user.terms
+    };
+
+    return new Response(JSON.stringify({ user: safeUser }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });

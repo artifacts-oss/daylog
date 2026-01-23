@@ -4,7 +4,7 @@ import type { Session, User } from '@/prisma/generated/client';
 
 import { getSettings } from '@/app/admin/lib/actions';
 import { prisma } from '@/prisma/client';
-import { encodeBase32, encodeHex, hashPassword } from '@/utils/crypto';
+import { encodeBase32, encodeHex, verifyPassword } from '@/utils/crypto';
 import { randomDelay } from '@/utils/delay';
 import { validateTOTP } from '@/utils/totp';
 import { revalidatePath } from 'next/cache';
@@ -19,6 +19,8 @@ import {
   ValidateMFAFormState,
 } from './definitions';
 import { NextRequest } from 'next/server';
+import { authRateLimiter, getClientIP } from '@/utils/rateLimit';
+import { SECURITY_CONFIG } from '@/config/security';
 
 export async function validateAdminUserNotExists(): Promise<boolean> {
   const admin = await prisma.user.findFirst({ where: { role: 'admin' } });
@@ -37,10 +39,10 @@ async function createSession(
   userId: number
 ): Promise<Session> {
   const sessionId = encodeHex(token);
-  const session: Session = {
+const session: Session = {
     id: sessionId,
     userId,
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+    expiresAt: new Date(Date.now() + SECURITY_CONFIG.SESSION.EXPIRY_DAYS * 24 * 60 * 60 * 1000),
   };
   await prisma.session.create({
     data: session,
@@ -68,8 +70,8 @@ export async function validateSessionToken(
     await prisma.session.delete({ where: { id: sessionId } });
     return { session: null, user: null };
   }
-  if (Date.now() >= session.expiresAt.getTime() - 1000 * 60 * 60 * 24 * 15) {
-    session.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 30);
+if (Date.now() >= session.expiresAt.getTime() - SECURITY_CONFIG.SESSION.RENEWAL_THRESHOLD_DAYS * 24 * 60 * 60 * 1000) {
+    session.expiresAt = new Date(Date.now() + SECURITY_CONFIG.SESSION.EXPIRY_DAYS * 24 * 60 * 60 * 1000);
     await prisma.session.update({
       where: {
         id: session.id,
@@ -86,16 +88,29 @@ export type SessionValidationResult =
   | { session: Session; user: User }
   | { session: null; user: null };
 
-export async function signin(state: FormState, formData: FormData) {
+export async function signin(state: FormState, formData: FormData, request?: NextRequest) {
   const result = SigninFormSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
   });
 
-  let goMFA = false;
+  // Rate limiting check
+  if (request) {
+    const ip = getClientIP(request);
+    const rateLimitResult = authRateLimiter.isAllowed(`signin:${ip}`);
+    
+    if (!rateLimitResult.allowed) {
+      return {
+        data: result.data,
+        message: 'Too many login attempts. Please try again later.',
+      };
+    }
+  }
+
+let goMFA = false;
   let userId: number | null = null;
-  const MAX_FAILED_ATTEMPTS = 5;
-  const LOCK_DURATION = 1000 * 60 * 15; // 15 minutes
+  const MAX_FAILED_ATTEMPTS = SECURITY_CONFIG.LOCKOUT.MAX_FAILED_ATTEMPTS;
+  const LOCK_DURATION = SECURITY_CONFIG.LOCKOUT.LOCK_DURATION_MS;
 
   try {
     if (!result.success) {
@@ -110,29 +125,28 @@ export async function signin(state: FormState, formData: FormData) {
       where: { email: result.data.email },
     });
 
-    if (!record) {
+if (!record) {
       console.warn(
-        `Failed login attempt: No user found with email ${result.data.email}`
+        `Failed login attempt for email: ${result.data.email}`
       );
       return {
         data: result.data,
-        message: 'An error occurred while validating your credentials.',
+        message: 'Invalid email or password.',
       };
     }
 
     if (record.lockUntil && Date.now() < record.lockUntil.getTime()) {
-      console.warn(
+console.warn(
         `Account locked: User with email ${result.data.email} is temporarily locked until ${record.lockUntil}`
       );
       return {
         data: result.data,
-        message:
-          'Your account is temporarily locked due to multiple failed login attempts. Please try again later.',
+        message: 'Account temporarily locked. Please try again later.',
       };
     }
 
-    const hashedPassword = hashPassword(result.data.password);
-    if (record.password !== hashedPassword) {
+const isPasswordValid = await verifyPassword(result.data.password, record.password);
+    if (!isPasswordValid) {
       await prisma.user.update({
         where: { id: record.id },
         data: {
@@ -144,8 +158,8 @@ export async function signin(state: FormState, formData: FormData) {
         },
       });
 
-      console.warn(
-        `Failed login attempt: Incorrect password for email ${result.data.email}`
+console.warn(
+        `Failed login attempt for email: ${result.data.email}`
       );
       return {
         data: result.data,
@@ -267,9 +281,9 @@ async function generateUserSession(record: {
 }) {
   const token = await generateSessionToken();
   await createSession(token, record!.id);
-  await setSessionTokenCookie(
+await setSessionTokenCookie(
     token,
-    new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+    new Date(Date.now() + SECURITY_CONFIG.SESSION.EXPIRY_DAYS * 24 * 60 * 60 * 1000)
   );
 }
 

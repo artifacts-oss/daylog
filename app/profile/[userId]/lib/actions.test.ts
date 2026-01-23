@@ -22,6 +22,7 @@ const mocks = vi.hoisted(() => ({
   validateSessionToken: vi.fn(),
   revalidatePath: vi.fn(),
   hashPassword: vi.fn(),
+  verifyPassword: vi.fn().mockResolvedValue(true),
   validateTOTP: vi.fn(),
   sendMail: vi.fn(),
   generateTOTP: vi.fn(),
@@ -46,6 +47,7 @@ vi.mock('@/app/login/lib/actions', () => ({
 
 vi.mock('@/utils/crypto', () => ({
   hashPassword: mocks.hashPassword,
+  verifyPassword: mocks.verifyPassword,
 }));
 
 vi.mock('@/utils/totp', () => ({
@@ -79,11 +81,15 @@ describe('Profile Actions', () => {
         email: 'john@example.com',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
 
       mocks.getCurrentSession.mockResolvedValue({ user: { id: 1 } });
@@ -114,15 +120,19 @@ describe('Profile Actions', () => {
 
       prismaMock.user.findUnique.mockResolvedValue({
         id: 2,
-        name: null,
+        name:   null,
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
-        sortBoardsBy: 'created_desc',
+        role: 'user',
+        terms: 'accept',
+        sortBoardsBy: 'created_desc', 
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
 
       const result = await updateProfile({}, formData);
@@ -188,17 +198,31 @@ describe('Profile Actions', () => {
       formData.append('password', 'newPassword');
       formData.append('confirm', 'newPassword');
 
+      mocks.getCurrentSession.mockResolvedValue({
+        user: {
+          id: 1,
+          name: 'John Doe',
+          email: 'john@example.com',
+          role: 'user',
+        },
+        session: null,
+      });
+
       prismaMock.user.findUnique.mockResolvedValue({
         id: 1,
         password: hashedPassword,
         name: null,
         email: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
       prismaMock.user.update.mockResolvedValue({
         id: 1,
@@ -206,9 +230,8 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
       } as User);
@@ -235,11 +258,15 @@ describe('Profile Actions', () => {
         name: null,
         email: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
       mocks.hashPassword.mockReturnValue(hashedPassword);
       const result = await updatePassword({}, formData);
@@ -263,11 +290,15 @@ describe('Profile Actions', () => {
         email: 'john@example.com',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
 
       const result = await backupData({}, formData);
@@ -302,9 +333,8 @@ describe('Profile Actions', () => {
         name: null,
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
       } as User);
@@ -314,11 +344,15 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
 
       const result = await deleteAccount({}, formData);
@@ -355,11 +389,15 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
 
       const result = await getProfile(2);
@@ -377,11 +415,15 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
 
       const result = await getProfile(2);
@@ -403,11 +445,15 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
       prismaMock.user.update.mockResolvedValue({
         id: 1,
@@ -415,11 +461,15 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
       mocks.validateTOTP.mockReturnValue(true);
 
@@ -478,11 +528,15 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
+        mfaCode: null,
+        mfaCodeSentAt: null,
+        mfa: false,
       } as User);
       mocks.validateTOTP.mockReturnValue(true);
 
@@ -546,13 +600,15 @@ describe('Profile Actions', () => {
         email: '',
         password: '',
         secret: null,
-        mfa: false,
-        role: '',
-        terms: '',
+        role: 'user',
+        terms: 'accept',
         sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
+        failedAttempts: null,
+        lockUntil: null,
         mfaCode: null,
         mfaCodeSentAt: null,
+        mfa: false,
       } as User);
       mocks.validateTOTP.mockReturnValue(false);
 
@@ -570,7 +626,9 @@ describe('Profile Actions', () => {
       prismaMock.user.findFirst.mockResolvedValue({
         id: 1,
         email: 'test@example.com',
-        secret: 'secret'
+        secret: 'secret',
+        mfaCode: null,
+        mfaCodeSentAt: null,
       } as User)
 
       await sendOTP();

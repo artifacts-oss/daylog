@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import querystring from 'querystring';
+import { SECURITY_CONFIG } from '@/config/security';
 
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
@@ -53,8 +54,8 @@ export function fromBase32(base32: string): Buffer {
  */
 export function generateTOTP(
   secret: string,
-  timeStep: number = 30,
-  digits: number = 6
+  timeStep: number = SECURITY_CONFIG.MFA.TIME_STEP,
+  digits: number = SECURITY_CONFIG.MFA.DIGITS
 ): string {
   const key = fromBase32(secret);
   const buffer = Buffer.alloc(8);
@@ -82,15 +83,46 @@ export function generateTOTP(
 export function validateTOTP(
   secret: string,
   otp: string,
-  timeStep: number = 30,
-  window: number = 1
+  timeStep: number = SECURITY_CONFIG.MFA.TIME_STEP,
+  window: number = SECURITY_CONFIG.MFA.WINDOW
 ): boolean {
+  const currentTime = Math.floor(Date.now() / 1000 / timeStep);
+  
   for (let i = -window; i <= window; i++) {
-    if (generateTOTP(secret, timeStep) === otp) {
+    const adjustedTime = currentTime + i;
+    if (generateTOTPAtTime(secret, adjustedTime, timeStep) === otp) {
       return true;
     }
   }
   return false;
+}
+
+/**
+ * Generates a TOTP code for a specific time counter.
+ */
+function generateTOTPAtTime(
+  secret: string,
+  counter: number,
+  timeStep: number = 30,
+  digits: number = 6
+): string {
+  const key = fromBase32(secret);
+  const buffer = Buffer.alloc(8);
+  
+  for (let i = 7; i >= 0; i--) {
+    buffer[i] = counter & 0xff;
+    counter >>= 8;
+  }
+
+  const hmac = crypto.createHmac('sha1', key).update(buffer).digest();
+  const offset = hmac[hmac.length - 1] & 0xf;
+  const code =
+    ((hmac[offset] & 0x7f) << 24) |
+    ((hmac[offset + 1] & 0xff) << 16) |
+    ((hmac[offset + 2] & 0xff) << 8) |
+    (hmac[offset + 3] & 0xff);
+
+  return (code % 10 ** digits).toString().padStart(digits, '0');
 }
 
 /**
@@ -105,8 +137,8 @@ export function generateTOTPUrl(
     secret,
     issuer,
     algorithm: 'SHA1',
-    digits: '6',
-    period: '30',
+    digits: SECURITY_CONFIG.MFA.DIGITS.toString(),
+    period: SECURITY_CONFIG.MFA.TIME_STEP.toString(),
   });
 
   return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(

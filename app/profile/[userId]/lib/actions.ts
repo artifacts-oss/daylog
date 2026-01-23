@@ -6,7 +6,7 @@ import {
 } from '@/app/login/lib/actions';
 import { deleteSessionTokenCookie } from '@/app/login/lib/cookies';
 import { prisma } from '@/prisma/client';
-import { hashPassword } from '@/utils/crypto';
+import { hashPassword, verifyPassword } from '@/utils/crypto';
 import { generateTOTP, validateTOTP } from '@/utils/totp';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
@@ -28,6 +28,7 @@ import {
 } from './definitions';
 import { createAndVerifyTransporter } from '@/utils/email';
 import { User } from '@/prisma/generated/client';
+import { SECURITY_CONFIG } from '@/config/security';
 
 export async function updateProfile(
   state: ProfileFormState,
@@ -121,7 +122,14 @@ export async function updatePassword(
 
   if (!user) {
     return {
-      message: 'Not allowed',
+      message: 'Unauthorized',
+      success: false,
+    };
+  }
+
+  if (user.id !== data.id && user.role !== 'admin') {
+    return {
+      message: 'Access denied',
       success: false,
     };
   }
@@ -162,9 +170,14 @@ export async function updatePassword(
       };
     }
 
+    const isCurrentPasswordValid = await verifyPassword(
+      result.data.current ?? '',
+      record?.password ?? ''
+    );
+
     if (
       !isAdmin &&
-      record?.password !== hashPassword(result.data.current ?? '')
+      !isCurrentPasswordValid
     ) {
       return {
         message: 'Current password is incorrect.',
@@ -175,7 +188,7 @@ export async function updatePassword(
       };
     }
 
-    const hashedPassword = hashPassword(result.data.password);
+    const hashedPassword = await hashPassword(result.data.password);
     await prisma.user.update({
       where: { id: data.id },
       data: {
@@ -536,8 +549,9 @@ function validateMFACode(password: string, user: User) {
   if (!user.mfaCode || !user.mfaCodeSentAt) {
     return false;
   }
+
   const now = new Date();
   const diff = now.getTime() - user.mfaCodeSentAt!.getTime();
   const diffMinutes = Math.floor(diff / 1000 / 60);
-  return user.mfaCode === password && diffMinutes < 1;
+  return user.mfaCode === password && diffMinutes < SECURITY_CONFIG.MFA.TIME_STEP / 60; // Convert seconds to minutes
 }

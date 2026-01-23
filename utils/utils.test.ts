@@ -42,9 +42,9 @@ describe('Crypto Utils', () => {
     expect(result).toMatch(/[a-f0-9]{64}/);
   });
 
-  it('hashes password correctly', () => {
-    const result = hashPassword('password123');
-    expect(result).toMatch(/[a-f0-9]{64}/);
+it('hashes password correctly', async () => {
+    const result = await hashPassword('password123');
+    expect(result).toMatch(/^\$2[ayb]\$12\$.{53}$/);
   });
 });
 

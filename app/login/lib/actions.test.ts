@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   encodeBase32: vi.fn().mockReturnValue('mocked-token'),
   encodeHex: vi.fn().mockReturnValue('mocked-session-id'),
   hashPassword: vi.fn().mockReturnValue('mocked-hash'),
+  verifyPassword: vi.fn().mockResolvedValue(true),
   validateTOTP: vi.fn().mockReturnValue(true),
   SigninFormSchema: {
     safeParse: vi.fn(),
@@ -39,6 +40,7 @@ vi.mock('@/utils/crypto', () => ({
   encodeBase32: mocks.encodeBase32,
   encodeHex: mocks.encodeHex,
   hashPassword: mocks.hashPassword,
+  verifyPassword: mocks.verifyPassword,
 }));
 
 vi.mock('@/utils/totp', () => ({
@@ -80,7 +82,9 @@ describe('validateAdminUserNotExists', () => {
       sortNotesBy: 'created_desc',
       failedAttempts: null,
       lockUntil: null,
-    });
+      mfaCode: null,
+      mfaCodeSentAt: null,
+    } as User);
 
     await validateAdminUserNotExists();
 
@@ -94,7 +98,7 @@ describe('validateSessionToken', () => {
       id: 'mocked-session-id',
       userId: 1,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      user: { id: 1, email: 'test@example.com' },
+      user: { id: 1, email: 'test@example.com', name: null, role: 'user', terms: 'accept', secret: null, mfa: false, sortBoardsBy: 'created_desc', sortNotesBy: 'created_desc', failedAttempts: null, lockUntil: null, mfaCode: null, mfaCodeSentAt: null },
     };
     prismaMock.session.findUnique.mockResolvedValue(mockSession);
 
@@ -106,7 +110,7 @@ describe('validateSessionToken', () => {
         userId: 1,
         expiresAt: expect.any(Date),
       },
-      user: { id: 1, email: 'test@example.com' },
+      user: { id: 1, email: 'test@example.com', name: null, role: 'user', terms: 'accept', secret: null, mfa: false, sortBoardsBy: 'created_desc', sortNotesBy: 'created_desc', failedAttempts: null, lockUntil: null, mfaCode: null, mfaCodeSentAt: null },
     });
   });
 
@@ -177,7 +181,9 @@ describe('signin', () => {
       sortNotesBy: 'created_desc',
       failedAttempts: null,
       lockUntil: null,
-    });
+      mfaCode: null,
+      mfaCodeSentAt: null
+    } as User);
     mocks.getSettings.mockResolvedValue({ mfa: true });
 
     const formData = mockFormData({
@@ -209,7 +215,9 @@ describe('signin', () => {
       sortNotesBy: 'created_desc',
       failedAttempts: null,
       lockUntil: null,
-    });
+      mfaCode: null,
+      mfaCodeSentAt: null
+    } as User);
     mocks.getSettings.mockResolvedValue({ mfa: false });
 
     const formData = mockFormData({
@@ -231,7 +239,7 @@ describe('signin', () => {
     const result = await signin({}, formData);
 
     expect(result.message).toBe(
-      'An error occurred while validating your credentials.'
+      'Invalid email or password.'
     );
   });
 
@@ -252,12 +260,13 @@ describe('signin', () => {
     const result = await signin({}, formData);
 
     expect(result.message).toBe(
-      'Your account is temporarily locked due to multiple failed login attempts. Please try again later.'
+      'Account temporarily locked. Please try again later.'
     );
   });
 
   it('should lock user account after 5 failed attempts', async () => {
     mocks.hashPassword.mockReturnValue('mocked-hash-wrong');
+    mocks.verifyPassword.mockResolvedValue(false);
     prismaMock.user.findFirst.mockResolvedValue({
       id: 1,
       email: 'test@example.com',
@@ -290,7 +299,7 @@ describe('getCurrentSession', () => {
       id: 'mocked-session-id',
       userId: 1,
       expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-      user: { id: 1, email: 'test@example.com' },
+      user: { id: 1, email: 'test@example.com', name: null, role: 'user', terms: 'accept', secret: null, mfa: false, sortBoardsBy: 'created_desc', sortNotesBy: 'created_desc', failedAttempts: null, lockUntil: null, mfaCode: null, mfaCodeSentAt: null },
     };
     prismaMock.session.findUnique.mockResolvedValue(mockSession);
 
@@ -302,7 +311,7 @@ describe('getCurrentSession', () => {
         userId: 1,
         expiresAt: expect.any(Date),
       },
-      user: { id: 1, email: 'test@example.com' },
+      user: { id: 1, email: 'test@example.com', name: null, role: 'user', terms: 'accept', secret: null, mfa: false, sortBoardsBy: 'created_desc', sortNotesBy: 'created_desc', failedAttempts: null, lockUntil: null, mfaCode: null, mfaCodeSentAt: null },
     });
   });
 
@@ -356,7 +365,9 @@ describe('validateMFA', () => {
       sortNotesBy: 'created_desc',
       failedAttempts: null,
       lockUntil: null,
-    });
+      mfaCode: null,
+      mfaCodeSentAt: null
+    } as User);
 
     const formData = mockFormData({ id: '1', password: '123456' });
     await validateMFA({}, formData);
@@ -381,7 +392,9 @@ describe('getUserMFA', () => {
       sortNotesBy: 'created_desc',
       failedAttempts: null,
       lockUntil: null,
-    });
+      mfaCode: null,
+      mfaCodeSentAt: null
+    } as User);
 
     const result = await getUserMFA(1);
 

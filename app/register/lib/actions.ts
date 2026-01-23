@@ -52,7 +52,7 @@ export async function signup(state: FormState, formData: FormData) {
       };
     }
 
-    const hashedPassword = hashPassword(result.data.password);
+const hashedPassword = await hashPassword(result.data.password);
 
     result.data.password = hashedPassword;
 

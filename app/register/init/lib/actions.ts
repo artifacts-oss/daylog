@@ -42,7 +42,7 @@ export async function signupInit(state: InitFormState, formData: FormData) {
       };
     }
 
-    const hashedPassword = hashPassword(result.data.password);
+    const hashedPassword = await hashPassword(result.data.password);
     
     await prisma.user.create({
       data: {

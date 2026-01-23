@@ -34,8 +34,8 @@ export async function reset(state: FormState, formData: FormData) {
     const transporter = await createAndVerifyTransporter();
 
     // Generate a new password and hash it
-    const newPassword = randomBytes(8).toString('hex');
-    const hashedPassword = hashPassword(newPassword);
+const newPassword = randomBytes(8).toString('hex');
+    const hashedPassword = await hashPassword(newPassword);
     await prisma.user.update({
       where: { id: record.id },
       data: { password: hashedPassword },

@@ -47,9 +47,11 @@ describe('actions', () => {
       mocks.getCurrentSession.mockResolvedValue(mockSession);
       prismaMock.user.update.mockResolvedValue(mockUser as User);
 
-      const user = await setAdmin(2, 'admin');
-      expect(user).toEqual(mockUser);
-    });
+await expect(setAdmin(999, 'admin')).rejects.toThrow('User not found');
+
+    expect(prismaMock.user.findUnique).toHaveBeenCalled();
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+  });
   });
 
   describe('loadSettings', () => {
@@ -125,9 +127,9 @@ describe('actions', () => {
       const mockUser: Partial<User> = { id: 1, name: 'John Doe' };
       prismaMock.user.findUnique.mockResolvedValue(mockUser as User);
 
-      const user = await deleteUser(1);
+await expect(deleteUser(1)).rejects.toThrow('Cannot delete your own account');
+
       expect(prismaMock.user.delete).not.toHaveBeenCalled();
-      expect(user).toEqual(mockUser);
     });
   });
 });
