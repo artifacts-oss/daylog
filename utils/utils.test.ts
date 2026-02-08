@@ -6,28 +6,36 @@ import { createAndVerifyTransporter } from './email';
 import { saveAndGetImageFile } from './file';
 import { base64ToArrayBuffer, bytesToBase64, getImageUrlOrFile } from './image';
 import { renderMarkdownToHtml } from './html';
-import { 
-  generateCSRFToken, 
-  getCSRFToken, 
-  setCSRFToken, 
+import {
+  generateCSRFToken,
+  getCSRFToken,
+  setCSRFToken,
   validateCSRFToken,
   CSRF_TOKEN_NAME,
-  CSRF_HEADER_NAME 
+  CSRF_HEADER_NAME,
 } from './csrf';
-import { 
-  RateLimiter, 
-  authRateLimiter, 
-  generalRateLimiter, 
+import {
+  RateLimiter,
+  authRateLimiter,
+  generalRateLimiter,
   uploadRateLimiter,
   getClientIP,
   createRateLimitMiddleware,
-  getRateLimitHeaders 
+  getRateLimitHeaders,
 } from './rateLimit';
 import { removeFile, saveBase64File } from './storage';
 import { isBase64, isUrl, truncateWord } from './text';
 import { generateTOTP, generateTOTPSecret, validateTOTP } from './totp';
 import { randomDelay } from './delay';
 import getSorting from './sorting';
+import {
+  computeDiff,
+  applyPatch,
+  validatePatch,
+  areTextsIdentical,
+  getDiffSummary,
+  getDiffPreview,
+} from './diff';
 import { Prisma } from '@/prisma/generated/client';
 
 const mocks = vi.hoisted(() => ({
@@ -77,7 +85,7 @@ describe('Crypto Utils', () => {
     expect(result).toMatch(/[a-f0-9]{64}/);
   });
 
-it('hashes password correctly', async () => {
+  it('hashes password correctly', async () => {
     const result = await hashPassword('password123');
     expect(result).toMatch(/^\$2[ayb]\$12\$.{53}$/);
   });
@@ -369,7 +377,7 @@ describe('File Utils', () => {
   it('saves base64 file locally when S3 is disabled', async () => {
     mocks.getSettings.mockResolvedValue({ enableS3: false });
     const base64 = 'data:image/png;base64,iVBORw0KGgo=';
-    
+
     const result = await saveAndGetImageFile(base64);
     expect(result).toBeDefined();
     expect(mocks.uploadFileS3).not.toHaveBeenCalled();
@@ -378,7 +386,7 @@ describe('File Utils', () => {
   it('uploads to S3 when S3 is enabled', async () => {
     mocks.getSettings.mockResolvedValue({ enableS3: true });
     mocks.uploadFileS3.mockResolvedValue('s3-key');
-    
+
     process.env.S3_ENDPOINT = 'https://s3.amazonaws.com';
     process.env.S3_REGION = 'us-east-1';
     process.env.S3_ACCESS_KEY_ID = 'key';
@@ -386,14 +394,14 @@ describe('File Utils', () => {
 
     const base64 = 'data:image/png;base64,iVBORw0KGgo=';
     const result = await saveAndGetImageFile(base64);
-    
+
     expect(result).toMatch(/^S3-/);
     expect(mocks.uploadFileS3).toHaveBeenCalled();
   });
 
   it('returns null when S3 env vars are missing', async () => {
     mocks.getSettings.mockResolvedValue({ enableS3: true });
-    
+
     delete process.env.S3_ENDPOINT;
     delete process.env.S3_REGION;
     delete process.env.S3_ACCESS_KEY_ID;
@@ -401,14 +409,17 @@ describe('File Utils', () => {
 
     const base64 = 'data:image/png;base64,iVBORw0KGgo=';
     const result = await saveAndGetImageFile(base64);
-    
+
     expect(result).toBe(null);
   });
 });
 
 describe('Rate Limit Utils', () => {
   beforeEach(() => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearInterval'], shouldAdvanceTime: true });
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'setInterval', 'clearInterval'],
+      shouldAdvanceTime: true,
+    });
   });
 
   afterEach(() => {
@@ -420,7 +431,7 @@ describe('Rate Limit Utils', () => {
     const limiter = new RateLimiter(60000, 5); // 1 minute, 5 requests
     const result1 = limiter.isAllowed('test-key');
     const result2 = limiter.isAllowed('test-key');
-    
+
     expect(result1.allowed).toBe(true);
     expect(result1.remaining).toBe(4);
     expect(result2.allowed).toBe(true);
@@ -429,11 +440,11 @@ describe('Rate Limit Utils', () => {
 
   it('blocks requests exceeding limit', () => {
     const limiter = new RateLimiter(60000, 2); // 1 minute, 2 requests
-    
+
     limiter.isAllowed('test-key');
     limiter.isAllowed('test-key');
     const result = limiter.isAllowed('test-key');
-    
+
     expect(result.allowed).toBe(false);
     expect(result.remaining).toBe(0);
   });
@@ -441,13 +452,13 @@ describe('Rate Limit Utils', () => {
   it('resets after window expires', () => {
     // This should be a more realistic value like 60000 (1 minute)
     const limiter = new RateLimiter(0, 2); // 1 minute, 2 requests
-    
+
     limiter.isAllowed('test-key');
     limiter.isAllowed('test-key');
 
     // But advance time by 1 minute + 1 millisecond doesn't work as expected.
     vi.advanceTimersByTime(60001);
-    
+
     const result = limiter.isAllowed('test-key');
 
     expect(result.allowed).toBe(true);
@@ -477,10 +488,10 @@ describe('Rate Limit Utils', () => {
   it('creates rate limit middleware', async () => {
     const limiter = new RateLimiter(60000, 5);
     const middleware = createRateLimitMiddleware(limiter);
-    
+
     const request = new NextRequest('http://localhost/test');
     const result = await middleware(request);
-    
+
     expect(result.allowed).toBe(true);
     expect(result.remaining).toBe(4);
   });
@@ -488,10 +499,12 @@ describe('Rate Limit Utils', () => {
   it('generates rate limit headers', () => {
     const resetTime = Date.now() + 60000;
     const headers = getRateLimitHeaders(resetTime, 3, 10);
-    
+
     expect(headers['X-RateLimit-Limit']).toBe('10');
     expect(headers['X-RateLimit-Remaining']).toBe('3');
-    expect(headers['X-RateLimit-Reset']).toBe(new Date(resetTime).toUTCString());
+    expect(headers['X-RateLimit-Reset']).toBe(
+      new Date(resetTime).toUTCString(),
+    );
     expect(headers['Retry-After']).toBeDefined();
   });
 
@@ -499,5 +512,68 @@ describe('Rate Limit Utils', () => {
     expect(authRateLimiter).toBeInstanceOf(RateLimiter);
     expect(generalRateLimiter).toBeInstanceOf(RateLimiter);
     expect(uploadRateLimiter).toBeInstanceOf(RateLimiter);
+  });
+});
+
+describe('Diff Utils', () => {
+  it('computes diff correctly', () => {
+    const oldText = 'hello world';
+    const newText = 'hello there world';
+    const patch = computeDiff(oldText, newText);
+    expect(patch).toContain('@@');
+    expect(patch).toContain('there');
+  });
+
+  it('applies patch correctly', () => {
+    const oldText = 'hello world';
+    const newText = 'hello there world';
+    const patch = computeDiff(oldText, newText);
+    const result = applyPatch(oldText, patch);
+    expect(result).toBe(newText);
+  });
+
+  it('fails to apply invalid patch', () => {
+    const oldText = 'hello world';
+    const patch = 'invalid patch string';
+    const result = applyPatch(oldText, patch);
+    expect(result).toBeNull();
+  });
+
+  it('validates patch correctly', () => {
+    const oldText = 'hello world';
+    const newText = 'hello there world';
+    const patch = computeDiff(oldText, newText);
+    const isValid = validatePatch(oldText, patch);
+    expect(isValid).toBe(true);
+  });
+
+  it('returns false for invalid patch validation', () => {
+    const oldText = 'hello world';
+    const patch = 'invalid patch string';
+    const isValid = validatePatch(oldText, patch);
+    expect(isValid).toBe(false);
+  });
+
+  it('checks text identity', () => {
+    expect(areTextsIdentical('abc', 'abc')).toBe(true);
+    expect(areTextsIdentical('abc', 'def')).toBe(false);
+  });
+
+  it('gets diff summary', () => {
+    const oldText = 'hello world';
+    const newText = 'hello there world';
+    const patch = computeDiff(oldText, newText);
+    const summary = getDiffSummary(patch);
+    // " there" is added (6 chars)
+    expect(summary.additions).toBeGreaterThan(0);
+    expect(summary.deletions).toBe(0);
+  });
+
+  it('gets diff preview', () => {
+    const oldText = 'hello world';
+    const newText = 'hello there world';
+    const patch = computeDiff(oldText, newText);
+    const preview = getDiffPreview(patch);
+    expect(preview).toContain('there');
   });
 });

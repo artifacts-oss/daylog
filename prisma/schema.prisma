@@ -15,19 +15,21 @@ datasource db {
 }
 
 model User {
-  id             Int       @id @default(autoincrement())
-  email          String    @unique
+  id             Int             @id @default(autoincrement())
+  email          String          @unique
   password       String
   secret         String?
-  mfa            Boolean   @default(false)
+  mfa            Boolean         @default(false)
   name           String?
-  role           String    @default("user") // or admin (Don't Use enum in order to be sqlite compatible).
-  terms          String    @default("pending")
+  role           String          @default("user") // or admin (Don't Use enum in order to be sqlite compatible).
+  terms          String          @default("pending")
   boards         Board[]
   sessions       Session[]
-  sortNotesBy    String?   @default("created_desc") // created_desc, created_asc, title_asc, title_desc
-  sortBoardsBy   String?   @default("created_desc")
-  failedAttempts Int?      @default(0)
+  noteChanges    NoteChange[]
+  changeComments ChangeComment[]
+  sortNotesBy    String?         @default("created_desc") // created_desc, created_asc, title_asc, title_desc
+  sortBoardsBy   String?         @default("created_desc")
+  failedAttempts Int?            @default(0)
   lockUntil      DateTime?
   mfaCode        String?
   mfaCodeSentAt  DateTime?
@@ -54,16 +56,17 @@ model Board {
 }
 
 model Note {
-  id        Int      @id @default(autoincrement())
+  id        Int          @id @default(autoincrement())
   title     String
   content   String?
   imageUrl  String?
-  favorite  Boolean  @default(false)
-  boards    Board?   @relation(fields: [boardsId], references: [id], onDelete: Cascade)
+  favorite  Boolean      @default(false)
+  boards    Board?       @relation(fields: [boardsId], references: [id], onDelete: Cascade)
   boardsId  Int?
   pictures  Picture[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  changes   NoteChange[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @default(now()) @updatedAt
 }
 
 model Setting {
@@ -78,4 +81,26 @@ model Picture {
   imageUrl  String
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model NoteChange {
+  id              Int             @id @default(autoincrement())
+  note            Note            @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  noteId          Int
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          Int
+  diffPatch       String          // Stores the diff in diff-match-patch format
+  previousContent String?         // Content before the change (for validation)
+  comments        ChangeComment[]
+  createdAt       DateTime        @default(now())
+}
+
+model ChangeComment {
+  id        Int        @id @default(autoincrement())
+  change    NoteChange @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  changeId  Int
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int
+  content   String
+  createdAt DateTime   @default(now())
 }

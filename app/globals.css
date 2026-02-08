@@ -131,6 +131,7 @@ body .w-md-editor-toolbar li>button:hover {
 
 body .w-md-editor {
   background-color: var(--tblr-card-bg) !important;
+  border-radius: 0 0 6px 6px;
 }
 
 body .w-md-editor-content pre>code {

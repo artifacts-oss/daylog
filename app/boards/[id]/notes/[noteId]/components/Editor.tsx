@@ -14,8 +14,9 @@ import { getImageUrlOrFile, resizeImage } from '@/utils/image';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 import { useTheme } from 'next-themes';
-import { IconPhotoPlus, IconX } from '@tabler/icons-react';
+import { IconPhotoPlus, IconX, IconHistory } from '@tabler/icons-react';
 import { useRouter } from 'next/navigation';
+import ChangeHistorySidebar from './ChangeHistorySidebar';
 
 type NoteEditorType = {
   note: Note;
@@ -27,6 +28,8 @@ export default function Editor({ note }: NoteEditorType) {
   const [markdown, setMarkdown] = useState(note.content ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [pictures, setPictures] = useState<Picture[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,33 +52,36 @@ export default function Editor({ note }: NoteEditorType) {
     loadPictures();
   }, [note.id, loadPictures]);
 
-  const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
-    null
-  );
+  // Sync state when note prop changes (e.g., after restore/refresh)
+  useEffect(() => {
+    setMarkdown(note.content ?? '');
+    localStorage.setItem(`note-${note.id}`, note.content ?? '');
+  }, [note.content, note.id]);
+
+  /* Refactor: Use useRef for timer to avoid re-renders and dependency modification */
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const updateNoteHandler = useCallback(
     async (content: string) => {
       if (!note) return;
-      note.content = content;
-      if (note) await updateNote(note);
+      await updateNote({ ...note, content });
+      setSidebarRefreshKey((prev) => prev + 1);
     },
-    [note]
+    [note],
   );
 
   const debounceSave = useCallback(
     (content: string, callback: () => void) => {
       // Clear the previous timer
-      if (debounceTimer) clearTimeout(debounceTimer);
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
 
       // Set a new timer
-      const timeout = setTimeout(() => {
+      debounceTimerRef.current = setTimeout(() => {
         updateNoteHandler(content);
         callback();
       }, 1000); // Waits for 1 second of inactivity before saving
-
-      setDebounceTimer(timeout);
     },
-    [updateNoteHandler, debounceTimer]
+    [updateNoteHandler],
   );
 
   const saveContent = useCallback(
@@ -86,7 +92,7 @@ export default function Editor({ note }: NoteEditorType) {
         setIsSaving(false);
       });
     },
-    [note.id, debounceSave]
+    [note.id, debounceSave],
   );
 
   useEffect(() => {
@@ -97,7 +103,7 @@ export default function Editor({ note }: NoteEditorType) {
 
   const handlePlaceImage = (imageUrl: string) => {
     const textarea = document.getElementsByClassName(
-      'w-md-editor-text-input'
+      'w-md-editor-text-input',
     )[0] as HTMLTextAreaElement;
     const leftContent = markdown.substring(0, textarea.selectionStart);
     const rightContent = markdown.substring(textarea.selectionStart);
@@ -108,7 +114,7 @@ export default function Editor({ note }: NoteEditorType) {
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -137,20 +143,11 @@ export default function Editor({ note }: NoteEditorType) {
   };
 
   return (
-    <div className="d-flex flex-column">
-      <div className="card mt-2">
-        <div className="card-body p-0 border-0 h-auto">
-          <div className="relative" data-color-mode={theme}>
-            <MDEditor
-              data-testid="editor"
-              height={480}
-              minHeight={480}
-              value={markdown}
-              onChange={(value) => setMarkdown(value ?? '')}
-              previewOptions={{
-                rehypePlugins: [[rehypeSanitize]],
-              }}
-            />
+    <div className="d-flex flex-column flex-md-row gap-2">
+      <div className="flex-grow-1">
+        <div className="card mt-2">
+          <div className="card-header d-flex justify-content-between align-items-center p-2">
+            {' '}
             {isSaving && (
               <div
                 className="bg-primary pulse"
@@ -169,67 +166,100 @@ export default function Editor({ note }: NoteEditorType) {
                 }}
               ></div>
             )}
+            <h5 className="mb-0">{note.title}</h5>
+            <button
+              className="btn btn-sm btn-ghost-primary"
+              onClick={() => setShowHistory(!showHistory)}
+              title="Toggle change history"
+            >
+              <IconHistory size={18} />
+              <span className="ms-1 d-none d-md-inline">History</span>
+            </button>
           </div>
-        </div>
-      </div>
-      <div className="card mt-2">
-        <div className="card-body">
-          <h3 className="card-title">Pictures</h3>
-          <div className="text-secondary">
-            Click a picture to place it in the editor at the cursor position.
-          </div>
-          <div className="row row-cols-2 row-cols-md-6 row-cols-lg-8 pt-4">
-            {note &&
-              note.imageUrl &&
-              PicturePreview({
-                imageUrl: note.imageUrl,
-                onClick: () => {
-                  handlePlaceImage(getImageUrlOrFile(note.imageUrl!));
-                },
-                onDelete: async () => {
-                  await deleteImage(note.id, note.imageUrl);
-                  router.refresh();
-                },
-              })}
-            {pictures.map((picture, key) => (
-              <PicturePreview
-                key={key}
-                pictureId={picture.id}
-                onDelete={() => handleDeletePicture(picture.id)}
-                imageUrl={picture.imageUrl}
-                onClick={() => {
-                  handlePlaceImage(getImageUrlOrFile(picture.imageUrl));
+          <div className="card-body p-0 border-0 h-auto">
+            <div className="relative" data-color-mode={theme}>
+              <MDEditor
+                data-testid="editor"
+                height={480}
+                minHeight={480}
+                value={markdown}
+                onChange={(value) => setMarkdown(value ?? '')}
+                previewOptions={{
+                  rehypePlugins: [[rehypeSanitize]],
                 }}
               />
-            ))}
-          </div>
-
-          {pictures.length === 0 && note.imageUrl === null && (
-            <div className="d-flex gap-2 align-items-center text-muted w-full">
-              <div>No pictures</div>
             </div>
-          )}
+          </div>
         </div>
-        <div className="card-body">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="d-none"
-          />
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <span className="me-1">
-              <IconPhotoPlus />
-            </span>
-            Add picture
-          </button>
+        <div className="card mt-2">
+          <div className="card-body">
+            <h3 className="card-title">Pictures</h3>
+            <div className="text-secondary">
+              Click a picture to place it in the editor at the cursor position.
+            </div>
+            <div className="row row-cols-2 row-cols-md-6 row-cols-lg-8 pt-4">
+              {note &&
+                note.imageUrl &&
+                PicturePreview({
+                  imageUrl: note.imageUrl,
+                  onClick: () => {
+                    handlePlaceImage(getImageUrlOrFile(note.imageUrl!));
+                  },
+                  onDelete: async () => {
+                    await deleteImage(note.id, note.imageUrl);
+                    router.refresh();
+                  },
+                })}
+              {pictures.map((picture, key) => (
+                <PicturePreview
+                  key={key}
+                  pictureId={picture.id}
+                  onDelete={() => handleDeletePicture(picture.id)}
+                  imageUrl={picture.imageUrl}
+                  onClick={() => {
+                    handlePlaceImage(getImageUrlOrFile(picture.imageUrl));
+                  }}
+                />
+              ))}
+            </div>
+
+            {pictures.length === 0 && note.imageUrl === null && (
+              <div className="d-flex gap-2 align-items-center text-muted w-full">
+                <div>No pictures</div>
+              </div>
+            )}
+          </div>
+          <div className="card-body">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="d-none"
+            />
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <span className="me-1">
+                <IconPhotoPlus />
+              </span>
+              Add picture
+            </button>
+          </div>
         </div>
       </div>
+
+      <ChangeHistorySidebar
+        noteId={note.id}
+        isOpen={showHistory}
+        onClose={() => setShowHistory(false)}
+        onRestoreSuccess={() => {
+          router.refresh();
+        }}
+        refreshKey={sidebarRefreshKey}
+      />
     </div>
   );
 }
