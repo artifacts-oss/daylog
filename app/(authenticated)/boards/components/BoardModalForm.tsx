@@ -130,7 +130,7 @@ export default function BoardModalForm({
       ) : null}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-[24px] font-[700] tracking-tight text-[#000000]">
+          <DialogTitle className="text-[24px] font-[700] tracking-tight text-foreground">
             {mode === 'create' ? 'Create board' : 'Update board'}
           </DialogTitle>
         </DialogHeader>

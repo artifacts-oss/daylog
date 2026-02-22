@@ -29,7 +29,7 @@ export default function InitRegisterForm() {
             height="0"
             alt="daylog"
             priority={true}
-            className="mx-auto"
+            className="mx-auto logo-invert"
             style={{ width: 'auto', height: '48px' }}
           />
         </div>

@@ -4,6 +4,7 @@ import FormField from '@/components/FormField';
 import Image from 'next/image';
 import { useActionState, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { signin } from '../lib/actions';
 import { validateAllowRegistration } from '@/app/register/lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,7 +34,7 @@ export default function LoginForm() {
             height="0"
             alt="daylog"
             priority={true}
-            className="mx-auto"
+            className="mx-auto logo-invert"
             style={{ width: 'auto', height: '48px' }}
           />
         </div>
@@ -80,9 +81,9 @@ export default function LoginForm() {
                 {pending ? 'Signing in...' : 'Sign in'}
               </Button>
               <div className="text-center text-sm text-muted-foreground">
-                <a href="/login/reset" className="hover:text-foreground">
+                <Link href="/login/reset" className="hover:text-foreground">
                   Forgot password?
-                </a>
+                </Link>
               </div>
             </form>
           </CardContent>
@@ -91,9 +92,9 @@ export default function LoginForm() {
         {isRegAllowed && (
           <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account yet?{' '}
-            <a href="./register" className="text-foreground hover:underline">
+            <Link href="/register" className="text-foreground hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         )}
       </div>

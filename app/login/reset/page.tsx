@@ -2,6 +2,7 @@
 
 import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { reset } from './lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,7 +28,7 @@ export default function Page() {
             height="0"
             alt="daylog"
             priority={true}
-            className="mx-auto"
+            className="mx-auto logo-invert"
             style={{ width: 'auto', height: '48px' }}
           />
         </div>
@@ -41,7 +42,7 @@ export default function Page() {
               inbox and follow the instructions.
             </AlertDescription>
             <Button variant="outline" className="mt-2" asChild>
-              <a href="/login">Go to login</a>
+              <Link href="/login">Go to login</Link>
             </Button>
           </Alert>
         )}
@@ -94,9 +95,9 @@ export default function Page() {
 
         <p className="text-center text-sm text-muted-foreground">
           Never mind,{' '}
-          <a href="/login" className="text-foreground hover:underline">
+          <Link href="/login" className="text-foreground hover:underline">
             take me back
-          </a>{' '}
+          </Link>{' '}
           to the sign in screen.
         </p>
       </div>

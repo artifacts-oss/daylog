@@ -36,7 +36,7 @@ function Switch({
         <div className="space-y-0.5">
           <label
             htmlFor={value}
-            className="text-[12px] font-bold uppercase text-[#6B7280] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            className="text-[12px] font-bold uppercase text-muted-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
           >
             {label}
           </label>

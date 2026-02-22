@@ -76,7 +76,7 @@ export default async function Notes({
             trigger={
               <Button
                 id="new-note-button"
-                className="rounded-xl px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-[#FFFFFF]"
+                className="rounded-xl px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-primary-foreground"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>New Note</span>
@@ -112,7 +112,7 @@ export default async function Notes({
                 mode="create"
                 isUnsplashAllowed={settings?.allowUnsplash}
                 trigger={
-                  <Button className="rounded-xl px-8 font-bold transition-all text-[#FFFFFF]">
+                  <Button className="rounded-xl px-8 font-bold transition-all text-primary-foreground">
                     Create Your First Note
                   </Button>
                 }

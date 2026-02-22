@@ -36,7 +36,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
     .slice(0, 2);
 
   return (
-    <header className="hidden md:flex flex-shrink-0 items-center justify-between h-20 px-6 border-b border-[#E5E7EB] bg-[#FFFFFF]">
+    <header className="hidden md:flex flex-shrink-0 items-center justify-between h-20 px-6 border-b border-border bg-background">
       <div className="flex-1 max-w-md">
         <NavSearch />
       </div>
@@ -44,17 +44,17 @@ export default function NavHeader({ user }: NavHeaderProps) {
         <NavThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#F8F8F8] transition-colors outline-none">
+            <button className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-muted transition-colors outline-none">
               <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs bg-[#000000] text-[#FFFFFF]">
+                <AvatarFallback className="text-xs bg-primary text-primary-foreground font-bold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col text-left">
-                <span className="text-[16px] font-[500] text-[#000000]">
+                <span className="text-[16px] font-[500] text-foreground">
                   {user?.name}
                 </span>
-                <span className="text-[12px] font-[500] uppercase text-[#9CA3AF]">
+                <span className="text-[12px] font-[500] uppercase text-muted-foreground/70">
                   {user?.role}
                 </span>
               </div>

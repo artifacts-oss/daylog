@@ -72,9 +72,9 @@ export default function NavSidebar({ user }: NavSidebarProps) {
         initial={false}
         animate={{ width: isCollapsed ? 80 : 240 }}
         transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-        className="hidden md:flex flex-col border-r border-[#E5E7EB] bg-[#F8F8F8] h-screen sticky top-0 z-50"
+        className="hidden md:flex flex-col border-r border-border bg-background h-screen sticky top-0 z-50"
       >
-        <div className="flex items-center justify-center h-20 border-b border-[#E5E7EB] relative transition-all duration-300">
+        <div className="flex items-center justify-center h-20 border-b border-border relative transition-all duration-300">
           <AnimatePresence mode="wait">
             <motion.div
               key={isCollapsed ? 'collapsed' : 'expanded'}
@@ -93,7 +93,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
                   alt="daylog"
                   width={isCollapsed ? 40 : 150}
                   height={40}
-                  className="h-10 w-auto"
+                  className="h-10 w-auto logo-invert"
                   priority
                 />
               </Link>
@@ -144,7 +144,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
                     alt="daylog"
                     width={150}
                     height={40}
-                    className="h-10 w-auto"
+                    className="h-10 w-auto logo-invert"
                     priority
                   />
                 </Link>
@@ -162,7 +162,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
             alt="daylog"
             width={40}
             height={40}
-            className="h-10 w-auto"
+            className="h-10 w-auto logo-invert"
             priority
           />
         </Link>

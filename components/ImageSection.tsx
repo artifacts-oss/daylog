@@ -135,7 +135,7 @@ export default function ImageSection({
   return (
     <div className="space-y-4 pt-2">
       <div className="flex items-center justify-between">
-        <Label className="text-[12px] font-bold uppercase text-[#6B7280]">
+        <Label className="text-[12px] font-bold uppercase text-muted-foreground">
           Cover Image
         </Label>
         <div className="flex gap-2">
@@ -171,19 +171,19 @@ export default function ImageSection({
 
       <div
         className={cn(
-          'relative rounded-xl overflow-hidden border border-[#E5E7EB] bg-[#F8F8F8] transition-all duration-300',
+          'relative rounded-xl overflow-hidden border border-border bg-muted transition-all duration-300',
           isUnsplashMode ? 'h-[340px]' : 'aspect-[21/9]',
         )}
       >
         {isUnsplashMode ? (
           <div className="absolute inset-0 p-4 flex flex-col gap-4 overflow-hidden">
             <div className="relative">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF]" />
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />
               <Input
                 autoFocus
                 type="text"
                 placeholder="Search high-quality images from Unsplash..."
-                className="pl-10 h-10 rounded-xl bg-white border-[#E5E7EB] focus-visible:ring-black"
+                className="pl-10 h-10 rounded-xl bg-background border-border focus-visible:ring-ring"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -219,7 +219,7 @@ export default function ImageSection({
                     <button
                       key={image.id}
                       type="button"
-                      className="group/item relative aspect-[4/3] rounded-lg overflow-hidden border border-[#E5E7EB] transition-all hover:border-black"
+                      className="group/item relative aspect-[4/3] rounded-lg overflow-hidden border border-border transition-all hover:border-foreground"
                       onClick={() => handleUnsplashSelect(image.urls.regular)}
                     >
                       <Image
@@ -233,14 +233,14 @@ export default function ImageSection({
                   ))}
                 </div>
               ) : keyword ? (
-                <div className="flex flex-col items-center justify-center h-full text-[#9CA3AF] py-8">
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground/70 py-8">
                   <PhotoIcon className="h-10 w-10 mb-2 opacity-20" />
                   <p className="text-sm font-medium">
                     No results found for "{keyword}"
                   </p>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-full text-[#9CA3AF] opacity-50 space-y-2">
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground/70 opacity-50 space-y-2">
                   <PhotoIcon className="h-12 w-12" />
                   <p className="text-xs font-bold uppercase tracking-widest text-center">
                     Enter a keyword to explore
@@ -250,8 +250,8 @@ export default function ImageSection({
             </div>
 
             {images.length > 0 && (
-              <div className="flex items-center justify-between pt-2 border-t border-[#E5E7EB]">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
                   Page {page} of results
                 </p>
                 <div className="flex gap-1">
@@ -290,7 +290,7 @@ export default function ImageSection({
             />
             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center p-4">
               <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs">
-                <label className="cursor-pointer bg-white text-black h-10 px-4 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-white/90 transition-colors shadow-lg shrink-0">
+                <label className="cursor-pointer bg-background text-foreground h-10 px-4 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-background/90 transition-colors shadow-lg shrink-0">
                   <PhotoIcon className="h-5 w-5 mr-2" />
                   Change Image
                   <input
@@ -314,12 +314,12 @@ export default function ImageSection({
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 py-8">
-            <div className="p-4 rounded-full bg-white shadow-sm text-muted-foreground border border-[#E5E7EB]">
+            <div className="p-4 rounded-full bg-background shadow-sm text-muted-foreground border border-border">
               <PhotoIcon className="h-8 w-8" />
             </div>
             <div className="flex flex-col items-center gap-2">
               <div className="flex flex-col sm:flex-row gap-2 w-full px-4">
-                <label className="cursor-pointer bg-black text-white h-10 px-6 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-black/90 transition-colors shadow-lg shrink-0 whitespace-nowrap">
+                <label className="cursor-pointer bg-primary text-primary-foreground h-10 px-6 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-primary/90 transition-colors shadow-lg shrink-0 whitespace-nowrap">
                   Upload from Device
                   <input
                     type="file"
@@ -332,14 +332,14 @@ export default function ImageSection({
                   <Button
                     type="button"
                     variant="outline"
-                    className="h-10 rounded-xl font-bold text-sm bg-white hover:bg-[#F3F4F6] transition-colors"
+                    className="h-10 rounded-xl font-bold text-sm bg-background hover:bg-accent transition-colors"
                     onClick={() => setIsUnsplashMode(true)}
                   >
                     Search Unsplash
                   </Button>
                 )}
               </div>
-              <p className="text-[11px] text-[#9CA3AF] font-medium uppercase tracking-widest mt-1">
+              <p className="text-[11px] text-muted-foreground/70 font-medium uppercase tracking-widest mt-1">
                 1920x1080 recommended • max 5mb
               </p>
             </div>
@@ -348,7 +348,7 @@ export default function ImageSection({
       </div>
 
       {selectedFileName && !isUnsplashMode && (
-        <div className="flex items-center gap-2 text-[12px] text-[#6B7280] bg-[#F3F4F6] px-3 py-1.5 rounded-lg w-fit animate-in fade-in slide-in-from-left-2">
+        <div className="flex items-center gap-2 text-[12px] text-muted-foreground bg-accent px-3 py-1.5 rounded-lg w-fit animate-in fade-in slide-in-from-left-2">
           <PhotoIcon className="h-3.5 w-3.5" />
           <span className="font-medium truncate max-w-[200px]">
             {selectedFileName}

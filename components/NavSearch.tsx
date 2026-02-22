@@ -96,16 +96,16 @@ export default function NavSearch() {
         id="nav-search-trigger"
         onClick={() => setOpen(true)}
         type="button"
-        className="flex items-center gap-2 px-4 py-2 text-sm text-[#6B7280] bg-[#F8F8F8] border border-[#E5E7EB] hover:bg-[#F3F4F6] rounded-xl transition-all duration-300"
+        className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground bg-muted border border-border hover:bg-accent rounded-xl transition-all duration-300"
       >
         <MagnifyingGlassIcon className="h-4 w-4" />
         <span className="font-medium">Search anything...</span>
         <div className="hidden md:flex items-center gap-1 ml-4 text-[10px] font-bold uppercase tracking-widest opacity-60">
-          <kbd className="px-1.5 py-0.5 bg-white border border-[#E5E7EB] rounded-md">
+          <kbd className="px-1.5 py-0.5 bg-background border border-border rounded-md">
             Alt
           </kbd>
           <span>+</span>
-          <kbd className="px-1.5 py-0.5 bg-white border border-[#E5E7EB] rounded-md">
+          <kbd className="px-1.5 py-0.5 bg-background border border-border rounded-md">
             K
           </kbd>
         </div>
@@ -114,7 +114,7 @@ export default function NavSearch() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl top-[20%] translate-y-0 pt-6">
           <DialogHeader>
-            <DialogTitle className="text-[24px] font-[700] text-[#000000] tracking-tight">
+            <DialogTitle className="text-[24px] font-[700] text-foreground tracking-tight">
               Search
             </DialogTitle>
           </DialogHeader>
@@ -137,20 +137,20 @@ export default function NavSearch() {
           >
             {results.length === 0 ? (
               loading ? (
-                <div className="flex flex-col items-center justify-center py-12 text-[#9CA3AF]">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
                   <div className="animate-spin h-8 w-8 border-2 border-[#000000] border-t-transparent rounded-full mb-3" />
                   <span className="text-xs font-bold uppercase tracking-widest">
                     Searching...
                   </span>
                 </div>
               ) : query ? (
-                <div className="flex flex-col items-center justify-center py-12 text-[#9CA3AF]">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
                   <span className="text-sm">
                     No results found for "{query}"
                   </span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-12 text-[#9CA3AF]">
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
                   <MagnifyingGlassIcon className="h-10 w-10 mb-4 opacity-20" />
                   <span className="text-sm">
                     Quickly find boards and notes by title or content
@@ -163,7 +163,7 @@ export default function NavSearch() {
                   <Link
                     key={index}
                     href={item.url}
-                    className="flex flex-col gap-1 px-4 py-3 hover:bg-[#F8F8F8] border border-transparent hover:border-[#E5E7EB] rounded-xl transition-all duration-200 group focus:bg-[#F8F8F8] focus:border-[#E5E7EB] outline-none"
+                    className="flex flex-col gap-1 px-4 py-3 hover:bg-muted border border-transparent hover:border-border rounded-xl transition-all duration-200 group focus:bg-muted focus:border-border outline-none"
                     onClick={() => setOpen(false)}
                   >
                     <div className="flex items-center gap-3">
@@ -177,16 +177,16 @@ export default function NavSearch() {
                         </div>
                       )}
                       <div className="flex flex-col">
-                        <span className="text-[14px] font-bold text-[#000000] line-clamp-1">
+                        <span className="text-[14px] font-bold text-foreground line-clamp-1">
                           {truncateWord(item.title, 80)}
                         </span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
                           {item.type}
                         </span>
                       </div>
                     </div>
                     {item.matchContent && (
-                      <p className="text-[12px] text-[#6B7280] leading-relaxed ml-11 line-clamp-2 italic">
+                      <p className="text-[12px] text-muted-foreground leading-relaxed ml-11 line-clamp-2 italic">
                         {item.matchContent}
                       </p>
                     )}
@@ -196,16 +196,16 @@ export default function NavSearch() {
             )}
           </div>
           {results.length > 0 && (
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] pt-4 border-t border-[#E5E7EB] mt-2">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 pt-4 border-t border-border mt-2">
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1.5">
-                  <kbd className="px-1 py-0.5 bg-[#F8F8F8] border border-[#E5E7EB] rounded text-[10px]">
+                  <kbd className="px-1 py-0.5 bg-muted border border-border rounded text-[10px]">
                     ↑↓
                   </kbd>
                   Navigate
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <kbd className="px-1 py-0.5 bg-[#F8F8F8] border border-[#E5E7EB] rounded text-[10px]">
+                  <kbd className="px-1 py-0.5 bg-muted border border-border rounded text-[10px]">
                     Enter
                   </kbd>
                   Open

@@ -2,6 +2,7 @@
 
 import FormField from '@/components/FormField';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { signup } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -26,7 +27,7 @@ export default function RegisterForm() {
             height="0"
             alt="daylog"
             priority={true}
-            className="mx-auto"
+            className="mx-auto logo-invert"
             style={{ width: 'auto', height: '48px' }}
           />
         </div>
@@ -40,14 +41,14 @@ export default function RegisterForm() {
         )}
 
         {state?.success && (
-          <Alert className="border-green-500 text-green-500">
+          <Alert className="border-green-500/50 text-green-500 bg-green-500/10">
             <CheckCircleIcon className="h-4 w-4" />
             <AlertTitle>Account created</AlertTitle>
             <AlertDescription>
               Your account has been created successfully
             </AlertDescription>
             <Button variant="outline" className="mt-2" asChild>
-              <a href="/login">Go to login</a>
+              <Link href="/login">Go to login</Link>
             </Button>
           </Alert>
         )}
@@ -92,12 +93,12 @@ export default function RegisterForm() {
                   />
                   <Label htmlFor="terms" className="font-normal">
                     Agree the{' '}
-                    <a
+                    <Link
                       href="/register/terms"
                       className="text-primary hover:underline"
                     >
                       terms and policy
-                    </a>
+                    </Link>
                     .
                   </Label>
                 </div>
@@ -116,9 +117,9 @@ export default function RegisterForm() {
 
         <p className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}
-          <a href="./login" className="text-foreground hover:underline">
+          <Link href="/login" className="text-foreground hover:underline">
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

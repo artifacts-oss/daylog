@@ -76,7 +76,7 @@ export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
               isCollapsed ? 'justify-center h-12 w-12' : 'gap-3 px-3 py-2.5',
               item.active
                 ? 'text-primary-foreground'
-                : 'text-[#6B7280] hover:bg-[#F3F4F6] hover:text-[#000000]',
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             )}
           >
             {item.active && (

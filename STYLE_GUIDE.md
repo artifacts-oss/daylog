@@ -8,17 +8,17 @@ This document serves as the **Single Source of Truth** for all frontend developm
 
 The `frontend-design` skill must use these semantic tokens. When `class="dark"` is present on the body/html, switch to the Dark Variant.
 
-| Token              | Light Theme (Default) | Dark Theme Variant | Usage                              |
-| :----------------- | :-------------------- | :----------------- | :--------------------------------- |
-| `bg-main`          | #FFFFFF               | #0A0A0A            | Main application background        |
-| `bg-sidebar`       | #F8F8F8               | #121212            | Sidebar and secondary panels       |
-| `bg-surface`       | #FFFFFF               | #1C1C1E            | Cards, Modals, and Note containers |
-| `text-primary`     | #000000               | #F9FAFB            | Main titles and primary text       |
-| `text-secondary`   | #6B7280               | #9CA3AF            | Subtitles and descriptions         |
-| `text-muted`       | #9CA3AF               | #6B7280            | Breadcrumbs and metadata           |
-| `border-default`   | #F3F4F6               | #2D2D2E            | Dividers and card outlines         |
-| `accent-pink`      | #FBCFE8               | #321626            | Darker pink base for tags          |
-| `text-accent-pink` | #DB2777               | #F472B6            | Lighter pink text for readability  |
+| Token              | Light Theme (Default) | Dark Theme Variant | Usage                                               |
+| :----------------- | :-------------------- | :----------------- | :-------------------------------------------------- |
+| `bg-main`          | #FFFFFF               | #0A0A0A            | Main application background                         |
+| `bg-sidebar`       | #F8F8F8               | #121212            | Sidebar and secondary panels                        |
+| `bg-surface`       | #FFFFFF               | #1C1C1E            | Cards, Modals, and Note containers                  |
+| `text-primary`     | #000000               | #E5E5E5            | Main titles and primary text (Reduced Stress White) |
+| `text-secondary`   | #6B7280               | #9CA3AF            | Subtitles and descriptions                          |
+| `text-muted`       | #9CA3AF               | #6B7280            | Breadcrumbs and metadata                            |
+| `border-default`   | #F3F4F6               | #2D2D2E            | Dividers and card outlines                          |
+| `accent-pink`      | #FBCFE8               | #321626            | Darker pink base for tags                           |
+| `text-accent-pink` | #DB2777               | #F472B6            | Lighter pink text for readability                   |
 
 ## 2. Dark Mode Specific Rules
 
@@ -26,6 +26,7 @@ The `frontend-design` skill must use these semantic tokens. When `class="dark"` 
 2. **Contrast:** Ensure all form borders in Dark Mode use `#3F3F46` so they remain visible against the `#0A0A0A` background.
 3. **Images/Icons:** Reduce the brightness of images by 10% (filter: brightness(.9)) in Dark Mode to prevent eye strain.
 4. **Scrollbars:** Use a dark-themed scrollbar (`thumb: #3F3F46`) when Dark Mode is active.
+5. **Reduced Stress White:** Use `#E5E5E5` for primary text in dark mode to reduce eye strain.
 
 ## 3. Geometry & Shape
 

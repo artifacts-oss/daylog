@@ -151,22 +151,22 @@ export default function Editor({ note }: NoteEditorType) {
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             className="flex-shrink-0 flex flex-col gap-6 sticky top-24 overflow-hidden"
           >
-            <div className="w-[340px] rounded-[20px] bg-[#F8F8F8] border border-[#E5E7EB] p-6 flex flex-col gap-6 shadow-sm">
+            <div className="w-[340px] rounded-[20px] bg-muted border border-border p-6 flex flex-col gap-6 shadow-sm">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[20px] font-[800] text-[#000000] tracking-tight">
+                  <h3 className="text-[20px] font-[800] text-foreground tracking-tight">
                     Pictures
                   </h3>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full hover:bg-[#E5E7EB] transition-colors"
+                    className="h-8 w-8 rounded-full hover:bg-accent transition-colors"
                     onClick={() => setIsSidebarOpen(false)}
                   >
-                    <XMarkIcon className="h-5 w-5 text-[#6B7280]" />
+                    <XMarkIcon className="h-5 w-5 text-muted-foreground" />
                   </Button>
                 </div>
-                <p className="text-[14px] font-[500] text-[#6B7280] leading-relaxed">
+                <p className="text-[14px] font-[500] text-muted-foreground leading-relaxed">
                   Click to insert an image into the editor at your cursor
                   position.
                 </p>
@@ -198,16 +198,16 @@ export default function Editor({ note }: NoteEditorType) {
                 ))}
 
                 {pictures.length === 0 && note.imageUrl === null && (
-                  <div className="col-span-2 flex flex-col items-center justify-center py-6 text-center border-2 border-dashed border-[#E5E7EB] rounded-[16px] bg-[#FFFFFF]">
-                    <PhotoIcon className="h-8 w-8 text-[#9CA3AF] mb-2 opacity-50" />
-                    <p className="text-[12px] font-[500] text-[#9CA3AF] uppercase tracking-wider">
+                  <div className="col-span-2 flex flex-col items-center justify-center py-6 text-center border-2 border-dashed border-border rounded-[16px] bg-background">
+                    <PhotoIcon className="h-8 w-8 text-muted-foreground/70 mb-2 opacity-50" />
+                    <p className="text-[12px] font-[500] text-muted-foreground/70 uppercase tracking-wider">
                       No pictures
                     </p>
                   </div>
                 )}
               </div>
 
-              <div className="pt-4 border-t border-[#E5E7EB]">
+              <div className="pt-4 border-t border-border">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -217,7 +217,7 @@ export default function Editor({ note }: NoteEditorType) {
                 />
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full rounded-[12px] font-[700] text-[#FFFFFF] shadow-sm transition-all"
+                  className="w-full rounded-[12px] font-[700] text-primary-foreground shadow-sm transition-all"
                 >
                   <PhotoIcon className="h-5 w-5 mr-2" />
                   Upload Picture
@@ -237,14 +237,14 @@ export default function Editor({ note }: NoteEditorType) {
           <Button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             variant="outline"
-            className="rounded-[12px] bg-[#FFFFFF] text-[#000000] border-[#E5E7EB] hover:bg-[#F3F4F6] shadow-sm font-[600] transition-all"
+            className="rounded-[12px] bg-background text-foreground border-border hover:bg-accent shadow-sm font-[600] transition-all"
           >
-            <PhotoIcon className="h-5 w-5 mr-2 text-[#6B7280]" />
+            <PhotoIcon className="h-5 w-5 mr-2 text-muted-foreground" />
             {isSidebarOpen ? 'Close Gallery' : 'Open Gallery'}
             {isSidebarOpen ? (
-              <ChevronLeftIcon className="h-4 w-4 ml-2 text-[#6B7280]" />
+              <ChevronLeftIcon className="h-4 w-4 ml-2 text-muted-foreground" />
             ) : (
-              <ChevronRightIcon className="h-4 w-4 ml-2 text-[#6B7280]" />
+              <ChevronRightIcon className="h-4 w-4 ml-2 text-muted-foreground" />
             )}
           </Button>
 
@@ -254,17 +254,17 @@ export default function Editor({ note }: NoteEditorType) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex items-center gap-2 bg-[#FFFFFF] border border-[#E5E7EB] px-3 py-1.5 rounded-[12px] shadow-sm"
+                className="flex items-center gap-2 bg-background border border-border px-3 py-1.5 rounded-[12px] shadow-sm"
               >
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-[12px] font-[500] text-[#6B7280] uppercase tracking-wider">
+                <span className="text-[12px] font-[500] text-muted-foreground uppercase tracking-wider">
                   Saving
                 </span>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-        <div className="rounded-[20px] bg-[#FFFFFF] border border-[#E5E7EB] shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-500">
+        <div className="rounded-[20px] bg-background border border-border shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-500">
           <div data-color-mode={theme} className="w-full">
             <MDEditor
               data-testid="editor"
@@ -297,9 +297,9 @@ const PicturePreview = ({
   onDelete: () => Promise<void>;
 }) => {
   return (
-    <div className="relative aspect-square rounded-[12px] overflow-hidden cursor-pointer group border border-[#E5E7EB] bg-[#FFFFFF] shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-[#D1D5DB] transition-all duration-300">
+    <div className="relative aspect-square rounded-[12px] overflow-hidden cursor-pointer group border border-border bg-background shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-border transition-all duration-300">
       <div
-        className="absolute top-1.5 right-1.5 z-10 bg-[#FFFFFF] border border-[#E5E7EB] text-[#6B7280] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#F3F4F6] hover:text-[#000000]"
+        className="absolute top-1.5 right-1.5 z-10 bg-background border border-border text-muted-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-accent hover:text-foreground"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();

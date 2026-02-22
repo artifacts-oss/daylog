@@ -24,7 +24,7 @@ export default async function BoardCard({ boardId }: BoardCardType) {
   const settings = await getSettings();
 
   return (
-    <div className="group relative aspect-[21/9] rounded-[20px] overflow-hidden border border-[#E5E7EB] bg-[#FFFFFF] hover:shadow-sm transition-all duration-500">
+    <div className="group relative aspect-[21/9] rounded-[20px] overflow-hidden border border-border bg-background hover:shadow-sm transition-all duration-500">
       {/* Clickable Background Layer */}
       <Link
         href={`/boards/${board.id}/notes`}

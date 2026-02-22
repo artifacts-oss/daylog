@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 type PageHeader = {
@@ -23,9 +24,9 @@ export default function PageHeader({
   ...props
 }: PropsWithChildren<PageHeader>) {
   return (
-    <div className="relative border-b border-[#E5E7EB] bg-[#FFFFFF] overflow-hidden">
+    <div className="relative border-b border-border bg-background overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 -u-translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/3 rounded-full blur-2xl pointer-events-none" />
 
       {props.imageUrl && (
@@ -34,7 +35,7 @@ export default function PageHeader({
             className="absolute inset-0 bg-cover bg-center opacity-25"
             style={{ backgroundImage: `url(${props.imageUrl})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 to-white/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/20" />
         </div>
       )}
 
@@ -48,19 +49,21 @@ export default function PageHeader({
           <div className="flex-1 space-y-4">
             {props.breadcrumbs && (
               <Breadcrumb>
-                <BreadcrumbList className="text-[12px] font-[600] uppercase tracking-wider text-[#6B7280]">
+                <BreadcrumbList className="text-[12px] font-[600] uppercase tracking-wider text-muted-foreground">
                   {props.breadcrumbs.map((item, index, arr) => (
                     <React.Fragment key={index}>
                       <BreadcrumbItem>
                         {index < arr.length - 1 ? (
                           <BreadcrumbLink
-                            href={item.href}
-                            className="hover:text-[#000000] transition-colors"
+                            asChild
+                            className="hover:text-foreground transition-colors"
                           >
-                            {truncateWord(item.name, 30)}
+                            <Link href={item.href}>
+                              {truncateWord(item.name, 30)}
+                            </Link>
                           </BreadcrumbLink>
                         ) : (
-                          <BreadcrumbPage className="text-[#000000]/80">
+                          <BreadcrumbPage className="text-foreground/80">
                             {truncateWord(item.name, 30)}
                           </BreadcrumbPage>
                         )}
@@ -74,19 +77,19 @@ export default function PageHeader({
 
             <div className="space-y-2">
               <h1
-                className="text-[42px] font-[800] tracking-tight text-[#000000] leading-[0.95]"
+                className="text-[42px] font-[800] tracking-tight text-foreground leading-[0.95]"
                 title={props.title ?? ''}
               >
                 {props.title ? (
                   truncateWord(props.title, 50)
                 ) : (
-                  <span className="text-[#9CA3AF] animate-pulse">
+                  <span className="text-muted-foreground/70 animate-pulse">
                     Loading...
                   </span>
                 )}
               </h1>
               {props.description && (
-                <p className="text-[16px] text-[#4B5563] max-w-2xl font-[450] leading-relaxed">
+                <p className="text-[16px] text-foreground/80 max-w-2xl font-[450] leading-relaxed">
                   {props.description}
                 </p>
               )}
@@ -98,7 +101,7 @@ export default function PageHeader({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.4 }}
-              className="flex items-center gap-3 bg-[#F8F8F8]/50 p-1.5 rounded-[20px] border border-[#E5E7EB] backdrop-blur-sm"
+              className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-[20px] border border-border backdrop-blur-sm"
             >
               {props.children}
             </motion.div>
