@@ -72,7 +72,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
         initial={false}
         animate={{ width: isCollapsed ? 80 : 256 }}
         transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-        className="hidden md:flex flex-col border-r bg-background h-screen sticky top-0 z-20 overflow-hidden"
+        className="hidden md:flex flex-col border-r bg-background h-screen sticky top-0 z-50"
       >
         <div className="flex items-center justify-between h-20 px-4 border-b">
           <AnimatePresence mode="wait">

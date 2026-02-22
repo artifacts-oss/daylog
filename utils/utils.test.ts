@@ -54,7 +54,7 @@ vi.mock('next/headers', () => ({
   cookies: mocks.cookies,
 }));
 
-vi.mock('@/app/admin/lib/actions', () => ({
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
   getSettings: mocks.getSettings,
 }));
 

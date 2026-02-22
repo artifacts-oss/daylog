@@ -11,7 +11,7 @@ const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
 }));
 
-vi.mock('@/app/admin/lib/actions', () => ({
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
   getSettings: mocks.getSettings,
 }));
 

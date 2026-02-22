@@ -2,7 +2,7 @@
 
 import type { Session, User } from '@/prisma/generated/client';
 
-import { getSettings } from '@/app/admin/lib/actions';
+import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
 import { prisma } from '@/prisma/client';
 import { encodeBase32, encodeHex, verifyPassword } from '@/utils/crypto';
 import { randomDelay } from '@/utils/delay';

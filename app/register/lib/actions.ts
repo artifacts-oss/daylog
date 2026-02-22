@@ -1,6 +1,6 @@
 'use server';
 
-import { getSettings } from '@/app/admin/lib/actions';
+import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
 import { prisma } from '@/prisma/client';
 import { hashPassword } from '@/utils/crypto';
 import { FormState, SignupFormSchema } from './definitions';

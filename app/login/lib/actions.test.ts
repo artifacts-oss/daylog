@@ -33,7 +33,7 @@ const mocks = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock('@/app/admin/lib/actions', () => ({
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
   getSettings: mocks.getSettings,
 }));
 
