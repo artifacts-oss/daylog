@@ -58,7 +58,7 @@ export default async function Boards({
             trigger={
               <Button
                 id="new-board-button"
-                className="rounded-full px-6 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all font-bold"
+                className="rounded-[12px] px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-[#FFFFFF]"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>New Board</span>
@@ -80,12 +80,14 @@ export default async function Boards({
       <PageBody>
         <div className="flex flex-col gap-12 py-4">
           {!boards || boards.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center bg-muted/30 rounded-3xl border-2 border-dashed border-muted">
+            <div className="flex flex-col items-center justify-center py-24 text-center bg-[#F3F4F6] rounded-[20px] border-2 border-dashed border-[#F3F4F6]">
               <div className="p-4 rounded-full bg-background mb-4 shadow-sm text-muted-foreground">
                 <FaceSmileIcon className="h-10 w-10 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-bold mb-2">No boards found</h3>
-              <p className="text-muted-foreground max-w-sm mx-auto mb-8">
+              <h3 className="text-[24px] font-[700] mb-2 text-[#000000]">
+                No boards found
+              </h3>
+              <p className="text-[16px] text-[#6B7280] font-[400] max-w-sm mx-auto mb-8">
                 Create your first board to start organizing your notes and
                 thoughts.
               </p>
@@ -94,7 +96,7 @@ export default async function Boards({
                 modalId="new-board-modal-empty"
                 isUnsplashAllowed={settings?.allowUnsplash}
                 trigger={
-                  <Button className="rounded-full px-8 font-bold shadow-lg shadow-primary/20 transition-all">
+                  <Button className="rounded-[12px] px-8 font-bold transition-all text-[#FFFFFF]">
                     Create My First Board
                   </Button>
                 }

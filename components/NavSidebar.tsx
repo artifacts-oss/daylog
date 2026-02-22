@@ -70,11 +70,11 @@ export default function NavSidebar({ user }: NavSidebarProps) {
       {/* Desktop Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 80 : 256 }}
+        animate={{ width: isCollapsed ? 80 : 240 }}
         transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-        className="hidden md:flex flex-col border-r bg-background h-screen sticky top-0 z-50"
+        className="hidden md:flex flex-col border-r border-[#F3F4F6] bg-[#F8F8F8] h-screen sticky top-0 z-50"
       >
-        <div className="flex items-center justify-between h-20 px-4 border-b">
+        <div className="flex items-center justify-between h-20 px-4 border-b border-[#F3F4F6]">
           <AnimatePresence mode="wait">
             <motion.div
               key={isCollapsed ? 'collapsed' : 'expanded'}

@@ -173,7 +173,7 @@ body .w-md-editor-toolbar li > button {
   padding: 8px;
   height: 40px;
   width: 40px;
-  color: var(--color-muted-foreground);
+  color: #6B7280;
 }
 
 body .w-md-editor-toolbar li > button > svg {
@@ -187,7 +187,8 @@ body .w-md-editor-toolbar li > button:hover {
 }
 
 body .w-md-editor {
-  background-color: var(--color-card) !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 body .w-md-editor-content pre > code {
@@ -198,12 +199,11 @@ body .w-md-editor-content pre > code {
 
 body .w-md-editor-area {
   border-radius: 0;
-  border-radius: 0 0 0 6px;
-  background-color: var(--color-background) !important;
+  background-color: transparent !important;
 }
 
 body .wmde-markdown {
-  background-color: var(--color-card) !important;
+  background-color: transparent !important;
 }
 
 @utility masonry-container {

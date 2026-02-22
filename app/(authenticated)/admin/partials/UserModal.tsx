@@ -42,21 +42,23 @@ export default function UserModal() {
               Fill in the details to create a new user.
             </DialogDescription>
           </DialogHeader>
-          <form autoComplete="off" action={action} className="space-y-4">
-            <div className="space-y-2">
+          <form autoComplete="off" action={action} className="space-y-6">
+            <div className="space-y-2 relative pb-4">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
                 name="name"
                 defaultValue={state?.data?.name?.toString()}
                 placeholder="Enter name"
-                className={state?.errors?.name ? 'border-destructive' : ''}
+                className={state?.errors?.name ? 'border-red-300' : ''}
               />
               {state?.errors?.name && (
-                <p className="text-sm text-destructive">{state?.errors?.name}</p>
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                  {state?.errors?.name}
+                </p>
               )}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 relative pb-4">
               <Label htmlFor="email">Email address</Label>
               <Input
                 id="email"
@@ -64,17 +66,17 @@ export default function UserModal() {
                 type="email"
                 defaultValue={state?.data?.email?.toString()}
                 placeholder="Enter email"
-                className={state?.errors?.email ? 'border-destructive' : ''}
+                className={state?.errors?.email ? 'border-red-300' : ''}
               />
               {state?.errors?.email && (
-                <p className="text-sm text-destructive">
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
                   {Array.isArray(state?.errors?.email)
                     ? state?.errors?.email.join(', ')
                     : state?.errors?.email}
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 relative pb-4">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
@@ -85,7 +87,9 @@ export default function UserModal() {
                   placeholder="Password"
                   autoComplete="off"
                   className={
-                    state?.errors?.password ? 'border-destructive pr-10' : 'pr-10'
+                    state?.errors?.password
+                      ? 'border-red-300 pr-10'
+                      : 'pr-10'
                   }
                 />
                 <button
@@ -101,7 +105,7 @@ export default function UserModal() {
                 </button>
               </div>
               {state?.errors?.password && (
-                <p className="text-sm text-destructive">
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
                   {Array.isArray(state?.errors?.password)
                     ? state?.errors?.password.join(', ')
                     : state?.errors?.password}

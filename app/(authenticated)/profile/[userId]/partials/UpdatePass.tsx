@@ -8,7 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 
 type UpdatePassType = {
   userId: number | null;
@@ -31,11 +34,11 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
             Ensure your account is using a long, random password to stay secure.
           </p>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <input type="hidden" name="id" value={profile.id} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {profile.id === userId && (
-              <div className="space-y-2">
+              <div className="space-y-2 relative pb-4">
                 <Label htmlFor="current">Current Password</Label>
                 <Input
                   id="current"
@@ -44,11 +47,13 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
                   placeholder="Enter current password"
                 />
                 {state?.errors?.current && (
-                  <p className="text-sm text-destructive">{state?.errors?.current}</p>
+                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                    {state?.errors?.current}
+                  </p>
                 )}
               </div>
             )}
-            <div className="space-y-2">
+            <div className="space-y-2 relative pb-4">
               <Label htmlFor="password">New Password</Label>
               <Input
                 id="password"
@@ -58,10 +63,12 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
                 placeholder="Enter your new secure password"
               />
               {state?.errors?.password && (
-                <p className="text-sm text-destructive">{state?.errors?.password}</p>
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                  {state?.errors?.password}
+                </p>
               )}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 relative pb-4">
               <Label htmlFor="confirm">Password Confirmation</Label>
               <Input
                 id="confirm"
@@ -70,7 +77,9 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
                 placeholder="Confirm your new password"
               />
               {state?.errors?.confirm && (
-                <p className="text-sm text-destructive">{state?.errors?.confirm}</p>
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                  {state?.errors?.confirm}
+                </p>
               )}
             </div>
           </div>

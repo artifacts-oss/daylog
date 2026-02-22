@@ -14,10 +14,15 @@ import { getImageUrlOrFile, resizeImage } from '@/utils/image';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 import { useTheme } from 'next-themes';
-import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+  PhotoIcon,
+  XMarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type NoteEditorType = {
   note: Note;
@@ -29,6 +34,7 @@ export default function Editor({ note }: NoteEditorType) {
   const [markdown, setMarkdown] = useState(note.content ?? '');
   const [isSaving, setIsSaving] = useState(false);
   const [pictures, setPictures] = useState<Picture[]>([]);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -52,7 +58,7 @@ export default function Editor({ note }: NoteEditorType) {
   }, [note.id, loadPictures]);
 
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
-    null
+    null,
   );
 
   const updateNoteHandler = useCallback(
@@ -61,7 +67,7 @@ export default function Editor({ note }: NoteEditorType) {
       note.content = content;
       if (note) await updateNote(note);
     },
-    [note]
+    [note],
   );
 
   const debounceSave = useCallback(
@@ -75,7 +81,7 @@ export default function Editor({ note }: NoteEditorType) {
 
       setDebounceTimer(timeout);
     },
-    [updateNoteHandler, debounceTimer]
+    [updateNoteHandler, debounceTimer],
   );
 
   const saveContent = useCallback(
@@ -86,7 +92,7 @@ export default function Editor({ note }: NoteEditorType) {
         setIsSaving(false);
       });
     },
-    [note.id, debounceSave]
+    [note.id, debounceSave],
   );
 
   useEffect(() => {
@@ -97,7 +103,7 @@ export default function Editor({ note }: NoteEditorType) {
 
   const handlePlaceImage = (imageUrl: string) => {
     const textarea = document.getElementsByClassName(
-      'w-md-editor-text-input'
+      'w-md-editor-text-input',
     )[0] as HTMLTextAreaElement;
     const leftContent = markdown.substring(0, textarea.selectionStart);
     const rightContent = markdown.substring(textarea.selectionStart);
@@ -108,7 +114,7 @@ export default function Editor({ note }: NoteEditorType) {
   };
 
   const handleFileChange = async (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -134,93 +140,147 @@ export default function Editor({ note }: NoteEditorType) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardContent className="p-0 border-0 h-auto relative">
-          <div data-color-mode={theme}>
+    <div className="flex flex-col lg:flex-row gap-6 items-start w-full">
+      {/* Sidebar for Pictures */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ width: 0, opacity: 0, x: -50 }}
+            animate={{ width: 340, opacity: 1, x: 0 }}
+            exit={{ width: 0, opacity: 0, x: -50 }}
+            transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            className="flex-shrink-0 flex flex-col gap-6 sticky top-24 overflow-hidden"
+          >
+            <div className="w-[340px] rounded-[20px] bg-[#F8F8F8] border border-[#F3F4F6] p-6 flex flex-col gap-6 shadow-sm">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[20px] font-[800] text-[#000000] tracking-tight">
+                    Pictures
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded-full hover:bg-[#E5E7EB] transition-colors"
+                    onClick={() => setIsSidebarOpen(false)}
+                  >
+                    <XMarkIcon className="h-5 w-5 text-[#6B7280]" />
+                  </Button>
+                </div>
+                <p className="text-[14px] font-[500] text-[#6B7280] leading-relaxed">
+                  Click to insert an image into the editor at your cursor
+                  position.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 min-h-[120px] content-start">
+                {note &&
+                  note.imageUrl &&
+                  PicturePreview({
+                    imageUrl: note.imageUrl,
+                    onClick: () => {
+                      handlePlaceImage(getImageUrlOrFile(note.imageUrl!));
+                    },
+                    onDelete: async () => {
+                      await deleteImage(note.id, note.imageUrl);
+                      router.refresh();
+                    },
+                  })}
+                {pictures.map((picture, key) => (
+                  <PicturePreview
+                    key={key}
+                    pictureId={picture.id}
+                    onDelete={() => handleDeletePicture(picture.id)}
+                    imageUrl={picture.imageUrl}
+                    onClick={() => {
+                      handlePlaceImage(getImageUrlOrFile(picture.imageUrl));
+                    }}
+                  />
+                ))}
+
+                {pictures.length === 0 && note.imageUrl === null && (
+                  <div className="col-span-2 flex flex-col items-center justify-center py-6 text-center border-2 border-dashed border-[#E5E7EB] rounded-[16px] bg-[#FFFFFF]">
+                    <PhotoIcon className="h-8 w-8 text-[#9CA3AF] mb-2 opacity-50" />
+                    <p className="text-[12px] font-[500] text-[#9CA3AF] uppercase tracking-wider">
+                      No pictures
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-[#E5E7EB]">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full rounded-[12px] font-[700] text-[#FFFFFF] shadow-sm transition-all"
+                >
+                  <PhotoIcon className="h-5 w-5 mr-2" />
+                  Upload Picture
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Editor Area */}
+      <motion.div
+        layout
+        className="flex-1 w-full flex flex-col gap-4 min-w-0 my-1"
+      >
+        <div className="flex justify-between items-center w-full">
+          <Button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            variant="outline"
+            className="rounded-[12px] bg-[#FFFFFF] text-[#000000] border-[#E5E7EB] hover:bg-[#F3F4F6] shadow-sm font-[600] transition-all"
+          >
+            <PhotoIcon className="h-5 w-5 mr-2 text-[#6B7280]" />
+            {isSidebarOpen ? 'Close Gallery' : 'Open Gallery'}
+            {isSidebarOpen ? (
+              <ChevronLeftIcon className="h-4 w-4 ml-2 text-[#6B7280]" />
+            ) : (
+              <ChevronRightIcon className="h-4 w-4 ml-2 text-[#6B7280]" />
+            )}
+          </Button>
+
+          <AnimatePresence>
+            {isSaving && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex items-center gap-2 bg-[#FFFFFF] border border-[#F3F4F6] px-3 py-1.5 rounded-[12px] shadow-sm"
+              >
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-[12px] font-[500] text-[#6B7280] uppercase tracking-wider">
+                  Saving
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <div className="rounded-[20px] bg-[#FFFFFF] border border-[#F3F4F6] shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-500">
+          <div data-color-mode={theme} className="w-full">
             <MDEditor
               data-testid="editor"
-              height={480}
-              minHeight={480}
+              height={600}
+              minHeight={400}
               value={markdown}
               onChange={(value) => setMarkdown(value ?? '')}
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],
               }}
+              style={{ borderRadius: 0, border: 'none' }}
+              className="!border-0 !rounded-none !bg-transparent"
             />
-            {isSaving && (
-              <div
-                className="bg-primary"
-                aria-label="Saving changes..."
-                title="Saving changes..."
-                style={{
-                  position: 'absolute',
-                  top: -5,
-                  left: -5,
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  zIndex: 9999,
-                  animation: 'pulse 2s infinite',
-                  cursor: 'pointer',
-                }}
-              />
-            )}
           </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Pictures</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Click a picture to place it in the editor at the cursor position.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-2">
-            {note &&
-              note.imageUrl &&
-              PicturePreview({
-                imageUrl: note.imageUrl,
-                onClick: () => {
-                  handlePlaceImage(getImageUrlOrFile(note.imageUrl!));
-                },
-                onDelete: async () => {
-                  await deleteImage(note.id, note.imageUrl);
-                  router.refresh();
-                },
-              })}
-            {pictures.map((picture, key) => (
-              <PicturePreview
-                key={key}
-                pictureId={picture.id}
-                onDelete={() => handleDeletePicture(picture.id)}
-                imageUrl={picture.imageUrl}
-                onClick={() => {
-                  handlePlaceImage(getImageUrlOrFile(picture.imageUrl));
-                }}
-              />
-            ))}
-          </div>
-
-          {pictures.length === 0 && note.imageUrl === null && (
-            <p className="text-muted-foreground">No pictures</p>
-          )}
-        </CardContent>
-        <CardContent>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          <Button onClick={() => fileInputRef.current?.click()}>
-            <PhotoIcon className="h-4 w-4 mr-2" />
-            Add picture
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -237,26 +297,27 @@ const PicturePreview = ({
   onDelete: () => Promise<void>;
 }) => {
   return (
-    <div className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group">
+    <div className="relative aspect-square rounded-[12px] overflow-hidden cursor-pointer group border border-[#E5E7EB] bg-[#FFFFFF] shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-[#D1D5DB] transition-all duration-300">
       <div
-        className="absolute top-1 right-1 z-10 bg-background/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute top-1.5 right-1.5 z-10 bg-[#FFFFFF] border border-[#F3F4F6] text-[#6B7280] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#F3F4F6] hover:text-[#000000]"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();
         }}
+        title="Delete picture"
       >
-        <XMarkIcon className="h-4 w-4" />
+        <XMarkIcon className="h-3.5 w-3.5" />
       </div>
       <div
         data-testid={`picture-preview-${pictureId ?? 'default'}`}
         role="button"
         onClick={onClick}
-        className="w-full h-full"
+        className="w-full h-full p-1"
       >
         <Image
           width={140}
           height={140}
-          className="object-cover w-full h-full"
+          className="object-cover w-full h-full rounded-[8px]"
           src={getImageUrlOrFile(imageUrl)}
           alt="Note image preview"
           priority={false}

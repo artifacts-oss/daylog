@@ -1,6 +1,9 @@
 'use client';
 
-import { ExclamationTriangleIcon, TrashIcon } from '@heroicons/react/24/outline';
+import {
+  ExclamationTriangleIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
 import { deleteAccount } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,14 +72,21 @@ export default function DangerZone({ profile }: BackupType) {
                   <AlertDescription>{state.message}</AlertDescription>
                 </Alert>
               )}
-              <div className="space-y-2">
+              <div className="space-y-2 relative pb-4">
                 <Input
                   type="password"
                   name="password"
                   placeholder="Your password is required"
+                  className={
+                    state?.errors?.password
+                      ? 'border-red-300 focus-visible:border-red-300 focus-visible:ring-red-300'
+                      : ''
+                  }
                 />
                 {state?.errors?.password && (
-                  <p className="text-sm text-destructive">{state?.errors?.password}</p>
+                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                    {state?.errors?.password}
+                  </p>
                 )}
               </div>
               <AlertDialogFooter>

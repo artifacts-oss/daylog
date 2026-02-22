@@ -12,6 +12,7 @@ import NoteSortSelector from './components/NoteSortSelector';
 import { getNotes, getNotesCount } from './lib/actions';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { getImageUrlOrFile } from '@/utils/image';
 
 export default async function Notes({
   params,
@@ -59,7 +60,9 @@ export default async function Notes({
         }. Last updated ${new Intl.DateTimeFormat('en-US', {
           dateStyle: 'medium',
         }).format(board.updatedAt)}.`}
-        imageUrl={board?.imageUrl}
+        imageUrl={
+          board?.imageUrl ? getImageUrlOrFile(encodeURI(board.imageUrl)) : null
+        }
         breadcrumbs={breadcrumbs}
       >
         <div className="flex items-center gap-3">

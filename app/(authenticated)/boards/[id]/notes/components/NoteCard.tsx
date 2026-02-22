@@ -25,7 +25,7 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-      className="group relative flex flex-col rounded-3xl border bg-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden"
+      className="group relative flex flex-col rounded-[20px] border border-[#F3F4F6] bg-[#FFFFFF] hover:shadow-sm hover:-translate-y-1 transition-all duration-500 overflow-hidden"
     >
       <Link
         href={`/boards/${note.boardsId}/notes/${note.id}`}
@@ -50,13 +50,13 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
       <div className="p-6 space-y-4">
         <div className="space-y-2">
           <div className="block group-hover:text-primary transition-colors">
-            <h3 className="text-xl font-bold tracking-tight leading-tight line-clamp-2">
+            <h3 className="text-[20px] font-bold text-[#000000] tracking-tight leading-tight line-clamp-2">
               {note.title}
             </h3>
           </div>
           <p
             className={cn(
-              'text-sm text-muted-foreground leading-relaxed',
+              'text-[16px] text-[#6B7280] font-[400] leading-relaxed',
               note.imageUrl ? 'line-clamp-3' : 'line-clamp-6',
             )}
           >
@@ -64,9 +64,9 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
           </p>
         </div>
 
-        <div className="pt-4 flex items-center justify-between border-t border-muted relative z-20">
+        <div className="pt-4 flex items-center justify-between border-t border-[#F3F4F6] relative z-20">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60">
+            <span className="text-[12px] font-[500] uppercase tracking-wider text-[#9CA3AF]">
               <TimeDiff updatedAt={note?.updatedAt} />
             </span>
           </div>

@@ -3,7 +3,11 @@
 import OTPInputWrapper from '@/components/OTPInputWrapper';
 import { User } from '@/prisma/generated/client';
 import { generateTOTPSecret, generateTOTPUrl } from '@/utils/totp';
-import { EyeIcon, EyeSlashIcon, DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+import {
+  EyeIcon,
+  EyeSlashIcon,
+  DevicePhoneMobileIcon,
+} from '@heroicons/react/24/outline';
 import { QRCodeSVG } from 'qrcode.react';
 import { useActionState, useEffect, useState } from 'react';
 import { deleteMFA, sendOTP, updateMFA } from '../lib/actions';
@@ -70,7 +74,7 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
             <input type="hidden" name="id" value={profile.id} />
             <input name="password" type="hidden" value={password} />
             {!state?.success ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <p className="text-sm text-muted-foreground">
                   Type the password of your current authenticator app or send
                   one to your e-mail.
@@ -79,13 +83,17 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
                   <OTPInputWrapper onChange={(value) => setPassword(value)} />
                 </div>
                 {state?.errors?.password && (
-                  <p className="text-sm text-destructive">{state?.errors?.password}</p>
+                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                    {state?.errors?.password}
+                  </p>
                 )}
                 {otpSent === 'sent' && (
-                  <p className="text-sm text-green-500">Code sent to your e-mail.</p>
+                  <p className="text-sm text-green-500">
+                    Code sent to your e-mail.
+                  </p>
                 )}
                 {otpSent === 'failed' && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
                     Failed to send code to your e-mail.
                   </p>
                 )}
@@ -102,7 +110,7 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
                 >
                   Send {otpSent === 'sent' ? 'another' : 'a'} code to my e-mail.
                 </Button>
-                <p className="text-sm text-destructive">
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
                   If you change the TOTP device, you will lose access to the
                   other configured devices.
                 </p>
@@ -173,7 +181,7 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
             <input name="secret" type="hidden" value={secret} />
             <input name="password" type="hidden" value={password} />
             {!state?.success ? (
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <p className="text-sm text-muted-foreground">
                   Here you can configure your Time-based one-time passwords
                   (TOTP).
@@ -225,7 +233,9 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
                   <OTPInputWrapper onChange={(value) => setPassword(value)} />
                 </div>
                 {state?.errors?.password && (
-                  <p className="text-sm text-destructive">{state?.errors?.password}</p>
+                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                    {state?.errors?.password}
+                  </p>
                 )}
                 {!state?.success && state?.message && (
                   <Alert variant="destructive">

@@ -10,6 +10,11 @@ import DangerZone from './partials/DangerZone';
 import MultiFAAuth from './partials/MultiFAAuth';
 import ProfileInfo from './partials/ProfileInfo';
 import UpdatePass from './partials/UpdatePass';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  ExclamationTriangleIcon,
+  InformationCircleIcon,
+} from '@heroicons/react/24/outline';
 
 export default async function Profile({
   params,
@@ -53,15 +58,23 @@ export default async function Profile({
       />
       <PageBody>
         {settings?.mfa && !profile.mfa && (
-          <div className="alert alert-important alert-danger" role="alert">
-            2FA Authentication is not enabled for this profile. Is recommended
-            to enable it for security reasons.
-          </div>
+          <Alert variant="destructive" className="mb-6">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Action Required</AlertTitle>
+            <AlertDescription>
+              2FA Authentication is not enabled for this profile. It is
+              recommended to enable it for security reasons.
+            </AlertDescription>
+          </Alert>
         )}
         {user.role === 'admin' && user.id !== profile.id && (
-          <div className="alert alert-important alert-primary" role="alert">
-            You are impersonating this profile as an admin.
-          </div>
+          <Alert className="mb-6 border-blue-500 text-blue-700 bg-blue-50 [&>svg]:text-blue-700 [&>h5]:text-blue-700">
+            <InformationCircleIcon className="h-4 w-4 text-blue-700" />
+            <AlertTitle>Admin Notice</AlertTitle>
+            <AlertDescription className="text-blue-700">
+              You are impersonating this profile as an admin.
+            </AlertDescription>
+          </Alert>
         )}
         <ProfileInfo profile={profile} />
         <UpdatePass userId={user.id} profile={profile} />

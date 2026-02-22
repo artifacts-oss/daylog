@@ -9,7 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 
 type ProfileInfoType = {
   profile: User;
@@ -27,10 +30,10 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
             Update your account&apos;s profile information and email address.
           </p>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <input type="hidden" name="id" value={profile.id ?? 0} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2 relative pb-4">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
@@ -39,15 +42,17 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
                 defaultValue={
                   typeof state?.data?.name === 'string'
                     ? state.data.name
-                    : profile.name ?? ''
+                    : (profile.name ?? '')
                 }
                 placeholder="Enter your nickname, name or fullname"
               />
               {state?.errors?.name && (
-                <p className="text-sm text-destructive">{state?.errors?.name}</p>
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                  {state?.errors?.name}
+                </p>
               )}
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 relative pb-4">
               <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
@@ -56,12 +61,12 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
                 defaultValue={
                   typeof state?.data?.email === 'string'
                     ? state.data.email
-                    : profile.email ?? ''
+                    : (profile.email ?? '')
                 }
                 placeholder="Enter your email for password recovery"
               />
               {state?.errors?.email && (
-                <p className="text-sm text-destructive">
+                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
                   {Array.isArray(state?.errors?.email)
                     ? state?.errors?.email.join(', ')
                     : state?.errors?.email}

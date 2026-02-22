@@ -41,11 +41,7 @@ export default function Backup({ profile }: BackupType) {
           )}
           {state?.success && state.data && (
             <>
-              <Textarea
-                disabled={pending}
-                rows={5}
-                defaultValue={state.data}
-              />
+              <Textarea disabled={pending} rows={5} defaultValue={state.data} />
               <Button
                 type="button"
                 variant="outline"

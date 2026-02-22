@@ -36,7 +36,7 @@ function Switch({
         <div className="space-y-0.5">
           <label
             htmlFor={value}
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            className="text-[12px] font-bold uppercase text-[#6B7280] leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
           >
             {label}
           </label>
@@ -108,7 +108,7 @@ export default function PreferencesTab({
         {/* Security Section */}
         <Card className="border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30">
-            <CardTitle className="text-base font-semibold">Security</CardTitle>
+            <CardTitle>Security</CardTitle>
             <CardDescription>
               Manage access controls and authentication methods.
             </CardDescription>
@@ -136,9 +136,7 @@ export default function PreferencesTab({
         {/* Third Party Section */}
         <Card className="border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30">
-            <CardTitle className="text-base font-semibold">
-              Third-party Integrations
-            </CardTitle>
+            <CardTitle>Third-party Integrations</CardTitle>
             <CardDescription>
               Connect external services and data sources.
             </CardDescription>
@@ -177,7 +175,7 @@ export default function PreferencesTab({
         {/* Storage Section */}
         <Card className="border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30">
-            <CardTitle className="text-base font-semibold">Storage</CardTitle>
+            <CardTitle>Storage</CardTitle>
             <CardDescription>
               Configure where your media and attachments are stored.
             </CardDescription>
