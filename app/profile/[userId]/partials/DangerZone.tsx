@@ -1,8 +1,23 @@
 'use client';
 
-import { IconAlertTriangle, IconTrash } from '@tabler/icons-react';
+import { ExclamationTriangleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
 import { deleteAccount } from '../lib/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type BackupType = {
   profile: {
@@ -14,104 +29,70 @@ type BackupType = {
 
 export default function DangerZone({ profile }: BackupType) {
   const [state, action, pending] = useActionState(deleteAccount, undefined);
+
   return (
     <form action={action}>
       <input type="hidden" name="userId" defaultValue={profile.id} />
-      <div className="card mt-3">
-        <div className="card-body">
-          <h3 className="card-title text-danger">Danger Zone</h3>
-          <div className="text-secondary">
+      <Card className="mt-4 border-destructive">
+        <CardHeader>
+          <CardTitle className="text-destructive flex items-center gap-2">
+            <ExclamationTriangleIcon className="h-5 w-5" />
+            Danger Zone
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
             Once your account is deleted, all of its resources and data will be
             permanently deleted. Before deleting your account, please download
             any data or information that you wish to retain.
-          </div>
-        </div>
-        <div className="card-body">
-          <button
-            type="button"
-            className="btn btn-danger"
-            data-bs-toggle="modal"
-            data-bs-target="#delete-modal"
-          >
-            <IconTrash /> <span className="ms-1">Delete Account</span>
-          </button>
-          <div className="modal" id="delete-modal" tabIndex={-1}>
-            <div className="modal-dialog modal-sm" role="document">
-              <div className="modal-content">
-                <button
-                  type="button"
-                  className="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-                <div className="modal-status bg-danger"></div>
-                <div className="modal-body text-center py-4">
-                  <div className='text-danger'>
-                    <IconAlertTriangle />
-                  </div>
-                  <h3>Are you sure?</h3>
-                  <div className="text-secondary">
-                    Do you really want to delete your account? What you&apos;ve
-                    done cannot be undone.
-                  </div>
-                  {!state?.success && state?.message && (
-                    <div
-                      className="alert alert-important alert-danger alert-dismissible mt-1"
-                      role="alert"
-                    >
-                      <div>{state.message}</div>
-                      <a
-                        className="btn-close btn-close-white"
-                        data-bs-dismiss="alert"
-                        aria-label="close"
-                      ></a>
-                    </div>
-                  )}
-                  <div className="mt-1">
-                    <input
-                      type="password"
-                      name="password"
-                      className="form-control"
-                      placeholder="Your password is required"
-                    />
-                    {state?.errors?.password && (
-                      <div className="invalid-feedback d-block" role="alert">
-                        {state?.errors?.password}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <div className="w-100">
-                    <div className="row">
-                      <div className="col">
-                        <a
-                          href="#"
-                          className="btn w-100"
-                          data-bs-dismiss="modal"
-                        >
-                          Cancel
-                        </a>
-                      </div>
-                      <div className="col">
-                        <button
-                          disabled={pending}
-                          type="submit"
-                          className={`btn btn-danger w-full ${
-                            pending ? 'btn-loading disabled' : null
-                          }`}
-                        >
-                          Yes, delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          </p>
+        </CardHeader>
+        <CardContent>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <TrashIcon className="h-4 w-4 mr-2" />
+                Delete Account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />
+                  Are you sure?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Do you really want to delete your account? This action cannot
+                  be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              {!state?.success && state?.message && (
+                <Alert variant="destructive">
+                  <AlertDescription>{state.message}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <Input
+                  type="password"
+                  name="password"
+                  placeholder="Your password is required"
+                />
+                {state?.errors?.password && (
+                  <p className="text-sm text-destructive">{state?.errors?.password}</p>
+                )}
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={pending}
+                  onClick={() => {}}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {pending ? 'Deleting...' : 'Yes, delete'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardContent>
+      </Card>
     </form>
   );
 }

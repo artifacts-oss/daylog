@@ -49,16 +49,14 @@ describe('PreferencesTab', () => {
     render(<PreferencesTab initialSettings={initialSettings} />);
 
     expect(await screen.findByText('Security')).toBeInTheDocument();
-    expect(await screen.findByText('Third party')).toBeInTheDocument();
+    expect(await screen.findByText(/Third-party Integrations/i)).toBeInTheDocument();
     expect(await screen.findByText('Storage')).toBeInTheDocument();
   });
 
   it('toggles MFA checkbox', async () => {
     render(<PreferencesTab initialSettings={initialSettings} />);
 
-    const mfaCheckbox = screen.getByRole('switch', {
-      name: /Enable 2FA Authentication/i,
-    });
+    const mfaCheckbox = screen.getByLabelText('Two-Factor Authentication (2FA)');
 
     fireEvent.click(mfaCheckbox);
 
@@ -68,9 +66,7 @@ describe('PreferencesTab', () => {
   it('toggles Allow Registration checkbox', () => {
     render(<PreferencesTab initialSettings={initialSettings} />);
 
-    const allowRegCheckbox = screen.getByRole('switch', {
-      name: /Allow users to Sign Up/i,
-    });
+    const allowRegCheckbox = screen.getByLabelText('Public Registration');
 
     fireEvent.click(allowRegCheckbox);
 
@@ -80,9 +76,7 @@ describe('PreferencesTab', () => {
   it('toggles Unsplash checkbox', () => {
     render(<PreferencesTab initialSettings={initialSettings} />);
 
-    const unsplashCheckbox = screen.getByRole('switch', {
-      name: /Allow Unsplash as a source for images/i,
-    });
+    const unsplashCheckbox = screen.getByLabelText('Unsplash Integration');
 
     fireEvent.click(unsplashCheckbox);
 
@@ -92,9 +86,7 @@ describe('PreferencesTab', () => {
   it('toggles S3 checkbox', () => {
     render(<PreferencesTab initialSettings={initialSettings} />);
 
-    const s3Checkbox = screen.getByRole('switch', {
-      name: /Enable S3 Storage/i,
-    });
+    const s3Checkbox = screen.getByLabelText('Amazon S3 Storage');
 
     fireEvent.click(s3Checkbox);
 
@@ -104,7 +96,7 @@ describe('PreferencesTab', () => {
   it('submits the form', async () => {
     render(<PreferencesTab initialSettings={initialSettings} />);
 
-    const saveButton = await screen.findByText('Save Settings');
+    const saveButton = await screen.findByText('Save Changes');
     fireEvent.click(saveButton);
 
     expect(mocks.useActionState).toHaveBeenCalled();
@@ -128,7 +120,7 @@ describe('PreferencesTab', () => {
 
     render(<PreferencesTab initialSettings={initialSettings} />);
 
-    const saveButton = await screen.findByText('Save Settings');
+    const saveButton = await screen.findByText('Save Changes');
     fireEvent.click(saveButton);
 
     expect(

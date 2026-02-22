@@ -1,9 +1,18 @@
 'use client';
 
 import Loader from '@/components/Loader';
-import { IconX } from '@tabler/icons-react';
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { cn } from '@/lib/utils';
 
 type UnsplashImage = {
   id: string;
@@ -27,16 +36,15 @@ export default function UnsplashImagesDropdown({
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
     null
   );
+  const [open, setOpen] = useState(false);
 
   const debounceSearch = (
     keyword: string,
     page: number,
-    time: number = 1000 // Waits for 1 second of inactivity before searching
+    time: number = 1000
   ) => {
-    // Clear the previous timer
     if (debounceTimer) clearTimeout(debounceTimer);
 
-    // Set a new timer
     const timeout = setTimeout(async () => {
       await fetchImages(keyword, page);
     }, time);
@@ -59,142 +67,133 @@ export default function UnsplashImagesDropdown({
       setPage(page);
     });
     const images = await res.json();
-
     setImages(images.results);
   };
 
   const selectedImage = images.find((image) => image.id === selection);
 
   return (
-    <div className="dropdown">
-      <button
-        className={`btn w-full ${
-          imageUrl ? 'btn-success' : 'btn'
-        } dropdown-toggle`}
-        type="button"
-        id="unsplashImagesDropdown"
-        data-bs-toggle="dropdown"
-        data-bs-auto-close="false"
-        aria-expanded="false"
-      >
-        Search Unsplash images
-      </button>
-      <div className="dropdown-menu p-3 w-full">
-        <div className="mb-3">
-          <label className="form-label">Search by keyword</label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Type any keyword"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault(); // Prevent form submission
-                debounceSearch(e.currentTarget.value, 1, 0);
-              }
-            }}
-            onChange={async (e) => {
-              debounceSearch(e.target.value, 1);
-            }}
-          />
-        </div>
-        <div className="d-flex flex-wrap pt-2">
-          {loading && <Loader caption="Loading images..."></Loader>}
-          {!loading && images.length === 0 && (
-            <div className="text-secondary w-full text-center py-4">
-              No images found
-            </div>
-          )}
-          {images.map((image) => (
-            <div
-              key={image.id}
-              className="col-6 col-md-4 p-1"
-              style={{
-                minHeight: '100px',
-                maxHeight: '100px',
-              }}
-            >
-              <label className="form-imagecheck h-100 w-full">
-                <input
-                  name="form-imagecheck-radio"
-                  type="radio"
-                  value={image.id}
-                  className="form-imagecheck-input"
-                  checked={selection === image.id}
-                  onChange={() => {
-                    setSelection(image.id);
-                    setImageUrl(image.urls.regular);
-                    imageSelected(image.urls.regular);
-                  }}
-                />
-                <span className="form-imagecheck-figure h-100">
-                  <Image
-                    title={'Photo by ' + image.user.name + ' on Unsplash'}
-                    src={image.urls.thumb}
-                    alt={image.description || 'Unsplash image'}
-                    width={300}
-                    height={0}
-                    style={{
-                      width: 'auto',
-                      height: '100px',
-                      objectFit: 'cover',
-                    }}
-                    className="form-imagecheck-image h-100 w-full"
-                    priority
-                  />
-                </span>
-              </label>
-            </div>
-          ))}
-        </div>
-        <div className="d-flex flex-row gap-1 justify-content-between pb-2">
-          {selectedImage && (
-            <a
-              href={`https://unsplash.com/@${selectedImage?.user.username}`}
-              rel="noopener noreferrer nofollow"
-              target="_blank"
-              className="btn btn-sm btn-link text-secondary"
-            >
-              Photo by {selectedImage?.user.name} on Unsplash
-            </a>
-          )}
-          {(images.length > 0 || loading) && (
-            <div className="d-flex flex-row w-full justify-content-end gap-1">
-              <button
-                type="button"
-                disabled={loading}
-                className="btn btn-sm"
-                onClick={async () => {
-                  await fetchImages(keyword, page - 1);
-                }}
-              >
-                {'<'} Previous
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                className="btn btn-sm"
-                onClick={async () => {
-                  await fetchImages(keyword, page + 1);
-                }}
-              >
-                Next {'>'}
-              </button>
-            </div>
-          )}
-        </div>
-        <button
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild>
+        <Button
           type="button"
-          className="btn btn-link text-secondary mt-1"
-          onClick={async () => {
-            setImageUrl('');
-            setSelection('');
-            imageSelected('');
-          }}
+          variant={imageUrl ? 'default' : 'outline'}
+          className="w-full"
         >
-          <IconX />
-          Clear selection
-        </button>
-      </div>
-    </div>
+          {imageUrl ? 'Image selected' : 'Search Unsplash images'}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-80 p-4" align="start">
+        <div className="space-y-3">
+          <div>
+            <Label>Search by keyword</Label>
+            <Input
+              type="text"
+              placeholder="Type any keyword"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  debounceSearch(e.currentTarget.value, 1, 0);
+                }
+              }}
+              onChange={(e) => {
+                debounceSearch(e.target.value, 1);
+              }}
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            {loading && (
+              <div className="col-span-3">
+                <Loader caption="Loading images..." />
+              </div>
+            )}
+            {!loading && images.length === 0 && (
+              <div className="col-span-3 text-center text-muted-foreground py-4">
+                No images found
+              </div>
+            )}
+            {images.map((image) => (
+              <button
+                key={image.id}
+                type="button"
+                className={cn(
+                  'relative aspect-square overflow-hidden rounded border-2 transition-colors',
+                  selection === image.id
+                    ? 'border-primary'
+                    : 'border-transparent hover:border-muted-foreground'
+                )}
+                onClick={() => {
+                  setSelection(image.id);
+                  setImageUrl(image.urls.regular);
+                  imageSelected(image.urls.regular);
+                }}
+              >
+                <Image
+                  title={'Photo by ' + image.user.name + ' on Unsplash'}
+                  src={image.urls.thumb}
+                  alt={image.description || 'Unsplash image'}
+                  width={100}
+                  height={100}
+                  className="object-cover w-full h-full"
+                  priority
+                />
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center justify-between">
+            {selectedImage && (
+              <a
+                href={`https://unsplash.com/@${selectedImage?.user.username}`}
+                rel="noopener noreferrer nofollow"
+                target="_blank"
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                Photo by {selectedImage?.user.name}
+              </a>
+            )}
+            {(images.length > 0 || loading) && (
+              <div className="flex gap-1 ml-auto">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={loading || page <= 1}
+                  onClick={async () => {
+                    await fetchImages(keyword, page - 1);
+                  }}
+                >
+                  <ChevronLeftIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  disabled={loading}
+                  onClick={async () => {
+                    await fetchImages(keyword, page + 1);
+                  }}
+                >
+                  <ChevronRightIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="w-full"
+            onClick={async () => {
+              setImageUrl('');
+              setSelection('');
+              imageSelected('');
+            }}
+          >
+            <XMarkIcon className="h-4 w-4 mr-1" />
+            Clear selection
+          </Button>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

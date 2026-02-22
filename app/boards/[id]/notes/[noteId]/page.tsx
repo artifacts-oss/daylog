@@ -7,6 +7,7 @@ import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
+import MainContent from '@/components/MainContent';
 import { redirect } from 'next/navigation';
 import { getNote } from '../lib/actions';
 import Editor from './components/Editor';
@@ -43,27 +44,29 @@ export default async function NotePage({
 
   return (
     <Page>
-      <NavMenu></NavMenu>
-      <NavHeader></NavHeader>
-      <PageContainer>
-        <PageHeader
-          title={note?.title}
-          description={
-            note?.updatedAt
-              ? `Last updated on ${new Intl.DateTimeFormat('default', {
-                  dateStyle: 'medium',
-                }).format(note.updatedAt)} at ${new Intl.DateTimeFormat(
-                  'default',
-                  { timeStyle: 'short' }
-                ).format(note.updatedAt)}`
-              : undefined
-          }
-          imageUrl={note?.imageUrl}
-          breadcrumbs={breadcrumbs}
-        ></PageHeader>
-        <PageBody>{note && <Editor note={note} />}</PageBody>
-        <PageFooter></PageFooter>
-      </PageContainer>
+      <NavMenu user={user}></NavMenu>
+      <MainContent>
+        <NavHeader user={user}></NavHeader>
+        <PageContainer>
+          <PageHeader
+            title={note?.title}
+            description={
+              note?.updatedAt
+                ? `Last updated on ${new Intl.DateTimeFormat('default', {
+                    dateStyle: 'medium',
+                  }).format(note.updatedAt)} at ${new Intl.DateTimeFormat(
+                    'default',
+                    { timeStyle: 'short' },
+                  ).format(note.updatedAt)}`
+                : undefined
+            }
+            imageUrl={note?.imageUrl}
+            breadcrumbs={breadcrumbs}
+          ></PageHeader>
+          <PageBody>{note && <Editor note={note} />}</PageBody>
+          <PageFooter></PageFooter>
+        </PageContainer>
+      </MainContent>
     </Page>
   );
 }

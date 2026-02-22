@@ -1,14 +1,27 @@
 'use client';
 
 import { signup } from '@/app/register/lib/actions';
-import { IconEye, IconEyeOff, IconPlus } from '@tabler/icons-react';
+import { EyeIcon, EyeSlashIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useActionState, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export default function UserModal() {
   const [state, action, pending] = useActionState(signup, undefined);
-
   const [isShowPassword, setIsShowPassword] = useState(false);
-  
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     if (state?.success) {
       window.location.reload();
@@ -17,149 +30,107 @@ export default function UserModal() {
 
   return (
     <>
-      <button
-        type="button"
-        className="btn btn-primary"
-        data-bs-toggle="modal"
-        data-bs-target="#userModal"
-      >
-        <IconPlus />
-        <span className="ms-1">Create new user</span>
-      </button>
-      <div className="modal fade" id="userModal" tabIndex={-1}>
-        <form autoComplete="off" action={action}>
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">New user</h5>
+      <Button onClick={() => setOpen(true)}>
+        <PlusIcon className="h-4 w-4 mr-2" />
+        Create new user
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New user</DialogTitle>
+            <DialogDescription>
+              Fill in the details to create a new user.
+            </DialogDescription>
+          </DialogHeader>
+          <form autoComplete="off" action={action} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                name="name"
+                defaultValue={state?.data?.name?.toString()}
+                placeholder="Enter name"
+                className={state?.errors?.name ? 'border-destructive' : ''}
+              />
+              {state?.errors?.name && (
+                <p className="text-sm text-destructive">{state?.errors?.name}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email address</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue={state?.data?.email?.toString()}
+                placeholder="Enter email"
+                className={state?.errors?.email ? 'border-destructive' : ''}
+              />
+              {state?.errors?.email && (
+                <p className="text-sm text-destructive">
+                  {Array.isArray(state?.errors?.email)
+                    ? state?.errors?.email.join(', ')
+                    : state?.errors?.email}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={isShowPassword ? 'text' : 'password'}
+                  name="password"
+                  defaultValue={state?.data?.password?.toString()}
+                  placeholder="Password"
+                  autoComplete="off"
+                  className={
+                    state?.errors?.password ? 'border-destructive pr-10' : 'pr-10'
+                  }
+                />
                 <button
                   type="button"
-                  className="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label className="form-label">Name</label>
-                  <input
-                    name="name"
-                    defaultValue={state?.data?.name?.toString()}
-                    className={`form-control ${
-                      state?.errors?.name && 'is-invalid'
-                    }`}
-                    placeholder="Enter name"
-                  />
-                  {state?.errors?.name && (
-                    <div className="invalid-feedback d-block" role="alert">
-                      {state?.errors?.name}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Email address</label>
-                  <input
-                    name="email"
-                    defaultValue={state?.data?.email?.toString()}
-                    className={`form-control ${
-                      state?.errors?.email && 'is-invalid'
-                    }`}
-                    placeholder="Enter email"
-                  />
-                  {state?.errors?.email &&
-                    state?.errors?.email.map((e, i) => (
-                      <div key={i} className="invalid-feedback">
-                        {e}
-                      </div>
-                    ))}
-                </div>
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="password">
-                    Password
-                  </label>
-                  <div className="input-group input-group-flat">
-                    <input
-                      id="password"
-                      type={isShowPassword ? 'text' : 'password'}
-                      name="password"
-                      defaultValue={state?.data?.password?.toString()}
-                      className={`form-control ${
-                        state?.errors?.password && 'border-danger'
-                      }`}
-                      placeholder="Password"
-                      autoComplete="off"
-                    />
-                    <span
-                      className={`input-group-text  ${
-                        state?.errors?.password && 'border-danger'
-                      }`}
-                    >
-                      <input
-                        id={'showPassword'}
-                        className={'d-none'}
-                        data-bs-toggle="tooltip"
-                        aria-label="Show password"
-                        defaultChecked={isShowPassword}
-                        data-bs-original-title="Show password"
-                        onChange={(e) => setIsShowPassword(e.target.checked)}
-                        type={'checkbox'}
-                      />
-                      <label htmlFor={'showPassword'}>
-                        {isShowPassword ? <IconEye /> : <IconEyeOff />}
-                      </label>
-                    </span>
-                  </div>
-
-                  {state?.errors?.password &&
-                    state.errors.password.map((e, i) => (
-                      <div
-                        key={i}
-                        className="invalid-feedback d-block"
-                        role="alert"
-                      >
-                        {e}
-                      </div>
-                    ))}
-
-                  {state?.message && (
-                    <div
-                      className="alert alert-danger alert-important alert-dismissible mt-3"
-                      role="alert"
-                    >
-                      <h3 className="mb-1">Account not created</h3>
-                      <p>{state.message}</p>
-                      <a
-                        className="btn-close"
-                        data-bs-dismiss="alert"
-                        aria-label="close"
-                      ></a>
-                    </div>
-                  )}
-                </div>
-                <input name="terms" type="hidden" value="accept"></input>
-              </div>
-              <div className="modal-footer">
-                <a
-                  href="#"
-                  className="btn btn-link link-secondary"
-                  data-bs-dismiss="modal"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  onClick={() => setIsShowPassword(!isShowPassword)}
                 >
-                  Cancel
-                </a>
-                <button
-                  type="submit"
-                  className={`btn btn-primary ms-auto ${
-                    pending ? 'btn-loading disabled' : null
-                  }`}
-                  disabled={pending}
-                >
-                  Create
+                  {isShowPassword ? (
+                    <EyeSlashIcon className="h-4 w-4" />
+                  ) : (
+                    <EyeIcon className="h-4 w-4" />
+                  )}
                 </button>
               </div>
+              {state?.errors?.password && (
+                <p className="text-sm text-destructive">
+                  {Array.isArray(state?.errors?.password)
+                    ? state?.errors?.password.join(', ')
+                    : state?.errors?.password}
+                </p>
+              )}
             </div>
-          </div>
-        </form>
-      </div>
+            <input name="terms" type="hidden" value="accept" />
+            {state?.message && (
+              <Alert variant="destructive">
+                <ExclamationTriangleIcon className="h-4 w-4" />
+                <AlertTitle>Account not created</AlertTitle>
+                <AlertDescription>{state.message}</AlertDescription>
+              </Alert>
+            )}
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={pending}>
+                {pending ? 'Creating...' : 'Create'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

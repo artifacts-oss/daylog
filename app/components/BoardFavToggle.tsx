@@ -2,6 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 export default function BoardFavSwitch({
   showFavParam = false,
@@ -9,44 +11,40 @@ export default function BoardFavSwitch({
   showFavParam?: boolean;
 }) {
   const router = useRouter();
-
   const [showFav, setShowFav] = useState(showFavParam);
 
-  const handleCheckFav = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const isChecked = event.target.checked;
+  const handleToggle = (isFav: boolean) => {
     const params = new URLSearchParams(window.location.search);
-
-    params.set('showFav', isChecked ? 'true' : 'false');
+    params.set('showFav', isFav ? 'true' : 'false');
     router.prefetch('/');
     router.push('?' + params.toString());
-
-    setShowFav(isChecked);
+    setShowFav(isFav);
   };
 
   return (
-    <div className="btn-group w-fit ms-auto" role="group" aria-label="Favorites toggle">
-      <button
+    <div className="flex rounded-lg border overflow-hidden">
+      <Button
         type="button"
-        className={`btn btn-outline-primary ${!showFav ? 'active' : ''}`}
-        onClick={() =>
-          handleCheckFav({
-            target: { checked: false },
-          } as React.ChangeEvent<HTMLInputElement>)
-        }
+        variant="ghost"
+        className={cn(
+          'rounded-none border-r',
+          !showFav && 'bg-primary text-primary-foreground hover:bg-primary/90'
+        )}
+        onClick={() => handleToggle(false)}
       >
         Show recent
-      </button>
-      <button
+      </Button>
+      <Button
         type="button"
-        className={`btn btn-outline-primary ${showFav ? 'active' : ''}`}
-        onClick={() =>
-          handleCheckFav({
-            target: { checked: true },
-          } as React.ChangeEvent<HTMLInputElement>)
-        }
+        variant="ghost"
+        className={cn(
+          'rounded-none',
+          showFav && 'bg-primary text-primary-foreground hover:bg-primary/90'
+        )}
+        onClick={() => handleToggle(true)}
       >
         Favorites
-      </button>
+      </Button>
     </div>
   );
 }

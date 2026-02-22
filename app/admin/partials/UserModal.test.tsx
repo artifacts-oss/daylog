@@ -36,7 +36,7 @@ describe('UserModal', () => {
     render(<UserModal />);
     const button = screen.getByRole('button', { name: /create new user/i });
     fireEvent.click(button);
-    const modal = screen.getByRole('document');
+    const modal = screen.getByRole('dialog');
     expect(modal).toBeInTheDocument();
   });
 
@@ -49,7 +49,7 @@ describe('UserModal', () => {
   });
 
   it('displays validation errors', () => {
-    mocks.useActionState.mockReturnValueOnce([
+    mocks.useActionState.mockReturnValue([
       {
         data: {},
         errors: { name: 'Name is required', email: ['Email is invalid'] },
@@ -68,7 +68,7 @@ describe('UserModal', () => {
   });
 
   it('displays password validation error', () => {
-    mocks.useActionState.mockReturnValueOnce([
+    mocks.useActionState.mockReturnValue([
       {
         data: {},
         errors: { password: ['Password is required'] },

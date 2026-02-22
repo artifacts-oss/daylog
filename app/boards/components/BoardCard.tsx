@@ -3,7 +3,6 @@ import { getBoard } from '@/app/boards/lib/actions';
 import { stringToColor } from '@/utils/color';
 import { getImageUrlOrFile } from '@/utils/image';
 import { truncateWord } from '@/utils/text';
-import { IconEdit } from '@tabler/icons-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import TimeDiff from '../../../components/TimeDiff';
@@ -18,7 +17,7 @@ export type BoardCardType = {
 export default async function BoardCard({ boardId }: BoardCardType) {
   const board = await getBoard(boardId);
   if (!board) {
-    return <></>;
+    return null;
   }
 
   const settings = await getSettings();
@@ -29,9 +28,9 @@ export default async function BoardCard({ boardId }: BoardCardType) {
   }
 
   return (
-    <div className="card d-flex flex-column" style={{ overflow: 'clip' }}>
+    <div className="group relative rounded-lg overflow-hidden border bg-card">
       {board?.imageUrl ? (
-        <Link className="ratio ratio-21x9" href={`/boards/${board.id}/notes`}>
+        <Link href={`/boards/${board.id}/notes`} className="block aspect-[21/9]">
           <Image
             width={800}
             height={600}
@@ -39,51 +38,44 @@ export default async function BoardCard({ boardId }: BoardCardType) {
               objectFit: 'cover',
               objectPosition: 'center',
             }}
-            className="w-100 img-fluid"
+            className="w-full h-full"
             src={getImageUrlOrFile(board.imageUrl)}
             alt={`Image of ${board.title}`}
             priority={false}
-          ></Image>
+          />
         </Link>
       ) : (
         <Link
           data-testid={`board-${board.id}`}
-          className="ratio ratio-21x9"
           href={`/boards/${board.id}/notes`}
+          className="block aspect-[21/9]"
           style={{ backgroundColor: setBackgroundImage(board.title) }}
-        ></Link>
+        />
       )}
       <div
-        className="position-absolute card-body d-flex flex-column w-full h-full"
+        className="absolute inset-0 flex flex-col justify-end p-4"
         style={{
           backgroundImage:
             'linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(20, 20, 20, 0.3))',
-          pointerEvents: 'none',
         }}
       >
-        <h3 className="card-title text-white">
+        <h3 className="text-lg font-semibold text-white">
           {truncateWord(board.title, 35)}
         </h3>
-        <div className="text-light line-clamp-2">{board.description}</div>
-        <div className="d-flex align-items-center justify-content-between pt-4 mt-auto">
-          <div className="text-light">
+        <p className="text-sm text-white/80 line-clamp-2">
+          {board.description}
+        </p>
+        <div className="flex items-center justify-between mt-2">
+          <div className="text-sm text-white/70">
             <TimeDiff updatedAt={board?.updatedAt} />
           </div>
-          <div className="d-block" style={{ pointerEvents: 'all' }}>
-            <a
-              href="#"
-              className="icon ms-3 text-light"
-              data-bs-toggle="modal"
-              data-bs-target={`#edit-board-modal-${board.id}}`}
-            >
-              <IconEdit />
-            </a>
+          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <BoardModalForm
               board={board}
-              modalId={`edit-board-modal-${board.id}}`}
+              modalId={`edit-board-modal-${board.id}`}
               mode="update"
               isUnsplashAllowed={settings?.allowUnsplash}
-            ></BoardModalForm>
+            />
             <BoardModalDelete board={board} />
             <BoardFavoriteButton board={board} />
           </div>

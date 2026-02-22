@@ -1,9 +1,15 @@
 'use client';
 
 import { truncateWord } from '@/utils/text';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { PropsWithChildren } from 'react';
+import React, { PropsWithChildren } from 'react';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 
 type PageHeader = {
   title?: string | null;
@@ -15,45 +21,48 @@ type PageHeader = {
 export default function PageHeader({
   ...props
 }: PropsWithChildren<PageHeader>) {
-  const pathname = usePathname();
-
-  function isCurrentUrl(href: string): boolean {
-    return href === pathname;
-  }
-
   return (
-    <div className="page-header mt-0">
-      <div className="container-xl pt-3">
-        <div className="row align-items-center">
-          <div className="col">
+    <div className="border-b bg-background">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex-1">
             {props.breadcrumbs && (
-              <ol className="breadcrumb">
-                {props.breadcrumbs.map((item, index) => (
-                  <li
-                    className={`breadcrumb-item ${isCurrentUrl(item.href) ? 'active' : null}`}
-                    key={index}
-                  >
-                    <Link href={item.href} title={item.name}>
-                      {truncateWord(item.name, 30)}
-                    </Link>
-                  </li>
-                ))}
-              </ol>
+              <Breadcrumb className="mb-2">
+                <BreadcrumbList>
+                  {props.breadcrumbs.map((item, index, arr) => (
+                    <React.Fragment key={index}>
+                      <BreadcrumbItem>
+                        {index < arr.length - 1 ? (
+                          <BreadcrumbLink href={item.href}>
+                            {truncateWord(item.name, 30)}
+                          </BreadcrumbLink>
+                        ) : (
+                          <BreadcrumbPage>
+                            {truncateWord(item.name, 30)}
+                          </BreadcrumbPage>
+                        )}
+                      </BreadcrumbItem>
+                      {index < arr.length - 1 && <BreadcrumbSeparator />}
+                    </React.Fragment>
+                  ))}
+                </BreadcrumbList>
+              </Breadcrumb>
             )}
-            <div className="py-3">
-              <h1 className="page-title" title={props.title ?? ''}>
-                {truncateWord(props.title ?? '', 50) ?? (
-                  <div className="text-secondary">
-                    Loading<span className="animated-dots"></span>
-                  </div>
-                )}
-              </h1>
-              <p className="text-muted">{props.description}</p>
-            </div>
+            <h1
+              className="text-2xl md:text-3xl font-semibold tracking-tight"
+              title={props.title ?? ''}
+            >
+              {truncateWord(props.title ?? '', 50) ?? (
+                <span className="text-muted-foreground">Loading...</span>
+              )}
+            </h1>
+            {props.description && (
+              <p className="text-muted-foreground mt-1">{props.description}</p>
+            )}
           </div>
-          <div className="col">
-            {props.children}
-          </div>
+          {props.children && (
+            <div className="flex items-center gap-2">{props.children}</div>
+          )}
         </div>
       </div>
     </div>

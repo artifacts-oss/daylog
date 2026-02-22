@@ -6,6 +6,7 @@ import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
+import MainContent from '@/components/MainContent';
 import { redirect } from 'next/navigation';
 import { getCurrentSession } from '../../login/lib/actions';
 import { getProfile } from './lib/actions';
@@ -30,14 +31,16 @@ export default async function Profile({
   if (profile === null) {
     return (
       <Page>
-        <NavMenu></NavMenu>
-        <NavHeader></NavHeader>
-        <PageContainer>
-          <div className="container-xl">
-            <div className="mt-3">No profile page found</div>
-          </div>
-          <PageFooter></PageFooter>
-        </PageContainer>
+        <NavMenu user={user}></NavMenu>
+        <MainContent>
+          <NavHeader user={user}></NavHeader>
+          <PageContainer>
+            <div className="container-xl">
+              <div className="mt-3">No profile page found</div>
+            </div>
+            <PageFooter></PageFooter>
+          </PageContainer>
+        </MainContent>
       </Page>
     );
   }
@@ -54,31 +57,36 @@ export default async function Profile({
 
   return (
     <Page>
-      <NavMenu></NavMenu>
-      <NavHeader></NavHeader>
-      <PageContainer>
-        <PageHeader title="User data"
-          description="Manage your profile and backup your data"
-          breadcrumbs={breadcrumbs} />
-        <PageBody>
-          {settings?.mfa && !profile.mfa && (
-            <div className="alert alert-important alert-danger" role="alert">
-              2FA Authentication is not enabled for this profile. Is recommended to enable it for security reasons.
-            </div>
-          )}
-          {user.role === 'admin' && user.id !== profile.id && (
-            <div className="alert alert-important alert-primary" role="alert">
-              You are impersonating this profile as an admin.
-            </div>
-          )}
-          <ProfileInfo profile={profile} />
-          <UpdatePass userId={user.id} profile={profile} />
-          {settings?.mfa && <MultiFAAuth profile={profile}></MultiFAAuth>}
-          {user.id === profile.id && <Backup profile={profile} />}
-          <DangerZone profile={profile}></DangerZone>
-        </PageBody>
-        <PageFooter></PageFooter>
-      </PageContainer>
+      <NavMenu user={user}></NavMenu>
+      <MainContent>
+        <NavHeader user={user}></NavHeader>
+        <PageContainer>
+          <PageHeader
+            title="User data"
+            description="Manage your profile and backup your data"
+            breadcrumbs={breadcrumbs}
+          />
+          <PageBody>
+            {settings?.mfa && !profile.mfa && (
+              <div className="alert alert-important alert-danger" role="alert">
+                2FA Authentication is not enabled for this profile. Is
+                recommended to enable it for security reasons.
+              </div>
+            )}
+            {user.role === 'admin' && user.id !== profile.id && (
+              <div className="alert alert-important alert-primary" role="alert">
+                You are impersonating this profile as an admin.
+              </div>
+            )}
+            <ProfileInfo profile={profile} />
+            <UpdatePass userId={user.id} profile={profile} />
+            {settings?.mfa && <MultiFAAuth profile={profile}></MultiFAAuth>}
+            {user.id === profile.id && <Backup profile={profile} />}
+            <DangerZone profile={profile}></DangerZone>
+          </PageBody>
+          <PageFooter></PageFooter>
+        </PageContainer>
+      </MainContent>
     </Page>
   );
 }

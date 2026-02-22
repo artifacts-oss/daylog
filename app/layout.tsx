@@ -1,13 +1,13 @@
 import type { Metadata } from 'next';
+import { Plus_Jakarta_Sans } from 'next/font/google';
 import localFont from 'next/font/local';
-import '../public/css/tabler.1.4.0.min.css';
 import './globals.css';
 import MainLayout from './partials/MainLayout';
 
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
+const jakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-jakarta',
+  weight: ['300', '400', '500', '600', '700'],
 });
 
 const geistMono = localFont({
@@ -28,12 +28,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.className} ${geistMono.variable}`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${jakartaSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <MainLayout>
           {children}
         </MainLayout>
-        <script src="/js/tabler.1.4.0.min.js" defer></script>
       </body>
     </html>
   );

@@ -2,9 +2,21 @@
 
 import { deleteBoard } from '@/app/boards/lib/actions';
 import { Board } from '@/prisma/generated/client';
-import { IconAlertTriangle, IconTrash } from '@tabler/icons-react';
+import { ExclamationTriangleIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 
 type BoardModalDeleteType = {
   board: Board;
@@ -12,87 +24,52 @@ type BoardModalDeleteType = {
 
 export default function BoardModalDelete({ board }: BoardModalDeleteType) {
   const router = useRouter();
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [deleting, setDeleting] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleDeleteClick = async () => {
     setDeleting(true);
-    setTimeout(async () => {
-      await deleteBoard(board);
-      router.refresh();
-      setDeleting(false);
-      closeModal();
-    }, 500);
-  };
-
-  const closeModal = () => {
-    if (closeButtonRef) {
-      closeButtonRef.current?.click();
-    } else {
-      console.error('Close button is not available.');
-    }
+    await deleteBoard(board);
+    router.refresh();
+    setDeleting(false);
+    setOpen(false);
   };
 
   return (
-    <>
-      <a
-        href="#"
-        className="icon ms-3 text-light"
-        data-bs-toggle="modal"
-        data-bs-target={`#delete-modal-${board.id}`}
-      >
-        <IconTrash />
-      </a>
-      <div className="modal" id={`delete-modal-${board.id}`} tabIndex={-1}>
-        <div className="modal-dialog modal-sm" role="document">
-          <div className="modal-content">
-            <button
-              type="button"
-              className="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-            <div className="modal-status bg-danger"></div>
-            <div className="modal-body text-center py-4">
-              <div className="text-danger">
-                <IconAlertTriangle />
-              </div>
-              <h3>Are you sure?</h3>
-              <div className="text-danger fw-bold">{board.title}</div>
-              <div className="text-secondary">
-                Do you really want to remove this board? What you&apos;ve done
-                cannot be undone.
-              </div>
-            </div>
-            <div className="modal-footer">
-              <div className="w-100">
-                <div className="row">
-                  <div className="col">
-                    <button
-                      ref={closeButtonRef}
-                      className="btn w-100"
-                      data-bs-dismiss="modal"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  <div className="col">
-                    <button
-                      disabled={deleting}
-                      className={`btn btn-danger w-100 ${
-                        deleting ? 'btn-loading disabled' : null
-                      }`}
-                      onClick={() => handleDeleteClick()}
-                    >
-                      Yes, delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-white hover:text-white hover:bg-white/10"
+        >
+          <TrashIcon className="h-5 w-5" />
+          <span className="sr-only">Delete board</span>
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />
+            Delete Board
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete{' '}
+            <strong className="text-destructive">{board.title}</strong>? This
+            action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={deleting}
+            onClick={handleDeleteClick}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {deleting ? 'Deleting...' : 'Delete'}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

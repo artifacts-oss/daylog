@@ -2,16 +2,15 @@
 
 import { User } from '@/prisma/generated/client';
 import {
-  IconChalkboard,
-  IconCircleMinus,
-  IconHome,
-  IconUser,
-  IconUserShield
-} from '@tabler/icons-react';
+  HomeIcon,
+  Squares2X2Icon,
+  UserIcon,
+  ShieldCheckIcon,
+} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signout } from '@/app/lib/actions';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 export default function NavBar({ user }: { user: User }) {
   const path = usePathname();
@@ -21,100 +20,63 @@ export default function NavBar({ user }: { user: User }) {
   const boardPattern = /^\/boards(\/[a-zA-Z0-9_-]+)?\/?$/;
   const notePattern = /^\/boards\/[a-zA-Z0-9_-]+\/notes(\/[a-zA-Z0-9_-]+)?\/?$/;
 
+  const navItems = [
+    {
+      name: 'Home',
+      href: '/',
+      icon: HomeIcon,
+      active: homePattern.test(path),
+    },
+    {
+      name: 'Boards',
+      href: '/boards',
+      icon: Squares2X2Icon,
+      active: boardPattern.test(path) || notePattern.test(path),
+    },
+    {
+      name: 'Profile',
+      href: `/profile/${user?.id}`,
+      icon: UserIcon,
+      active: profilePattern.test(path),
+    },
+  ];
+
+  if (user?.role === 'admin') {
+    navItems.push({
+      name: 'Admin',
+      href: '/admin',
+      icon: ShieldCheckIcon,
+      active: adminPattern.test(path),
+    });
+  }
+
   return (
-    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul className="navbar-nav pt-lg-3 px-lg-3 gap-2">
-        <motion.li
-          animate={{ 
-            scale: homePattern.test(path) ? [1, 1.05, 1] : 1
+    <nav className="flex flex-col gap-2 px-4 py-2">
+      {navItems.map((item) => (
+        <motion.div
+          key={item.name}
+          animate={{
+            scale: item.active ? [1, 1.02, 1] : 1,
           }}
-          transition={{ 
-            scale: { duration: 0.3, ease: "easeInOut" }
+          transition={{
+            scale: { duration: 0.3, ease: 'easeInOut' },
           }}
-          className={`nav-item rounded-pill overflow-hidden ${homePattern.test(path) ? 'text-bg-primary' : ''}`}
         >
           <Link
-            className={`nav-link ${homePattern.test(path) ? 'text-bg-primary' : ''}`}
-            href="/"
+            href={item.href}
             prefetch={true}
+            className={cn(
+              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+              item.active
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+            )}
           >
-            <span className={`nav-link-icon d-md-none d-lg-inline-block ${homePattern.test(path) ? 'text-bg-primary' : ''}`}>
-              <IconHome />
-            </span>
-            <span className="nav-link-title">Home</span>
+            <item.icon className="h-5 w-5" />
+            <span className="font-medium">{item.name}</span>
           </Link>
-        </motion.li>  
-        <motion.li
-          animate={{ 
-            scale: (boardPattern.test(path) || notePattern.test(path)) ? [1, 1.05, 1] : 1
-          }}
-          transition={{ 
-            scale: { duration: 0.3, ease: "easeInOut" }
-          }}
-          className={`nav-item rounded-pill overflow-hidden ${boardPattern.test(path) || notePattern.test(path) ? 'text-bg-primary' : ''}`}
-        >
-          <Link
-            className={`nav-link ${boardPattern.test(path) || notePattern.test(path) ? 'text-bg-primary' : ''}`}
-            href="/boards"
-            prefetch={true}
-          >
-            <span className={`nav-link-icon d-md-none d-lg-inline-block ${boardPattern.test(path) || notePattern.test(path) ? 'text-bg-primary' : ''}`}>
-              <IconChalkboard />
-            </span>
-            <span className="nav-link-title">Boards</span>
-          </Link>
-        </motion.li>
-        <motion.li
-          animate={{ 
-            scale: profilePattern.test(path) ? [1, 1.05, 1] : 1
-          }}
-          transition={{ 
-            scale: { duration: 0.3, ease: "easeInOut" }
-          }}
-          className={`nav-item rounded-pill overflow-hidden ${profilePattern.test(path) ? 'text-bg-primary' : ''}`}
-        >
-          <Link
-            className={`nav-link ${profilePattern.test(path) ? 'text-bg-primary' : ''}`}
-            href={`/profile/${user?.id}`}
-            prefetch={true}
-          >
-            <span className={`nav-link-icon d-md-none d-lg-inline-block ${profilePattern.test(path) ? 'text-bg-primary' : ''}`}>
-              <IconUser />
-            </span>
-            <span className="nav-link-title">Profile</span>
-          </Link>
-        </motion.li>
-        {user?.role === 'admin' && (
-          <motion.li
-            animate={{ 
-              scale: adminPattern.test(path) ? [1, 1.05, 1] : 1
-            }}
-            transition={{ 
-              scale: { duration: 0.3, ease: "easeInOut" }
-            }}
-            className={`nav-item rounded-pill overflow-hidden ${adminPattern.test(path) ? 'text-bg-primary' : ''}`} data-testid="admin-nav"
-          >
-            <Link
-              className={`nav-link ${adminPattern.test(path) ? 'text-bg-primary' : ''}`}
-              href="/admin"
-              prefetch={true}
-            >
-              <span className={`nav-link-icon d-md-none d-lg-inline-block ${adminPattern.test(path) ? 'text-bg-primary' : ''}`}>
-                <IconUserShield />
-              </span>
-              <span className="nav-link-title">Admin</span>
-            </Link>
-          </motion.li>
-        )}
-        <motion.li className='nav-item rounded-pill overflow-hidden mt-lg-auto mb-4'>
-          <a className="nav-link text-danger" role='button' onClick={() => signout()}>
-            <span className='nav-link-icon d-md-none d-lg-inline-block'>
-              <IconCircleMinus />
-            </span>
-            <span className="nav-link-title">Logout</span>
-          </a>
-        </motion.li>
-      </ul>
-    </div>
+        </motion.div>
+      ))}
+    </nav>
   );
 }

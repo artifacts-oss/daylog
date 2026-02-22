@@ -8,7 +8,8 @@ import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
-import { IconInfoCircle, IconPlus } from '@tabler/icons-react';
+import MainContent from '@/components/MainContent';
+import { PlusIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { getSettings } from '../admin/lib/actions';
@@ -16,6 +17,7 @@ import { getCurrentSession } from '../login/lib/actions';
 import BoardSortSelector from './components/BoardSortSelector';
 import { getBoards, getBoardsCount } from './lib/actions';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default async function Boards({
   searchParams,
@@ -26,7 +28,11 @@ export default async function Boards({
   if (user === null) {
     return redirect('/login');
   }
-  const { sort = user.sortBoardsBy, perPage = 12, openNew = 'false' } = await searchParams;
+  const {
+    sort = user.sortBoardsBy,
+    perPage = 12,
+    openNew = 'false',
+  } = await searchParams;
   const currentSort = sort as string;
   const currentPage = perPage as string;
   const openNewBoard = openNew === 'true';
@@ -40,91 +46,83 @@ export default async function Boards({
 
   return (
     <Page>
-      <NavMenu></NavMenu>
-      <NavHeader></NavHeader>
-      <PageContainer>
-        <PageHeader
-          title="All boards"
-          description="You can view all the boards you've created here."
-          breadcrumbs={breadcrumbs}
-        >
-          <div className="d-flex flex-column flex-md-row w-full w-md-auto align-items-center justify-content-md-between gap-1 gap-md-3">
-            <BoardSortSelector sortingParam={currentSort} />
-            <div className="btn-list">
-              <button
-                accessKey="n"
-                id="new-board-button"
-                className="btn btn-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#new-board-modal"
-              >
-                <IconPlus size={20} />
-                <span className="ms-1">Create new board</span>
-                <div className="d-flex gap-1 ms-1 d-none d-md-inline-flex">
-                  <span className="badge bg-transparent badge-md border border-light text-light">
+      <NavMenu user={user} />
+      <MainContent>
+        <NavHeader user={user} />
+        <PageContainer>
+          <PageHeader
+            title="All boards"
+            description="You can view all the boards you've created here."
+            breadcrumbs={breadcrumbs}
+          >
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <BoardSortSelector sortingParam={currentSort} />
+              <Button id="new-board-button" className="gap-2">
+                <PlusIcon className="h-5 w-5" />
+                <span>Create new board</span>
+                <div className="hidden md:flex items-center gap-1 ml-1 text-xs">
+                  <kbd className="px-1.5 py-0.5 bg-primary-foreground/20 rounded">
                     Alt
-                  </span>
-                  <span className="badge bg-transparent badge-md border border-light text-light">
+                  </kbd>
+                  <kbd className="px-1.5 py-0.5 bg-primary-foreground/20 rounded">
                     N
-                  </span>
+                  </kbd>
                 </div>
-              </button>
+              </Button>
               <BoardModalForm
                 mode="create"
                 open={openNewBoard}
                 modalId="new-board-modal"
                 isUnsplashAllowed={settings?.allowUnsplash}
-              ></BoardModalForm>
+              />
             </div>
-          </div>
-        </PageHeader>
-        <PageBody>
-          <div className="d-flex flex-column justify-content-between">
-            <div className="row row-deck">
-              {boards?.length == 0 ? (
-                <div className="col-md-4">
-                  <div className="card">
-                    <div className="card-body">
-                      <h5 className="card-title">Your boards are empty</h5>
-                      <div className="d-flex flex-row gap-2">
-                        <span>
-                          <IconInfoCircle />
-                        </span>
-                        <p className="card-text">
-                          Create a new one clicking{' '}
-                          <strong>Create new board</strong> button or using{' '}
-                          <span className="badge bg-info text-white">
-                            Alt + N
-                          </span>
-                        </p>
-                      </div>
+          </PageHeader>
+          <PageBody>
+            <div className="flex flex-col gap-6">
+              {boards?.length === 0 ? (
+                <div className="max-w-sm">
+                  <div className="rounded-lg border bg-card p-4">
+                    <h5 className="font-semibold mb-2">
+                      Your boards are empty
+                    </h5>
+                    <div className="flex gap-2 text-muted-foreground text-sm">
+                      <InformationCircleIcon className="h-5 w-5 flex-shrink-0" />
+                      <p>
+                        Create a new one by clicking{' '}
+                        <strong>Create new board</strong> or using{' '}
+                        <kbd className="px-1.5 py-0.5 bg-muted rounded text-xs">
+                          Alt + N
+                        </kbd>
+                      </p>
                     </div>
                   </div>
                 </div>
               ) : (
-                boards?.map((b) => (
-                  <div key={b.id} className="col-md-4 mb-3">
-                    <Suspense
-                      fallback={<BoardCardPlaceholder></BoardCardPlaceholder>}
-                    >
-                      <BoardCard boardId={b.id}></BoardCard>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {boards?.map((b) => (
+                    <Suspense key={b.id} fallback={<BoardCardPlaceholder />}>
+                      <BoardCard boardId={b.id} />
                     </Suspense>
-                  </div>
-                ))
+                  ))}
+                </div>
+              )}
+              {boards && boards.length > 0 && (
+                <div className="flex flex-col items-center gap-3">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {boards.length} of {boardCount} boards
+                  </p>
+                  {parseInt(currentPage) < boardCount && (
+                    <Link href={`/boards?perPage=${parseInt(currentPage) * 2}`}>
+                      <Button variant="outline">Load more</Button>
+                    </Link>
+                  )}
+                </div>
               )}
             </div>
-            <div className="mt-3 d-flex flex-column justify-content-center">
-              <p className="text-center">Showing {boards?.length} of {boardCount} boards</p>
-              {parseInt(currentPage) < boardCount &&
-                <Link className="btn btn-ghost btn-primary mx-auto"
-                  href={`/boards?perPage=${parseInt(currentPage) * 2}`}>
-                  Load more
-                </Link>}
-            </div>
-          </div>
-        </PageBody>
-        <PageFooter></PageFooter>
-      </PageContainer>
+          </PageBody>
+          <PageFooter />
+        </PageContainer>
+      </MainContent>
     </Page>
   );
 }

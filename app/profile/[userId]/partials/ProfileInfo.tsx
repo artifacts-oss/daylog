@@ -1,9 +1,15 @@
 'use client';
 
 import { User } from '@/prisma/generated/client';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { CloudArrowDownIcon } from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
 import { updateProfile } from '../lib/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 type ProfileInfoType = {
   profile: User;
@@ -11,109 +17,76 @@ type ProfileInfoType = {
 
 export default function ProfileInfo({ profile }: ProfileInfoType) {
   const [state, action, pending] = useActionState(updateProfile, undefined);
+
   return (
     <form action={action}>
-      <div className="card">
-        <div className="card-body">
-          <h3 className="card-title">Profile Information</h3>
-          <div className="text-secondary">
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Information</CardTitle>
+          <p className="text-sm text-muted-foreground">
             Update your account&apos;s profile information and email address.
-          </div>
-          <div className="d-flex align-items-center pt-4 mt-auto">
-            <div className="w-full row">
-              <div className="col-md-4 ms-3">
-                <input type="hidden" name="id" value={profile.id ?? 0} />
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="name">
-                    Name
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    name="name"
-                    className="form-control"
-                    defaultValue={
-                      typeof state?.data?.name === 'string'
-                        ? state.data.name
-                        : (profile.name ?? '')
-                    }
-                    placeholder="Enter your nickname, name or fullname"
-                  />
-                  {state?.errors?.name && (
-                    <div className="invalid-feedback d-block" role="alert">
-                      {state?.errors?.name}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="email">
-                    E-mail
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    className="form-control"
-                    defaultValue={
-                      typeof state?.data?.email === 'string'
-                        ? state.data.email
-                        : (profile.email ?? '')
-                    }
-                    placeholder="Enter your email for password recovery"
-                  />
-                  {state?.errors?.email &&
-                    state?.errors?.email.map((e, i) => (
-                      <div key={i} className="invalid-feedback">
-                        {e}
-                      </div>
-                    ))}
-                </div>
-              </div>
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <input type="hidden" name="id" value={profile.id ?? 0} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                name="name"
+                defaultValue={
+                  typeof state?.data?.name === 'string'
+                    ? state.data.name
+                    : profile.name ?? ''
+                }
+                placeholder="Enter your nickname, name or fullname"
+              />
+              {state?.errors?.name && (
+                <p className="text-sm text-destructive">{state?.errors?.name}</p>
+              )}
             </div>
-            <div className="ms-auto"></div>
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                name="email"
+                defaultValue={
+                  typeof state?.data?.email === 'string'
+                    ? state.data.email
+                    : profile.email ?? ''
+                }
+                placeholder="Enter your email for password recovery"
+              />
+              {state?.errors?.email && (
+                <p className="text-sm text-destructive">
+                  {Array.isArray(state?.errors?.email)
+                    ? state?.errors?.email.join(', ')
+                    : state?.errors?.email}
+                </p>
+              )}
+            </div>
           </div>
           {!state?.success && state?.message && (
-            <div
-              className="alert alert-important alert-danger alert-dismissible"
-              role="alert"
-            >
-              <div>{state.message}</div>
-              <a
-                className="btn-close btn-close-white"
-                data-bs-dismiss="alert"
-                aria-label="close"
-              ></a>
-            </div>
+            <Alert variant="destructive">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
           )}
           {state?.success && state?.message && (
-            <div
-              className="alert alert-important alert-sucess alert-dismissible"
-              role="alert"
-            >
-              <div>{state.message}</div>
-              <a
-                className="btn-close btn-close-white"
-                data-bs-dismiss="alert"
-                aria-label="close"
-              ></a>
-            </div>
+            <Alert className="border-green-500 text-green-500">
+              <CheckCircleIcon className="h-4 w-4" />
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
           )}
-        </div>
-        <div className="card-body">
-          <button
-            disabled={pending}
-            type="submit"
-            className={`btn btn-primary ${
-              pending ? 'btn-loading disabled' : null
-            }`}
-          >
-            <span className="me-1">
-              <IconDeviceFloppy />
-            </span>
-            Save Changes
-          </button>
-        </div>
-      </div>
+          <Button type="submit" disabled={pending}>
+            <CloudArrowDownIcon className="h-4 w-4 mr-2" />
+            {pending ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </CardContent>
+      </Card>
     </form>
   );
 }

@@ -8,12 +8,22 @@ import {
 } from '@/app/boards/lib/actions';
 import { Board, Prisma } from '@/prisma/generated/client';
 import { getImageUrlOrFile, resizeImage } from '@/utils/image';
-import { IconTrash } from '@tabler/icons-react';
+import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import UnsplashImagesDropdown from './UnsplashImagesDropdown';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type BoardModalFormType = {
   modalId: string;
@@ -24,17 +34,13 @@ type BoardModalFormType = {
 };
 
 export default function BoardModalForm({
-  modalId,
   board,
   mode,
-  open,
+  open: externalOpen,
   isUnsplashAllowed = false,
 }: BoardModalFormType) {
   const router = useRouter();
-
-  const formRef = useRef<HTMLFormElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
+  const [open, setOpen] = useState(false);
   const [submiting, setSubmiting] = useState(false);
   const [imageFile, setImageFile] = useState<File>();
   const [imageUrl, setImageUrl] = useState<string>('');
@@ -43,7 +49,17 @@ export default function BoardModalForm({
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<Board>();
+
+  useEffect(() => {
+    if (externalOpen) {
+      setOpen(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('openNew');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [externalOpen]);
 
   const onSubmit: SubmitHandler<Board> = (data) => {
     setSubmiting(true);
@@ -55,8 +71,8 @@ export default function BoardModalForm({
     }
 
     setSubmiting(false);
-    closeModal();
-    formRef.current?.reset();
+    setOpen(false);
+    reset();
     setImageFile(undefined);
     setImageUrl('');
   };
@@ -75,160 +91,141 @@ export default function BoardModalForm({
   }
 
   const createBoardHandler = async (data: Board) => {
-    const board: Prisma.BoardCreateInput = {
+    const boardInput: Prisma.BoardCreateInput = {
       title: data.title,
       description: data.description,
       user: { connect: { id: 1 } },
     };
 
-    const boardId = await createBoard(board);
-
+    const boardId = await createBoard(boardInput);
     await uploadImage(boardId);
-
     router.refresh();
   };
 
   const updateBoardHandler = async (data: Board) => {
     if (!board?.id) return;
-
     data.id = board?.id;
-
     await updateBoard(data);
     await uploadImage(data.id);
-
     router.refresh();
   };
 
-  const closeModal = () => {
-    if (closeButtonRef) {
-      closeButtonRef.current?.click();
-    } else {
-      console.error('Close button is not available.');
-    }
-  };
-
-  useEffect(() => {
-    if (open) {
-      const modalTrigger = document.getElementById("new-board-button");
-      if (modalTrigger) {
-        modalTrigger.click();
-        const url = new URL(window.location.href);
-        url.searchParams.delete('openNew');
-        window.history.replaceState({}, '', url.toString());
-      }
-    }
-  }, [open]);
-
   return (
-    <div className="modal fade" id={modalId} tabIndex={-1}>
-      <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-        <div className="modal-dialog" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">
-                {mode === 'create' ? 'Create board' : 'Update board'}
-              </h5>
-              <button
+    <>
+      {mode === 'create' ? (
+        <Button onClick={() => setOpen(true)} data-testid="open-create-modal">
+          Open
+        </Button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-white hover:text-white hover:bg-white/10"
+          onClick={() => setOpen(true)}
+        >
+          <PencilSquareIcon className="h-5 w-5" />
+          <span className="sr-only">Edit board</span>
+        </Button>
+      )}
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {mode === 'create' ? 'Create board' : 'Update board'}
+            </DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {isUnsplashAllowed && (
+              <div>
+                <UnsplashImagesDropdown
+                  imageSelected={(url) => setImageUrl(url)}
+                />
+              </div>
+            )}
+            {mode === 'update' && board?.id && board.imageUrl && (
+              <div className="space-y-2">
+                <div className="rounded-lg overflow-hidden border">
+                  <Image
+                    width="800"
+                    height="0"
+                    src={getImageUrlOrFile(board.imageUrl)}
+                    alt={`Preview image of ${board.title}`}
+                    className="w-auto h-auto"
+                    priority={false}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-destructive"
+                  onClick={async () => {
+                    await deleteImage(board.id, board.imageUrl);
+                  }}
+                >
+                  <TrashIcon className="h-4 w-4 mr-1" />
+                  Remove image
+                </Button>
+              </div>
+            )}
+            <div>
+              <Label htmlFor="image">
+                Select image from your device{' '}
+                <span className="text-muted-foreground">(optional)</span>
+              </Label>
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files?.[0])}
+                className="cursor-pointer"
+              />
+            </div>
+            <div>
+              <Label htmlFor="title">
+                Title <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="title"
+                placeholder="Your board title"
+                defaultValue={board?.title}
+                {...register('title', { required: true })}
+                className={errors.title ? 'border-destructive' : ''}
+              />
+              {errors.title && (
+                <p className="text-sm text-destructive mt-1">Title is required</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                placeholder="Type any description"
+                defaultValue={board?.description ?? ''}
+                {...register('description')}
+              />
+            </div>
+            <DialogFooter>
+              <Button
                 type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                {isUnsplashAllowed && (
-                  <div className="mb-2">
-                    <UnsplashImagesDropdown
-                      imageSelected={(imageUrl) => setImageUrl(imageUrl)}
-                    />
-                  </div>
-                )}
-                {mode === 'update' && board?.id && board.imageUrl && (
-                  <div className="mb-3">
-                    <div className="border border-secondary rounded w-100">
-                      <Image
-                        width="800"
-                        height="0"
-                        src={getImageUrlOrFile(board.imageUrl)}
-                        alt={`Preview image of ${board.title}`}
-                        style={{
-                          width: 'auto',
-                          height: 'auto',
-                        }}
-                        priority={false}
-                      ></Image>
-                    </div>
-                    <button
-                      className="btn btn-link btn-sm float-end text-danger mt-1"
-                      onClick={async () => {
-                        await deleteImage(board.id, board.imageUrl);
-                      }}
-                    >
-                      <IconTrash /> Remove image
-                    </button>
-                  </div>
-                )}
-                <label htmlFor="image" className="form-label">
-                  Select image from your device{' '}
-                  <span className="text-secondary">(optional)</span>
-                </label>
-                <input
-                  id="image"
-                  type="file"
-                  className="form-control"
-                  name="image"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0])}
-                />
-              </div>
-            </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Title</label>
-                <input
-                  type="text"
-                  className={`form-control ${errors.title && 'is-invalid'}`}
-                  placeholder="Your board title"
-                  defaultValue={board?.title}
-                  {...register('title', { required: true })}
-                />
-                {errors.title && (
-                  <div className="invalid-feedback">Title is required</div>
-                )}
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Description</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Type any description"
-                  defaultValue={board?.description ?? ''}
-                  {...register('description')}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                ref={closeButtonRef}
-                type="button"
-                className="btn me-auto"
-                data-bs-dismiss="modal"
+                variant="outline"
+                onClick={() => setOpen(false)}
               >
                 Close
-              </button>
-              <button
-                disabled={submiting}
-                type="submit"
-                className={`btn btn-primary ${submiting ? 'btn-loading disabled' : null
-                  }`}
-              >
-                {mode === 'create' ? 'Create' : 'Update'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </form>
-    </div>
+              </Button>
+              <Button type="submit" disabled={submiting}>
+                {submiting
+                  ? 'Saving...'
+                  : mode === 'create'
+                  ? 'Create'
+                  : 'Update'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
+

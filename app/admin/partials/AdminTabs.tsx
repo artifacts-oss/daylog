@@ -24,16 +24,22 @@ export default function AdminTabs() {
             </Link>
           </li>
           <li className="nav-item">
-            <Link href="#tabs-admin-preferences" className="nav-link" data-bs-toggle="tab">
+            <Link
+              href="#tabs-admin-preferences"
+              className="nav-link"
+              data-bs-toggle="tab"
+            >
               Preferences
             </Link>
           </li>
         </>
       ) : (
-        <div
-          data-testid="admin-tabs-placeholder"
-          style={{ height: '37px' }}
-        ></div>
+        <li className="nav-item">
+          <div
+            data-testid="admin-tabs-placeholder"
+            style={{ height: '37px' }}
+          ></div>
+        </li>
       )}
     </ul>
   );

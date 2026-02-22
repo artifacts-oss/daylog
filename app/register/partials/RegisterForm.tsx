@@ -4,121 +4,114 @@ import FormField from '@/components/FormField';
 import Image from 'next/image';
 import { useActionState } from 'react';
 import { signup } from '../lib/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { Label } from '@/components/ui/label';
 
 export default function RegisterForm() {
   const [state, action, pending] = useActionState(signup, undefined);
 
   return (
-    <div className="page page-center">
-      <div className="container container-tight py-4">
-        <div className="text-center mb-4">
-          <a href="." className="navbar-brand navbar-brand-autodark">
-            <Image
-              src="/daylog.svg"
-              width="0"
-              height="0"
-              alt={'daylog'}
-              className="navbar-brand-image"
-              style={{ width: '110px', height: 'auto' }}
-            />
-          </a>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-sm space-y-4">
+        <div className="text-center">
+          <Image
+            src="/daylog.svg"
+            width="0"
+            height="0"
+            alt="daylog"
+            priority={true}
+            className="mx-auto"
+            style={{ width: 'auto', height: '48px' }}
+          />
         </div>
+
         {state?.message && (
-          <div className="alert alert-danger alert-dismissible" role="alert">
-            <h3 className="mb-1">Account not created</h3>
-            <p>{state.message}</p>
-            <a
-              className="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="close"
-            ></a>
-          </div>
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Account not created</AlertTitle>
+            <AlertDescription>{state.message}</AlertDescription>
+          </Alert>
         )}
+
         {state?.success && (
-          <div className="alert alert-success alert-dismissible" role="alert">
-            <h3 className="mb-1">Account created</h3>
-            <p>Your account has been created successfuly</p>
-            <div className="btn-list">
-              <a href="/login" className="btn btn-success">
-                Go to login
-              </a>
-            </div>
-            <a
-              className="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="close"
-            ></a>
-          </div>
+          <Alert className="border-green-500 text-green-500">
+            <CheckCircleIcon className="h-4 w-4" />
+            <AlertTitle>Account created</AlertTitle>
+            <AlertDescription>
+              Your account has been created successfully
+            </AlertDescription>
+            <Button variant="outline" className="mt-2" asChild>
+              <a href="/login">Go to login</a>
+            </Button>
+          </Alert>
         )}
-        <form autoComplete="off" className="card card-md" action={action}>
-          <div className="card-body">
-            <h2 className="card-title text-center mb-4">
-              Account registration
-            </h2>
-            <FormField
-              label="Name"
-              name="name"
-              placeholder="Enter name"
-              defaultValue={state?.data?.name?.toString()}
-              errors={state?.errors?.name}
-            />
-            <FormField
-              label="Email address"
-              name="email"
-              type="email"
-              placeholder="Enter email"
-              defaultValue={state?.data?.email?.toString()}
-              errors={state?.errors?.email}
-            />
-            <FormField
-              label="Password"
-              name="password"
-              type="password"
-              placeholder="Enter password"
-              defaultValue={state?.data?.password?.toString()}
-              errors={state?.errors?.password}
-            />
-            <div className="mb-3">
-              <label className="form-check">
-                <input
-                  name="terms"
-                  type="checkbox"
-                  defaultChecked={state?.data?.terms?.toString() === 'on'}
-                  className="form-check-input"
-                />
-                <span className="form-check-label">
-                  Agree the{' '}
-                  <a href="/register/terms" tabIndex={-1}>
-                    terms and policy
-                  </a>
-                  .
-                </span>
-              </label>
-              {state?.errors?.terms && (
-                <div className="invalid-feedback d-block" role="alert">
-                  {state?.errors?.terms}
+
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle>Account registration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={action} autoComplete="off" className="space-y-4">
+              <FormField
+                label="Name"
+                name="name"
+                placeholder="Enter name"
+                defaultValue={state?.data?.name?.toString()}
+                errors={state?.errors?.name}
+              />
+              <FormField
+                label="Email address"
+                name="email"
+                type="email"
+                placeholder="Enter email"
+                defaultValue={state?.data?.email?.toString()}
+                errors={state?.errors?.email}
+              />
+              <FormField
+                label="Password"
+                name="password"
+                type="password"
+                placeholder="Enter password"
+                defaultValue={state?.data?.password?.toString()}
+                errors={state?.errors?.password}
+              />
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    name="terms"
+                    type="checkbox"
+                    id="terms"
+                    defaultChecked={state?.data?.terms?.toString() === 'on'}
+                    className="h-4 w-4"
+                  />
+                  <Label htmlFor="terms" className="font-normal">
+                    Agree the{' '}
+                    <a href="/register/terms" className="text-primary hover:underline">
+                      terms and policy
+                    </a>
+                    .
+                  </Label>
                 </div>
-              )}
-            </div>
-            <div className="form-footer">
-              <button
-                disabled={pending}
-                type="submit"
-                className={`btn btn-primary w-100 ${
-                  pending ? 'btn-loading disabled' : null
-                }`}
-              >
-                Create new account
-              </button>
-            </div>
-          </div>
-        </form>
-        <div className="text-center text-secondary mt-3">
-          Already have account?{' '}
-          <a href="./login" tabIndex={-1}>
+                {state?.errors?.terms && (
+                  <p className="text-sm text-destructive">{state?.errors?.terms}</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={pending}>
+                {pending ? 'Creating account...' : 'Create new account'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Already have an account?{' '}
+          <a href="./login" className="text-foreground hover:underline">
             Sign in
           </a>
-        </div>
+        </p>
       </div>
     </div>
   );

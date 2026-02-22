@@ -16,7 +16,7 @@ export default function MainLayout({ children }: PropsWithChildren) {
   }
 
   return (
-    <ThemeProvider attribute="data-bs-theme">
+    <ThemeProvider attribute="class">
       {children}
     </ThemeProvider>
   );

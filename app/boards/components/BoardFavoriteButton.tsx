@@ -2,8 +2,10 @@
 
 import { updateBoard } from '@/app/boards/lib/actions';
 import { Board } from '@/prisma/generated/client';
-import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
+import { HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 type BoardFavoriteButtonType = {
   board: Board;
@@ -21,16 +23,23 @@ export default function BoardFavoriteButton({
   };
 
   return (
-    <a
-      href="#"
-      onClick={() => handleFavoriteClick()}
-      className="icon ms-3 text-danger"
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8 text-white hover:text-red-500 hover:bg-white/10"
+      onClick={handleFavoriteClick}
     >
-      {!board.favorite ? (
-        <IconHeart />
+      {board.favorite ? (
+        <HeartSolidIcon
+          data-testid="filled-heart"
+          className="h-5 w-5 text-red-500"
+        />
       ) : (
-        <IconHeartFilled data-testid="filled-heart" />
+        <HeartIcon className="h-5 w-5" />
       )}
-    </a>
+      <span className="sr-only">
+        {board.favorite ? 'Remove from favorites' : 'Add to favorites'}
+      </span>
+    </Button>
   );
 }

@@ -1,8 +1,14 @@
 'use client';
 
-import { IconLockPassword } from '@tabler/icons-react';
+import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
 import { updatePassword } from '../lib/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 type UpdatePassType = {
   userId: number | null;
@@ -15,118 +21,77 @@ type UpdatePassType = {
 
 export default function UpdatePass({ userId, profile }: UpdatePassType) {
   const [state, action, pending] = useActionState(updatePassword, undefined);
+
   return (
     <form action={action}>
-      <div className="card mt-3">
-        <div className="card-body">
-          <h3 className="card-title">Update Password</h3>
-          <div className="text-secondary">
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Update Password</CardTitle>
+          <p className="text-sm text-muted-foreground">
             Ensure your account is using a long, random password to stay secure.
-          </div>
-          <div className="d-flex align-items-center pt-4 mt-auto">
-            <div className="w-full row">
-              <div className="col-md-4 ms-3">
-                <input type="hidden" name="id" value={profile.id} />
-                {profile.id === userId && (
-                  <div className="mb-3">
-                    <label className="form-label" htmlFor="current">
-                      Current Password
-                    </label>
-                    <input
-                      id="current"
-                      type="password"
-                      name="current"
-                      className="form-control"
-                      placeholder="Enter current password"
-                    />
-                    {state?.errors?.current && (
-                      <div className="invalid-feedback d-block" role="alert">
-                        {state?.errors?.current}
-                      </div>
-                    )}
-                  </div>
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <input type="hidden" name="id" value={profile.id} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {profile.id === userId && (
+              <div className="space-y-2">
+                <Label htmlFor="current">Current Password</Label>
+                <Input
+                  id="current"
+                  type="password"
+                  name="current"
+                  placeholder="Enter current password"
+                />
+                {state?.errors?.current && (
+                  <p className="text-sm text-destructive">{state?.errors?.current}</p>
                 )}
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="password">
-                    New Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    className="form-control"
-                    defaultValue={state?.data?.password?.toString()}
-                    placeholder="Enter your new secure password"
-                  />
-                  {state?.errors?.password && (
-                    <div className="invalid-feedback d-block" role="alert">
-                      {state?.errors?.password}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="confirm">
-                    Pasword Confirmation
-                  </label>
-                  <input
-                    id="confirm"
-                    type="password"
-                    name="confirm"
-                    className="form-control"
-                    placeholder="Confirm your new password"
-                  />
-                  {state?.errors?.confirm && (
-                    <div className="invalid-feedback d-block" role="alert">
-                      {state?.errors?.confirm}
-                    </div>
-                  )}
-                </div>
               </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="password">New Password</Label>
+              <Input
+                id="password"
+                type="password"
+                name="password"
+                defaultValue={state?.data?.password?.toString()}
+                placeholder="Enter your new secure password"
+              />
+              {state?.errors?.password && (
+                <p className="text-sm text-destructive">{state?.errors?.password}</p>
+              )}
             </div>
-            <div className="ms-auto"></div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm">Password Confirmation</Label>
+              <Input
+                id="confirm"
+                type="password"
+                name="confirm"
+                placeholder="Confirm your new password"
+              />
+              {state?.errors?.confirm && (
+                <p className="text-sm text-destructive">{state?.errors?.confirm}</p>
+              )}
+            </div>
           </div>
           {!state?.success && state?.message && (
-            <div
-              className="alert alert-important alert-danger alert-dismissible"
-              role="alert"
-            >
-              <div>{state.message}</div>
-              <a
-                className="btn-close btn-close-white"
-                data-bs-dismiss="alert"
-                aria-label="close"
-              ></a>
-            </div>
+            <Alert variant="destructive">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
           )}
           {state?.success && state?.message && (
-            <div
-              className="alert alert-important alert-success alert-dismissible"
-              role="alert"
-            >
-              <div>{state.message}</div>
-              <a
-                className="btn-close btn-close-white"
-                data-bs-dismiss="alert"
-                aria-label="close"
-              ></a>
-            </div>
+            <Alert className="border-green-500 text-green-500">
+              <CheckCircleIcon className="h-4 w-4" />
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
           )}
-        </div>
-        <div className="card-body">
-          <button
-            disabled={pending}
-            type="submit"
-            className={`btn btn-primary ${
-              pending ? 'btn-loading disabled' : null
-            }`}
-          >
-            <span className="me-1">
-              <IconLockPassword />
-            </span>
-            Change Password
-          </button>
-        </div>
-      </div>
+          <Button type="submit" disabled={pending}>
+            <LockClosedIcon className="h-4 w-4 mr-2" />
+            {pending ? 'Updating...' : 'Change Password'}
+          </Button>
+        </CardContent>
+      </Card>
     </form>
   );
 }

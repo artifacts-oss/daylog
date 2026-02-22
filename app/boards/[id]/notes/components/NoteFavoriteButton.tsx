@@ -1,9 +1,11 @@
 'use client';
 
 import { Note } from '@/prisma/generated/client';
-import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
+import { HeartIcon } from '@heroicons/react/24/outline';
+import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import { useRouter } from 'next/navigation';
 import { updateNote } from '../lib/actions';
+import { Button } from '@/components/ui/button';
 
 type NoteFavoriteButtonType = {
   note: Note;
@@ -19,16 +21,23 @@ export default function NoteFavoriteButton({ note }: NoteFavoriteButtonType) {
   };
 
   return (
-    <a
-      href="#"
-      onClick={() => handleFavoriteClick()}
-      className="icon ms-3 text-secondary"
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8"
+      onClick={handleFavoriteClick}
     >
-      {!note.favorite ? (
-        <IconHeart />
+      {note.favorite ? (
+        <HeartSolidIcon
+          data-testid="filled-heart"
+          className="h-4 w-4 text-red-500"
+        />
       ) : (
-        <IconHeartFilled data-testid="filled-heart" />
+        <HeartIcon className="h-4 w-4" />
       )}
-    </a>
+      <span className="sr-only">
+        {note.favorite ? 'Remove from favorites' : 'Add to favorites'}
+      </span>
+    </Button>
   );
 }

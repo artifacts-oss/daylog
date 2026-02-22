@@ -1,8 +1,13 @@
 'use client';
 
-import { IconFileExport } from '@tabler/icons-react';
+import { ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
 import { backupData } from '../lib/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 type BackupType = {
   profile: {
@@ -14,63 +19,49 @@ type BackupType = {
 
 export default function Backup({ profile }: BackupType) {
   const [state, action, pending] = useActionState(backupData, undefined);
+
   return (
     <form action={action}>
       <input type="hidden" name="userId" defaultValue={profile.id} />
-      <div className="card mt-3">
-        <div className="card-body">
-          <h3 className="card-title">Backup</h3>
-          <div className="text-secondary">
+      <Card className="mt-4">
+        <CardHeader>
+          <CardTitle>Backup</CardTitle>
+          <p className="text-sm text-muted-foreground">
             Save or export all your data in a JSON file, depending of your data
             it may take a while, please don&apos;t refresh in this page until
             save file dialog appears.
-          </div>
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
           {!state?.success && state?.message && (
-            <div
-              className="alert alert-important alert-danger alert-dismissible mt-2"
-              role="alert"
-            >
-              <div>{state.message}</div>
-              <a
-                className="btn-close btn-close-white"
-                data-bs-dismiss="alert"
-                aria-label="close"
-              ></a>
-            </div>
+            <Alert variant="destructive">
+              <ExclamationTriangleIcon className="h-4 w-4" />
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
           )}
           {state?.success && state.data && (
             <>
-              <textarea
-                className="form-control mt-2"
+              <Textarea
                 disabled={pending}
                 rows={5}
                 defaultValue={state.data}
               />
-              <button
+              <Button
                 type="button"
-                className="btn btn-sm w-full mt-1"
+                variant="outline"
+                size="sm"
                 onClick={() => navigator.clipboard.writeText(state.data)}
               >
                 Copy JSON
-              </button>
+              </Button>
             </>
           )}
-        </div>
-        <div className="card-body">
-          <button
-            disabled={pending}
-            type="submit"
-            className={`btn btn-primary ${
-              pending ? 'btn-loading disabled' : null
-            }`}
-          >
-            <span className="me-1">
-              <IconFileExport />
-            </span>
-            Download Data
-          </button>
-        </div>
-      </div>
+          <Button type="submit" disabled={pending}>
+            <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+            {pending ? 'Processing...' : 'Download Data'}
+          </Button>
+        </CardContent>
+      </Card>
     </form>
   );
 }

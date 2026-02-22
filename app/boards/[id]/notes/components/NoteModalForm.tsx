@@ -3,12 +3,23 @@
 import UnsplashImagesDropdown from '@/app/boards/components/UnsplashImagesDropdown';
 import { Note } from '@/prisma/generated/client';
 import { getImageUrlOrFile, resizeImage } from '@/utils/image';
-import { IconTrash } from '@tabler/icons-react';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { createNote, deleteImage, saveImage, updateNote } from '../lib/actions';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 type NoteModalFormType = {
   modalId: string;
@@ -20,18 +31,14 @@ type NoteModalFormType = {
 };
 
 export default function NoteModalForm({
-  modalId,
   boardId,
   note,
-  open,
+  open: externalOpen,
   mode,
   isUnsplashAllowed = false,
 }: NoteModalFormType) {
   const router = useRouter();
-
-  const formRef = useRef<HTMLFormElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
+  const [open, setOpen] = useState(false);
   const [submiting, setSubmiting] = useState(false);
   const [imageFile, setImageFile] = useState<File>();
   const [imageUrl, setImageUrl] = useState<string>('');
@@ -40,20 +47,21 @@ export default function NoteModalForm({
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<Note>();
 
   const onSubmit: SubmitHandler<Note> = (data) => {
     setSubmiting(true);
 
-    if (mode == 'create') {
+    if (mode === 'create') {
       createNoteHandler(data, boardId);
     } else {
       updateNoteHandler(data);
     }
 
     setSubmiting(false);
-    closeModal();
-    formRef.current?.reset();
+    setOpen(false);
+    reset();
   };
 
   async function uploadImage(noteId: number | null) {
@@ -72,155 +80,127 @@ export default function NoteModalForm({
   const createNoteHandler = async (data: Note, boardId: number) => {
     const noteId = await createNote(data, boardId);
     await uploadImage(noteId);
-
     router.refresh();
   };
 
   const updateNoteHandler = async (data: Note) => {
     await updateNote(data);
     await uploadImage(data.id);
-
     router.refresh();
   };
 
-  const closeModal = () => {
-    if (closeButtonRef) {
-      closeButtonRef.current?.click();
-    } else {
-      console.error('Close button is not available.');
-    }
-  };
-
   useEffect(() => {
-    if (open) {
-      const modalTrigger = document.getElementById("new-note-button");
-      if (modalTrigger) {
-        modalTrigger.click();
-        const url = new URL(window.location.href);
-        url.searchParams.delete('openNew');
-        window.history.replaceState({}, '', url.toString());
-      }
+    if (externalOpen) {
+      setOpen(true);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('openNew');
+      window.history.replaceState({}, '', url.toString());
     }
-  }, [open]);
+  }, [externalOpen]);
 
   return (
-    <div className="modal fade" id={modalId} tabIndex={-1}>
-      <form ref={formRef} onSubmit={handleSubmit(onSubmit)}>
-        {mode === 'update' && (
-          <input
-            type="hidden"
-            defaultValue={note?.id}
-            {...register('id', { required: true, valueAsNumber: true })}
-          ></input>
-        )}
-        <div className="modal-dialog" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">
-                {mode === 'create' ? 'Create note' : 'Update note'}
-              </h5>
-              <button
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {mode === 'create' ? 'Create note' : 'Update note'}
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {mode === 'update' && (
+            <input
+              type="hidden"
+              defaultValue={note?.id}
+              {...register('id', { required: true, valueAsNumber: true })}
+            />
+          )}
+          {isUnsplashAllowed && (
+            <UnsplashImagesDropdown
+              imageSelected={(url) => setImageUrl(url)}
+            />
+          )}
+          {mode === 'update' && note?.id && note.imageUrl && (
+            <div className="space-y-2">
+              <div className="rounded-lg overflow-hidden border">
+                <Image
+                  width="800"
+                  height="0"
+                  src={getImageUrlOrFile(note.imageUrl)}
+                  alt={`Preview image of ${note.title}`}
+                  className="w-auto h-auto"
+                  priority={false}
+                />
+              </div>
+              <Button
                 type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-              ></button>
-            </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                {isUnsplashAllowed && (
-                  <div className="mb-2">
-                    <UnsplashImagesDropdown
-                      imageSelected={(imageUrl) => setImageUrl(imageUrl)}
-                    />
-                  </div>
-                )}
-                {mode === 'update' && note?.id && note.imageUrl && (
-                  <div className="mb-3">
-                    <div className="rounded overflow-hidden border border-secondary w-100">
-                      <Image
-                        width="800"
-                        height="0"
-                        src={getImageUrlOrFile(note.imageUrl)}
-                        alt={`Preview image of ${note.title}`}
-                        style={{
-                          width: 'auto',
-                          height: 'auto',
-                        }}
-                        priority={false}
-                      ></Image>
-                    </div>
-                    <button
-                      className="btn btn-sm btn-link text-danger float-end mt-1"
-                      onClick={async () => {
-                        await deleteImage(note.id, note.imageUrl);
-                      }}
-                    >
-                      <IconTrash />
-                      Remove image
-                    </button>
-                  </div>
-                )}
-                <label htmlFor="image" className="form-label">
-                  Select image from your device{' '}
-                  <span className="text-secondary">(optional)</span>
-                </label>
-                <input
-                  id="image"
-                  type="file"
-                  className="form-control"
-                  name="image"
-                  accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0])}
-                />
-              </div>
-            </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label">Title</label>
-                <input
-                  type="text"
-                  className={`form-control ${errors.title && 'is-invalid'}`}
-                  placeholder="Your note title"
-                  defaultValue={note?.title}
-                  {...register('title', { required: true })}
-                />
-                {errors.title && (
-                  <div className="invalid-feedback">Title is required</div>
-                )}
-              </div>
-              <div className="mb-3">
-                <label className="form-label">Content</label>
-                <textarea
-                  rows={5}
-                  className="form-control"
-                  placeholder="Type any simple content"
-                  defaultValue={note?.content ?? ''}
-                  {...register('content')}
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                ref={closeButtonRef}
-                type="button"
-                className="btn me-auto"
-                data-bs-dismiss="modal"
+                variant="ghost"
+                size="sm"
+                className="text-destructive"
+                onClick={async () => {
+                  await deleteImage(note.id, note.imageUrl);
+                }}
               >
-                Close
-              </button>
-              <button
-                disabled={submiting}
-                type="submit"
-                className={`btn btn-primary ${submiting ? 'btn-loading disabled' : null
-                  }`}
-              >
-                {mode === 'create' ? 'Create' : 'Update'}
-              </button>
+                <TrashIcon className="h-4 w-4 mr-1" />
+                Remove image
+              </Button>
             </div>
+          )}
+          <div>
+            <Label htmlFor="image">
+              Select image from your device{' '}
+              <span className="text-muted-foreground">(optional)</span>
+            </Label>
+            <Input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0])}
+              className="cursor-pointer"
+            />
           </div>
-        </div>
-      </form>
-    </div>
+          <div>
+            <Label htmlFor="title">
+              Title <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="title"
+              placeholder="Your note title"
+              defaultValue={note?.title}
+              {...register('title', { required: true })}
+              className={errors.title ? 'border-destructive' : ''}
+            />
+            {errors.title && (
+              <p className="text-sm text-destructive mt-1">Title is required</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="content">Content</Label>
+            <Textarea
+              id="content"
+              rows={5}
+              placeholder="Type any simple content"
+              defaultValue={note?.content ?? ''}
+              {...register('content')}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </Button>
+            <Button type="submit" disabled={submiting}>
+              {submiting
+                ? 'Saving...'
+                : mode === 'create'
+                ? 'Create'
+                : 'Update'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

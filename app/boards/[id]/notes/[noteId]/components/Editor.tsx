@@ -14,8 +14,10 @@ import { getImageUrlOrFile, resizeImage } from '@/utils/image';
 import MDEditor from '@uiw/react-md-editor';
 import rehypeSanitize from 'rehype-sanitize';
 import { useTheme } from 'next-themes';
-import { IconPhotoPlus, IconX } from '@tabler/icons-react';
+import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 type NoteEditorType = {
   note: Note;
@@ -64,14 +66,12 @@ export default function Editor({ note }: NoteEditorType) {
 
   const debounceSave = useCallback(
     (content: string, callback: () => void) => {
-      // Clear the previous timer
       if (debounceTimer) clearTimeout(debounceTimer);
 
-      // Set a new timer
       const timeout = setTimeout(() => {
         updateNoteHandler(content);
         callback();
-      }, 1000); // Waits for 1 second of inactivity before saving
+      }, 1000);
 
       setDebounceTimer(timeout);
     },
@@ -113,9 +113,6 @@ export default function Editor({ note }: NoteEditorType) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       resizeImage(file, 1920, 1080, async (resizedDataUrl) => {
         const imageUrl = await savePicture(note.id, resizedDataUrl);
@@ -137,10 +134,10 @@ export default function Editor({ note }: NoteEditorType) {
   };
 
   return (
-    <div className="d-flex flex-column">
-      <div className="card mt-2">
-        <div className="card-body p-0 border-0 h-auto">
-          <div className="relative" data-color-mode={theme}>
+    <div className="flex flex-col gap-4">
+      <Card>
+        <CardContent className="p-0 border-0 h-auto relative">
+          <div data-color-mode={theme}>
             <MDEditor
               data-testid="editor"
               height={480}
@@ -153,7 +150,7 @@ export default function Editor({ note }: NoteEditorType) {
             />
             {isSaving && (
               <div
-                className="bg-primary pulse"
+                className="bg-primary"
                 aria-label="Saving changes..."
                 title="Saving changes..."
                 style={{
@@ -167,18 +164,20 @@ export default function Editor({ note }: NoteEditorType) {
                   animation: 'pulse 2s infinite',
                   cursor: 'pointer',
                 }}
-              ></div>
+              />
             )}
           </div>
-        </div>
-      </div>
-      <div className="card mt-2">
-        <div className="card-body">
-          <h3 className="card-title">Pictures</h3>
-          <div className="text-secondary">
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Pictures</CardTitle>
+          <p className="text-sm text-muted-foreground">
             Click a picture to place it in the editor at the cursor position.
-          </div>
-          <div className="row row-cols-2 row-cols-md-6 row-cols-lg-8 pt-4">
+          </p>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-6 lg:grid-cols-8 gap-2">
             {note &&
               note.imageUrl &&
               PicturePreview({
@@ -205,31 +204,23 @@ export default function Editor({ note }: NoteEditorType) {
           </div>
 
           {pictures.length === 0 && note.imageUrl === null && (
-            <div className="d-flex gap-2 align-items-center text-muted w-full">
-              <div>No pictures</div>
-            </div>
+            <p className="text-muted-foreground">No pictures</p>
           )}
-        </div>
-        <div className="card-body">
+        </CardContent>
+        <CardContent>
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={handleFileChange}
-            className="d-none"
+            className="hidden"
           />
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <span className="me-1">
-              <IconPhotoPlus />
-            </span>
+          <Button onClick={() => fileInputRef.current?.click()}>
+            <PhotoIcon className="h-4 w-4 mr-2" />
             Add picture
-          </button>
-        </div>
-      </div>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -246,32 +237,30 @@ const PicturePreview = ({
   onDelete: () => Promise<void>;
 }) => {
   return (
-    <div className="col position-relative">
+    <div className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group">
       <div
-        className="position-absolute top-0 end-0 z-1 bg-dark rounded-circle me-3 mt-1 cursor-pointer text-light"
-        onClick={onDelete}
+        className="absolute top-1 right-1 z-10 bg-background/80 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
       >
-        <IconX />
+        <XMarkIcon className="h-4 w-4" />
       </div>
       <div
         data-testid={`picture-preview-${pictureId ?? 'default'}`}
         role="button"
         onClick={onClick}
-        className="ratio ratio-1x1 rounded-4 overflow-hidden cursor-pointer"
+        className="w-full h-full"
       >
         <Image
           width={140}
           height={140}
-          style={{
-            objectFit: 'cover',
-            objectPosition: 'center',
-          }}
+          className="object-cover w-full h-full"
           src={getImageUrlOrFile(imageUrl)}
           alt="Note image preview"
           priority={false}
-          placeholder="blur"
-          blurDataURL={getImageUrlOrFile(imageUrl)}
-        ></Image>
+        />
       </div>
     </div>
   );

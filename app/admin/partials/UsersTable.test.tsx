@@ -33,18 +33,14 @@ describe('UsersTable', () => {
 
   it('renders loading state initially', () => {
     render(<UsersTable currentUserId={1} />);
-    expect(screen.getByText('Loading users...')).toBeInTheDocument();
+    expect(screen.getByText('Fetching directory...')).toBeInTheDocument();
   });
 
   it('renders users after loading', async () => {
     render(<UsersTable currentUserId={1} />);
     await waitFor(() => {
-      expect(
-        screen.getByRole('cell', { name: 'User One' })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole('cell', { name: 'User Two' })
-      ).toBeInTheDocument();
+      expect(screen.getByText('User One')).toBeInTheDocument();
+      expect(screen.getByText('User Two')).toBeInTheDocument();
     });
   });
 
@@ -54,7 +50,7 @@ describe('UsersTable', () => {
       expect(screen.getByText('User One')).toBeInTheDocument()
     );
 
-    fireEvent.click(screen.getByText('Set as Admin'));
+    fireEvent.click(screen.getByText('Elevate to Admin'));
     await waitFor(() =>
       expect(mocks.setAdmin).toHaveBeenCalledWith(1, 'admin')
     );
@@ -63,15 +59,15 @@ describe('UsersTable', () => {
   it('handles user deletion', async () => {
     render(<UsersTable currentUserId={1} />);
     await waitFor(() =>
-      expect(screen.getByText('User One')).toBeInTheDocument()
+      expect(screen.getByText('User Two')).toBeInTheDocument()
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Delete User' }));
     await waitFor(() =>
-      expect(screen.getByText('Are you sure?')).toBeInTheDocument()
+      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
     );
 
-    fireEvent.click(screen.getByText('Yes, delete'));
+    fireEvent.click(screen.getByText('Delete Account'));
     await waitFor(() => expect(mocks.deleteUser).toHaveBeenCalledWith(2));
   });
 });

@@ -6,6 +6,10 @@ import { useActionState, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { signin } from '../lib/actions';
 import { validateAllowRegistration } from '@/app/register/lib/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
@@ -14,48 +18,40 @@ export default function LoginForm() {
   const [isRegAllowed, setIsRegAllowed] = useState(false);
 
   useEffect(() => {
-    // Resolves Bootstrap modal issue when redirects to login from a modal.
-    const modal = document.getElementsByClassName('modal-backdrop');
-    if (modal.length > 0) modal[0].remove();
     validateAllowRegistration().then((allowReg) => {
       setIsRegAllowed(allowReg);
     });
   }, []);
 
   return (
-    <div className="page page-center">
-      <div className="container container-tight py-4">
-        <div className="text-center mb-4">
-          <a href="." className="navbar-brand navbar-brand-autodark">
-            <Image
-              src="/daylog.svg"
-              width="0"
-              height="0"
-              alt="daylog"
-              priority={true}
-              className="navbar-brand-image"
-              style={{ width: 'auto', height: '48px' }}
-            />
-          </a>
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-sm space-y-4">
+        <div className="text-center">
+          <Image
+            src="/daylog.svg"
+            width="0"
+            height="0"
+            alt="daylog"
+            priority={true}
+            className="mx-auto"
+            style={{ width: 'auto', height: '48px' }}
+          />
         </div>
+
         {state?.message && (
-          <div
-            className="d-flex flex-column alert alert-danger alert-dismissible"
-            role="alert"
-          >
-            <h3>Could not login</h3>
-            <p>{state.message}</p>
-            <a
-              className="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="close"
-            ></a>
-          </div>
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Could not login</AlertTitle>
+            <AlertDescription>{state.message}</AlertDescription>
+          </Alert>
         )}
-        <div className="card card-md">
-          <div className="card-body">
-            <h2 className="h2 text-center mb-4">Login to your account</h2>
-            <form action={action} autoComplete="off" noValidate={true}>
+
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle>Login to your account</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={action} autoComplete="off" noValidate className="space-y-4">
               <FormField
                 label="Email address"
                 name="email"
@@ -75,32 +71,25 @@ export default function LoginForm() {
                 autoComplete="off"
               />
               <input type="hidden" name="callbackUrl" value={callbackUrl} />
-              <div className="form-footer">
-                <button
-                  disabled={pending}
-                  type="submit"
-                  className={`btn btn-primary w-100 ${
-                    pending ? 'btn-loading disabled' : null
-                  }`}
-                >
-                  Sign in
-                </button>
-                <div className="text-center text-muted mt-3">
-                  <a href="/login/reset" tabIndex={-1}>
-                    Forgot password?
-                  </a>
-                </div>
+              <Button type="submit" className="w-full" disabled={pending}>
+                {pending ? 'Signing in...' : 'Sign in'}
+              </Button>
+              <div className="text-center text-sm text-muted-foreground">
+                <a href="/login/reset" className="hover:text-foreground">
+                  Forgot password?
+                </a>
               </div>
             </form>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
         {isRegAllowed && (
-          <div className="text-center text-secondary mt-3">
-            Don&apos;t have account yet?{' '}
-            <a href="./register" tabIndex={-1}>
+          <p className="text-center text-sm text-muted-foreground">
+            Don&apos;t have an account yet?{' '}
+            <a href="./register" className="text-foreground hover:underline">
               Sign up
             </a>
-          </div>
+          </p>
         )}
       </div>
     </div>
