@@ -15,11 +15,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
 
 type NoteModalFormType = {
   modalId: string;
@@ -28,6 +30,7 @@ type NoteModalFormType = {
   open?: boolean;
   mode: 'update' | 'create';
   isUnsplashAllowed?: boolean;
+  trigger?: React.ReactNode;
 };
 
 export default function NoteModalForm({
@@ -36,6 +39,7 @@ export default function NoteModalForm({
   open: externalOpen,
   mode,
   isUnsplashAllowed = false,
+  trigger,
 }: NoteModalFormType) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -100,6 +104,20 @@ export default function NoteModalForm({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      {trigger ? (
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+      ) : mode === 'update' ? (
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-full transition-all"
+          >
+            <PencilSquareIcon className="h-4 w-4" />
+            <span className="sr-only">Edit note</span>
+          </Button>
+        </DialogTrigger>
+      ) : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
@@ -115,9 +133,7 @@ export default function NoteModalForm({
             />
           )}
           {isUnsplashAllowed && (
-            <UnsplashImagesDropdown
-              imageSelected={(url) => setImageUrl(url)}
-            />
+            <UnsplashImagesDropdown imageSelected={(url) => setImageUrl(url)} />
           )}
           {mode === 'update' && note?.id && note.imageUrl && (
             <div className="space-y-2">
@@ -195,8 +211,8 @@ export default function NoteModalForm({
               {submiting
                 ? 'Saving...'
                 : mode === 'create'
-                ? 'Create'
-                : 'Update'}
+                  ? 'Create'
+                  : 'Update'}
             </Button>
           </DialogFooter>
         </form>

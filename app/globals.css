@@ -1,36 +1,36 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --font-sans: var(--font-jakarta), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
-  
+
   --color-border: hsl(0 0% 89.8%);
   --color-input: hsl(0 0% 89.8%);
   --color-ring: hsl(0 0% 3.9%);
   --color-background: hsl(0 0% 100%);
   --color-foreground: hsl(0 0% 3.9%);
-  
+
   --color-primary: hsl(0 0% 9%);
   --color-primary-foreground: hsl(0 0% 98%);
-  
+
   --color-secondary: hsl(0 0% 96.1%);
   --color-secondary-foreground: hsl(0 0% 9%);
-  
+
   --color-destructive: hsl(0 84.2% 60.2%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  
+
   --color-muted: hsl(0 0% 96.1%);
   --color-muted-foreground: hsl(0 0% 45.1%);
-  
+
   --color-accent: hsl(0 0% 96.1%);
   --color-accent-foreground: hsl(0 0% 9%);
-  
+
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(0 0% 3.9%);
-  
+
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(0 0% 3.9%);
-  
+
   --radius: 0.5rem;
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
@@ -43,25 +43,25 @@
   --color-ring: hsl(0 0% 83.1%);
   --color-background: hsl(0 0% 3.9%);
   --color-foreground: hsl(0 0% 98%);
-  
+
   --color-primary: hsl(0 0% 98%);
   --color-primary-foreground: hsl(0 0% 9%);
-  
+
   --color-secondary: hsl(0 0% 14.9%);
   --color-secondary-foreground: hsl(0 0% 98%);
-  
+
   --color-destructive: hsl(0 62.8% 30.6%);
   --color-destructive-foreground: hsl(0 0% 98%);
-  
+
   --color-muted: hsl(0 0% 14.9%);
   --color-muted-foreground: hsl(0 0% 63.9%);
-  
+
   --color-accent: hsl(0 0% 14.9%);
   --color-accent-foreground: hsl(0 0% 98%);
-  
+
   --color-popover: hsl(0 0% 3.9%);
   --color-popover-foreground: hsl(0 0% 98%);
-  
+
   --color-card: hsl(0 0% 3.9%);
   --color-card-foreground: hsl(0 0% 98%);
 }
@@ -73,7 +73,30 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    @apply antialiased selection:bg-primary selection:text-primary-foreground;
   }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 10px;
+  border: 3px solid var(--color-background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
 }
 
 @utility line-clamp-1 {
@@ -126,7 +149,7 @@
   color: var(--color-primary-foreground);
 }
 
-body .w-md-editor-text-pre>code,
+body .w-md-editor-text-pre > code,
 body .w-md-editor-text-input {
   font-size: 16px !important;
   line-height: 24px !important;
@@ -141,24 +164,24 @@ body .w-md-editor-toolbar {
   padding-left: 12px;
 }
 
-body .w-md-editor-toolbar li.active>button {
+body .w-md-editor-toolbar li.active > button {
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
 }
 
-body .w-md-editor-toolbar li>button {
+body .w-md-editor-toolbar li > button {
   padding: 8px;
   height: 40px;
   width: 40px;
   color: var(--color-muted-foreground);
 }
 
-body .w-md-editor-toolbar li>button>svg {
+body .w-md-editor-toolbar li > button > svg {
   width: 18px;
   height: 18px;
 }
 
-body .w-md-editor-toolbar li>button:hover {
+body .w-md-editor-toolbar li > button:hover {
   background-color: var(--color-primary);
   color: var(--color-primary-foreground);
 }
@@ -167,7 +190,7 @@ body .w-md-editor {
   background-color: var(--color-card) !important;
 }
 
-body .w-md-editor-content pre>code {
+body .w-md-editor-content pre > code {
   padding-left: 4px;
   padding-bottom: 4px;
   color: var(--color-foreground) !important;

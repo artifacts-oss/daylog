@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +32,7 @@ type BoardModalFormType = {
   mode: 'update' | 'create';
   open?: boolean;
   isUnsplashAllowed?: boolean;
+  trigger?: React.ReactNode;
 };
 
 export default function BoardModalForm({
@@ -38,6 +40,7 @@ export default function BoardModalForm({
   mode,
   open: externalOpen,
   isUnsplashAllowed = false,
+  trigger,
 }: BoardModalFormType) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -111,121 +114,116 @@ export default function BoardModalForm({
   };
 
   return (
-    <>
-      {mode === 'create' ? (
-        <Button onClick={() => setOpen(true)} data-testid="open-create-modal">
-          Open
-        </Button>
-      ) : (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 text-white hover:text-white hover:bg-white/10"
-          onClick={() => setOpen(true)}
-        >
-          <PencilSquareIcon className="h-5 w-5" />
-          <span className="sr-only">Edit board</span>
-        </Button>
-      )}
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {mode === 'create' ? 'Create board' : 'Update board'}
-            </DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {isUnsplashAllowed && (
-              <div>
-                <UnsplashImagesDropdown
-                  imageSelected={(url) => setImageUrl(url)}
+    <Dialog open={open} onOpenChange={setOpen}>
+      {trigger ? (
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+      ) : mode === 'update' ? (
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-white hover:text-white hover:bg-white/10"
+          >
+            <PencilSquareIcon className="h-5 w-5" />
+            <span className="sr-only">Edit board</span>
+          </Button>
+        </DialogTrigger>
+      ) : null}
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {mode === 'create' ? 'Create board' : 'Update board'}
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {isUnsplashAllowed && (
+            <div>
+              <UnsplashImagesDropdown
+                imageSelected={(url) => setImageUrl(url)}
+              />
+            </div>
+          )}
+          {mode === 'update' && board?.id && board.imageUrl && (
+            <div className="space-y-2">
+              <div className="rounded-lg overflow-hidden border">
+                <Image
+                  width="800"
+                  height="0"
+                  src={getImageUrlOrFile(board.imageUrl)}
+                  alt={`Preview image of ${board.title}`}
+                  className="w-auto h-auto"
+                  priority={false}
                 />
               </div>
-            )}
-            {mode === 'update' && board?.id && board.imageUrl && (
-              <div className="space-y-2">
-                <div className="rounded-lg overflow-hidden border">
-                  <Image
-                    width="800"
-                    height="0"
-                    src={getImageUrlOrFile(board.imageUrl)}
-                    alt={`Preview image of ${board.title}`}
-                    className="w-auto h-auto"
-                    priority={false}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-destructive"
-                  onClick={async () => {
-                    await deleteImage(board.id, board.imageUrl);
-                  }}
-                >
-                  <TrashIcon className="h-4 w-4 mr-1" />
-                  Remove image
-                </Button>
-              </div>
-            )}
-            <div>
-              <Label htmlFor="image">
-                Select image from your device{' '}
-                <span className="text-muted-foreground">(optional)</span>
-              </Label>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files?.[0])}
-                className="cursor-pointer"
-              />
-            </div>
-            <div>
-              <Label htmlFor="title">
-                Title <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="title"
-                placeholder="Your board title"
-                defaultValue={board?.title}
-                {...register('title', { required: true })}
-                className={errors.title ? 'border-destructive' : ''}
-              />
-              {errors.title && (
-                <p className="text-sm text-destructive mt-1">Title is required</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Input
-                id="description"
-                placeholder="Type any description"
-                defaultValue={board?.description ?? ''}
-                {...register('description')}
-              />
-            </div>
-            <DialogFooter>
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => setOpen(false)}
+                variant="ghost"
+                size="sm"
+                className="text-destructive"
+                onClick={async () => {
+                  await deleteImage(board.id, board.imageUrl);
+                }}
               >
-                Close
+                <TrashIcon className="h-4 w-4 mr-1" />
+                Remove image
               </Button>
-              <Button type="submit" disabled={submiting}>
-                {submiting
-                  ? 'Saving...'
-                  : mode === 'create'
+            </div>
+          )}
+          <div>
+            <Label htmlFor="image">
+              Select image from your device{' '}
+              <span className="text-muted-foreground">(optional)</span>
+            </Label>
+            <Input
+              id="image"
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0])}
+              className="cursor-pointer"
+            />
+          </div>
+          <div>
+            <Label htmlFor="title">
+              Title <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="title"
+              placeholder="Your board title"
+              defaultValue={board?.title}
+              {...register('title', { required: true })}
+              className={errors.title ? 'border-destructive' : ''}
+            />
+            {errors.title && (
+              <p className="text-sm text-destructive mt-1">Title is required</p>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              placeholder="Type any description"
+              defaultValue={board?.description ?? ''}
+              {...register('description')}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </Button>
+            <Button type="submit" disabled={submiting}>
+              {submiting
+                ? 'Saving...'
+                : mode === 'create'
                   ? 'Create'
                   : 'Update'}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </>
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
-

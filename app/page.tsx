@@ -11,6 +11,9 @@ import { getBoardsCount } from './lib/actions';
 import { getCurrentSession } from './login/lib/actions';
 import HomeTabs from './partials/HomeTabs';
 import MainContent from '@/components/MainContent';
+import { getBoards } from './boards/lib/actions';
+import { getNotes } from './boards/[id]/notes/lib/actions';
+import { Board } from '@/prisma/generated/client';
 
 export default async function Home({
   searchParams,
@@ -22,10 +25,24 @@ export default async function Home({
     return redirect('/login');
   }
 
-  const boardsCount = await getBoardsCount();
   const { showFav = 'false' } = await searchParams;
+  const isShowFav = showFav === 'true';
+
+  // Fetch data on the server
+  const boardsCount = await getBoardsCount();
+  const allBoards = await getBoards('created_desc', 20);
+  const notes = await getNotes('created_desc', 8);
+
+  const filteredBoards =
+    allBoards
+      ?.filter((board: Board) => (isShowFav ? board.favorite : true))
+      .sort((a: Board, b: Board) => {
+        if (isShowFav) return 0;
+        return +b.favorite - +a.favorite;
+      }) || [];
 
   const breadcrumbs = [{ name: 'Home', href: '/' }];
+
   return (
     <Page>
       <NavMenu user={user} />
@@ -33,18 +50,22 @@ export default async function Home({
         <NavHeader user={user} />
         <PageContainer>
           <PageHeader
-            title={`Welcome ${user.name}`}
+            title={`Welcome back, ${user.name}`}
             breadcrumbs={breadcrumbs}
-            description={`Here is a quick look of your ${showFav === 'true' ? 'favorite' : 'recent'} boards`}
+            description={`You have ${boardsCount} active board${boardsCount === 1 ? '' : 's'}. Here is your ${isShowFav ? 'favorite' : 'recent'} activity.`}
           >
             {boardsCount > 0 && (
               <div className="flex justify-end w-full md:w-auto">
-                <BoardFavSwitch showFavParam={showFav === 'true'} />
+                <BoardFavSwitch showFavParam={isShowFav} />
               </div>
             )}
           </PageHeader>
           <PageBody>
-            <HomeTabs showFav={showFav === 'true'} />
+            <HomeTabs
+              boards={filteredBoards}
+              notes={notes || []}
+              showFav={isShowFav}
+            />
           </PageBody>
           <PageFooter />
         </PageContainer>
