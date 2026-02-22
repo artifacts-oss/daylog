@@ -72,9 +72,9 @@ export default function NavSidebar({ user }: NavSidebarProps) {
         initial={false}
         animate={{ width: isCollapsed ? 80 : 240 }}
         transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-        className="hidden md:flex flex-col border-r border-[#F3F4F6] bg-[#F8F8F8] h-screen sticky top-0 z-50"
+        className="hidden md:flex flex-col border-r border-[#E5E7EB] bg-[#F8F8F8] h-screen sticky top-0 z-50"
       >
-        <div className="flex items-center justify-between h-20 px-4 border-b border-[#F3F4F6]">
+        <div className="flex items-center justify-center h-20 border-b border-[#E5E7EB] relative transition-all duration-300">
           <AnimatePresence mode="wait">
             <motion.div
               key={isCollapsed ? 'collapsed' : 'expanded'}
@@ -82,15 +82,18 @@ export default function NavSidebar({ user }: NavSidebarProps) {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-              className="flex items-center"
+              className="flex items-center justify-center"
             >
-              <Link href="/" className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="flex items-center justify-center transition-transform duration-300 hover:scale-105 px-4"
+              >
                 <Image
                   src={isCollapsed ? '/daylog-logo.svg' : '/daylog.svg'}
                   alt="daylog"
-                  width={isCollapsed ? 32 : 120}
-                  height={32}
-                  className="h-8 w-auto"
+                  width={isCollapsed ? 40 : 150}
+                  height={40}
+                  className="h-10 w-auto"
                   priority
                 />
               </Link>
@@ -102,9 +105,10 @@ export default function NavSidebar({ user }: NavSidebarProps) {
             size="icon"
             onClick={toggleSidebar}
             className={cn(
-              'rounded-full hover:bg-muted transition-all duration-300',
-              isCollapsed &&
-                'absolute -right-3 top-16 bg-background border shadow-sm z-30 h-6 w-6',
+              'rounded-full hover:bg-muted transition-all duration-300 z-50',
+              isCollapsed
+                ? 'absolute -right-3 top-16 bg-background border shadow-sm h-6 w-6'
+                : 'absolute right-4',
             )}
           >
             {isCollapsed ? (
@@ -138,9 +142,9 @@ export default function NavSidebar({ user }: NavSidebarProps) {
                   <Image
                     src="/daylog.svg"
                     alt="daylog"
-                    width={120}
-                    height={32}
-                    className="h-8 w-auto"
+                    width={150}
+                    height={40}
+                    className="h-10 w-auto"
                     priority
                   />
                 </Link>
@@ -156,9 +160,9 @@ export default function NavSidebar({ user }: NavSidebarProps) {
           <Image
             src="/daylog-logo.svg"
             alt="daylog"
-            width={32}
-            height={32}
-            className="h-8 w-auto"
+            width={40}
+            height={40}
+            className="h-10 w-auto"
             priority
           />
         </Link>

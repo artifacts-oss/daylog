@@ -26,7 +26,7 @@ export default function FormField({
   className = '',
 }: FormFieldProps) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 relative pb-5">
       <Label htmlFor={name}>
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
@@ -38,19 +38,20 @@ export default function FormField({
         defaultValue={defaultValue}
         className={cn(
           errors && 'border-destructive focus-visible:ring-destructive',
-          className
+          className,
         )}
         placeholder={placeholder}
         required={required}
         autoComplete={autoComplete}
       />
       {errors && (
-        <p className="text-sm text-destructive" role="alert">
-          {Array.isArray(errors) ? (
-            errors.map((error, i) => <span key={i}>{error}</span>)
-          ) : (
-            errors
-          )}
+        <p
+          className="text-[12px] text-destructive absolute bottom-0 left-0"
+          role="alert"
+        >
+          {Array.isArray(errors)
+            ? errors.map((error, i) => <span key={i}>{error}</span>)
+            : errors}
         </p>
       )}
     </div>

@@ -151,7 +151,7 @@ export default function Editor({ note }: NoteEditorType) {
             transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
             className="flex-shrink-0 flex flex-col gap-6 sticky top-24 overflow-hidden"
           >
-            <div className="w-[340px] rounded-[20px] bg-[#F8F8F8] border border-[#F3F4F6] p-6 flex flex-col gap-6 shadow-sm">
+            <div className="w-[340px] rounded-[20px] bg-[#F8F8F8] border border-[#E5E7EB] p-6 flex flex-col gap-6 shadow-sm">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-[20px] font-[800] text-[#000000] tracking-tight">
@@ -254,7 +254,7 @@ export default function Editor({ note }: NoteEditorType) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
-                className="flex items-center gap-2 bg-[#FFFFFF] border border-[#F3F4F6] px-3 py-1.5 rounded-[12px] shadow-sm"
+                className="flex items-center gap-2 bg-[#FFFFFF] border border-[#E5E7EB] px-3 py-1.5 rounded-[12px] shadow-sm"
               >
                 <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                 <span className="text-[12px] font-[500] text-[#6B7280] uppercase tracking-wider">
@@ -264,7 +264,7 @@ export default function Editor({ note }: NoteEditorType) {
             )}
           </AnimatePresence>
         </div>
-        <div className="rounded-[20px] bg-[#FFFFFF] border border-[#F3F4F6] shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-500">
+        <div className="rounded-[20px] bg-[#FFFFFF] border border-[#E5E7EB] shadow-sm relative overflow-hidden group hover:shadow-md transition-all duration-500">
           <div data-color-mode={theme} className="w-full">
             <MDEditor
               data-testid="editor"
@@ -299,7 +299,7 @@ const PicturePreview = ({
   return (
     <div className="relative aspect-square rounded-[12px] overflow-hidden cursor-pointer group border border-[#E5E7EB] bg-[#FFFFFF] shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-[#D1D5DB] transition-all duration-300">
       <div
-        className="absolute top-1.5 right-1.5 z-10 bg-[#FFFFFF] border border-[#F3F4F6] text-[#6B7280] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#F3F4F6] hover:text-[#000000]"
+        className="absolute top-1.5 right-1.5 z-10 bg-[#FFFFFF] border border-[#E5E7EB] text-[#6B7280] rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#F3F4F6] hover:text-[#000000]"
         onClick={(e) => {
           e.stopPropagation();
           onDelete();

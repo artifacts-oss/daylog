@@ -42,8 +42,8 @@ export default function UserModal() {
               Fill in the details to create a new user.
             </DialogDescription>
           </DialogHeader>
-          <form autoComplete="off" action={action} className="space-y-6">
-            <div className="space-y-2 relative pb-4">
+          <form autoComplete="off" action={action} className="space-y-2">
+            <div className="space-y-2 relative pb-5">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
@@ -58,7 +58,7 @@ export default function UserModal() {
                 </p>
               )}
             </div>
-            <div className="space-y-2 relative pb-4">
+            <div className="space-y-2 relative pb-5">
               <Label htmlFor="email">Email address</Label>
               <Input
                 id="email"
@@ -76,7 +76,7 @@ export default function UserModal() {
                 </p>
               )}
             </div>
-            <div className="space-y-2 relative pb-4">
+            <div className="space-y-2 relative pb-5">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
                 <Input
@@ -87,9 +87,7 @@ export default function UserModal() {
                   placeholder="Password"
                   autoComplete="off"
                   className={
-                    state?.errors?.password
-                      ? 'border-red-300 pr-10'
-                      : 'pr-10'
+                    state?.errors?.password ? 'border-red-300 pr-10' : 'pr-10'
                   }
                 />
                 <button

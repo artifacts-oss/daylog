@@ -10,7 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 
 export default function InitRegisterForm() {
   const [state, action, pending] = useActionState(signupInit, undefined);
@@ -43,7 +46,9 @@ export default function InitRegisterForm() {
           <Alert className="border-green-500 text-green-500">
             <CheckCircleIcon className="h-4 w-4" />
             <AlertTitle>Account created</AlertTitle>
-            <AlertDescription>Admin account created successfully.</AlertDescription>
+            <AlertDescription>
+              Admin account created successfully.
+            </AlertDescription>
             <Button asChild className="mt-2">
               <Link href="/login">Go to login</Link>
             </Button>
@@ -55,8 +60,8 @@ export default function InitRegisterForm() {
             <CardTitle>Admin registration</CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={action} autoComplete="off" className="space-y-4">
-              <div className="space-y-2">
+            <form action={action} autoComplete="off" className="space-y-2">
+              <div className="space-y-2 relative pb-5">
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
@@ -66,10 +71,12 @@ export default function InitRegisterForm() {
                   className={state?.errors?.name ? 'border-destructive' : ''}
                 />
                 {state?.errors?.name && (
-                  <p className="text-sm text-destructive">{state?.errors?.name}</p>
+                  <p className="text-[12px] text-destructive absolute bottom-0 left-0">
+                    {state?.errors?.name}
+                  </p>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative pb-5">
                 <Label htmlFor="email">Email address</Label>
                 <Input
                   id="email"
@@ -80,14 +87,14 @@ export default function InitRegisterForm() {
                   className={state?.errors?.email ? 'border-destructive' : ''}
                 />
                 {state?.errors?.email && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-[12px] text-destructive absolute bottom-0 left-0">
                     {Array.isArray(state?.errors?.email)
                       ? state?.errors?.email.join(', ')
                       : state?.errors?.email}
                   </p>
                 )}
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative pb-5">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
                   <Input
@@ -97,7 +104,11 @@ export default function InitRegisterForm() {
                     defaultValue={state?.data?.password?.toString()}
                     placeholder="Password"
                     autoComplete="off"
-                    className={state?.errors?.password ? 'border-destructive pr-10' : 'pr-10'}
+                    className={
+                      state?.errors?.password
+                        ? 'border-destructive pr-10'
+                        : 'pr-10'
+                    }
                   />
                   <button
                     type="button"
@@ -112,7 +123,7 @@ export default function InitRegisterForm() {
                   </button>
                 </div>
                 {state?.errors?.password && (
-                  <p className="text-sm text-destructive">
+                  <p className="text-[12px] text-destructive absolute bottom-0 left-0">
                     {Array.isArray(state?.errors?.password)
                       ? state?.errors?.password.join(', ')
                       : state?.errors?.password}
@@ -121,7 +132,10 @@ export default function InitRegisterForm() {
               </div>
               <p className="text-sm text-muted-foreground">
                 By registering your first Admin user you are accepting the{' '}
-                <a href="/register/terms" className="text-primary hover:underline">
+                <a
+                  href="/register/terms"
+                  className="text-primary hover:underline"
+                >
                   terms and policy
                 </a>
                 .

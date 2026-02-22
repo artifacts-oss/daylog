@@ -57,7 +57,7 @@ export const SECURITY_CONFIG = {
 
   // File upload security
   FILE_UPLOAD: {
-    MAX_FILE_SIZE: 30 * 1024 * 1024, // 30MB
+    MAX_FILE_SIZE: 64 * 1024 * 1024, // 64MB
     ALLOWED_MIME_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
     ALLOWED_EXTENSIONS: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
   },

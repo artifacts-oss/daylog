@@ -4,7 +4,7 @@ import { GithubIcon, Coffee } from 'lucide-react';
 
 export default function PageFooterSponsor() {
   return (
-    <footer className="border-t border-[#F3F4F6] bg-[#FFFFFF] py-6">
+    <footer className="border-t border-[#E5E7EB] bg-[#FFFFFF] py-6">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] font-[500] uppercase text-[#9CA3AF]">
           <div className="flex items-center gap-4">
@@ -12,9 +12,9 @@ export default function PageFooterSponsor() {
               Made with <HeartIcon className="h-4 w-4 text-red-500" /> by{' '}
               <a
                 href="https://github.com/artifacts-dav"
-                className="hover:text-[#000000] transition-colors"
+                className="hover:text-[#000000] transition-colors capitalize"
               >
-                David R<sup>2</sup>
+                David Rdz-Reveles
               </a>
             </span>
             <span>·</span>

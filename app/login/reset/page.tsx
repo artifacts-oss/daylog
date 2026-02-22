@@ -9,7 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 
 export default function Page() {
   const [state, action, pending] = useActionState(reset, undefined);
@@ -60,8 +63,13 @@ export default function Page() {
               Enter your email address and we will send you instructions to
               reset your password.
             </p>
-            <form action={action} autoComplete="off" noValidate className="space-y-4">
-              <div className="space-y-2">
+            <form
+              action={action}
+              autoComplete="off"
+              noValidate
+              className="space-y-2"
+            >
+              <div className="space-y-2 relative pb-5">
                 <Label htmlFor="email">Email address</Label>
                 <Input
                   type="email"
@@ -71,7 +79,9 @@ export default function Page() {
                   className={state?.errors?.email ? 'border-destructive' : ''}
                 />
                 {state?.errors?.email && (
-                  <p className="text-sm text-destructive">{state?.errors?.email}</p>
+                  <p className="text-[12px] text-destructive absolute bottom-0 left-0">
+                    {state?.errors?.email}
+                  </p>
                 )}
               </div>
               <Button type="submit" className="w-full" disabled={pending}>

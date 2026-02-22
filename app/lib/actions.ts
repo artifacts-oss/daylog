@@ -32,29 +32,68 @@ export async function search(keywords: string): Promise<SearchResult[]> {
   if (keywords.length <= 0) return [];
 
   const boards = await prisma.board.findMany({
-    select: { id: true, title: true },
-    where: { title: { contains: keywords, mode: 'insensitive' }, userId: user.id },
+    select: { id: true, title: true, description: true },
+    where: {
+      OR: [
+        { title: { contains: keywords, mode: 'insensitive' } },
+        { description: { contains: keywords, mode: 'insensitive' } },
+      ],
+      userId: user.id,
+    },
+    take: 5,
   });
 
   const notes = await prisma.note.findMany({
-    select: { id: true, title: true, boardsId: true },
-    where: { title: { contains: keywords, mode: 'insensitive' }, boards: { userId: user.id } },
+    select: { id: true, title: true, content: true, boardsId: true },
+    where: {
+      OR: [
+        { title: { contains: keywords, mode: 'insensitive' } },
+        { content: { contains: keywords, mode: 'insensitive' } },
+      ],
+      boards: { userId: user.id },
+    },
+    take: 10,
   });
 
-  notes.forEach((n) =>
+  notes.forEach((n) => {
+    let matchContent = '';
+    if (n.content && n.content.toLowerCase().includes(keywords.toLowerCase())) {
+      const index = n.content.toLowerCase().indexOf(keywords.toLowerCase());
+      const start = Math.max(0, index - 40);
+      const end = Math.min(n.content.length, index + 60);
+      matchContent =
+        (start > 0 ? '...' : '') +
+        n.content.slice(start, end).replace(/\n/g, ' ') +
+        (end < n.content.length ? '...' : '');
+    }
+
     results.push({
       type: 'note',
       title: n.title,
-      matchContent: '',
+      matchContent,
       url: `/boards/${n.boardsId}/notes/${n.id}`,
-    })
-  );
+    });
+  });
 
   boards.forEach((b) => {
+    let matchContent = '';
+    if (
+      b.description &&
+      b.description.toLowerCase().includes(keywords.toLowerCase())
+    ) {
+      const index = b.description.toLowerCase().indexOf(keywords.toLowerCase());
+      const start = Math.max(0, index - 40);
+      const end = Math.min(b.description.length, index + 60);
+      matchContent =
+        (start > 0 ? '...' : '') +
+        b.description.slice(start, end).replace(/\n/g, ' ') +
+        (end < b.description.length ? '...' : '');
+    }
+
     results.push({
       type: 'board',
       title: b.title,
-      matchContent: '',
+      matchContent,
       url: `/boards/${b.id}/notes`,
     });
   });

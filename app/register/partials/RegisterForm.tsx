@@ -7,7 +7,10 @@ import { signup } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { ExclamationTriangleIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 import { Label } from '@/components/ui/label';
 
 export default function RegisterForm() {
@@ -54,7 +57,7 @@ export default function RegisterForm() {
             <CardTitle>Account registration</CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={action} autoComplete="off" className="space-y-4">
+            <form action={action} autoComplete="off" className="space-y-2">
               <FormField
                 label="Name"
                 name="name"
@@ -89,14 +92,19 @@ export default function RegisterForm() {
                   />
                   <Label htmlFor="terms" className="font-normal">
                     Agree the{' '}
-                    <a href="/register/terms" className="text-primary hover:underline">
+                    <a
+                      href="/register/terms"
+                      className="text-primary hover:underline"
+                    >
                       terms and policy
                     </a>
                     .
                   </Label>
                 </div>
                 {state?.errors?.terms && (
-                  <p className="text-sm text-destructive">{state?.errors?.terms}</p>
+                  <p className="text-[12px] text-destructive">
+                    {state?.errors?.terms}
+                  </p>
                 )}
               </div>
               <Button type="submit" className="w-full" disabled={pending}>

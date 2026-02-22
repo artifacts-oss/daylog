@@ -7,13 +7,11 @@ import {
   updateBoard,
 } from '@/app/(authenticated)/boards/lib/actions';
 import { Board, Prisma } from '@/prisma/generated/client';
-import { getImageUrlOrFile, resizeImage } from '@/utils/image';
-import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
-import Image from 'next/image';
+import { resizeImage } from '@/utils/image';
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import UnsplashImagesDropdown from './UnsplashImagesDropdown';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +23,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import ImageSection from '@/components/ImageSection';
 
 type BoardModalFormType = {
   modalId: string;
@@ -131,73 +130,33 @@ export default function BoardModalForm({
       ) : null}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-[24px] font-[700] tracking-tight text-[#000000]">
             {mode === 'create' ? 'Create board' : 'Update board'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {isUnsplashAllowed && (
-            <div>
-              <UnsplashImagesDropdown
-                imageSelected={(url) => setImageUrl(url)}
-              />
-            </div>
-          )}
-          {mode === 'update' && board?.id && board.imageUrl && (
-            <div className="space-y-2">
-              <div className="rounded-lg overflow-hidden border">
-                <Image
-                  width="800"
-                  height="0"
-                  src={getImageUrlOrFile(board.imageUrl)}
-                  alt={`Preview image of ${board.title}`}
-                  className="w-auto h-auto"
-                  priority={false}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-destructive"
-                onClick={async () => {
-                  await deleteImage(board.id, board.imageUrl);
-                }}
-              >
-                <TrashIcon className="h-4 w-4 mr-1" />
-                Remove image
-              </Button>
-            </div>
-          )}
-          <div>
-            <Label htmlFor="image">
-              Select image from your device{' '}
-              <span className="text-muted-foreground">(optional)</span>
-            </Label>
-            <Input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0])}
-              className="cursor-pointer"
-            />
-          </div>
-          <div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
+          <div className="space-y-2 relative pb-5">
             <Label htmlFor="title">
-              Title <span className="text-destructive">*</span>
+              Title <span className="text-red-500">*</span>
             </Label>
             <Input
               id="title"
               placeholder="Your board title"
               defaultValue={board?.title}
               {...register('title', { required: true })}
-              className={errors.title ? 'border-destructive' : ''}
+              className={
+                errors.title
+                  ? 'border-red-300 focus-visible:border-red-300 focus-visible:ring-red-300'
+                  : ''
+              }
             />
             {errors.title && (
-              <p className="text-sm text-destructive mt-1">Title is required</p>
+              <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                Title is required
+              </p>
             )}
           </div>
-          <div>
+          <div className="space-y-2 relative pb-5">
             <Label htmlFor="description">Description</Label>
             <Input
               id="description"
@@ -206,6 +165,20 @@ export default function BoardModalForm({
               {...register('description')}
             />
           </div>
+          <ImageSection
+            currentImageUrl={board?.imageUrl}
+            isUnsplashAllowed={isUnsplashAllowed}
+            altText={`Preview image of ${board?.title || 'new board'}`}
+            onImageFileChange={setImageFile}
+            onImageUrlChange={setImageUrl}
+            onDeleteImage={
+              board?.id && board.imageUrl
+                ? async () => {
+                    await deleteImage(board.id, board.imageUrl);
+                  }
+                : undefined
+            }
+          />
           <DialogFooter>
             <Button
               type="button"

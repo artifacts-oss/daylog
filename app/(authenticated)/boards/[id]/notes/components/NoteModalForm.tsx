@@ -1,10 +1,7 @@
 'use client';
 
-import UnsplashImagesDropdown from '@/app/(authenticated)/boards/components/UnsplashImagesDropdown';
 import { Note } from '@/prisma/generated/client';
 import { getImageUrlOrFile, resizeImage } from '@/utils/image';
-import { TrashIcon } from '@heroicons/react/24/outline';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
@@ -22,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import ImageSection from '@/components/ImageSection';
 
 type NoteModalFormType = {
   modalId: string;
@@ -120,11 +118,11 @@ export default function NoteModalForm({
       ) : null}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-[24px] font-[700] tracking-tight text-[#000000]">
             {mode === 'create' ? 'Create note' : 'Update note'}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
           {mode === 'update' && (
             <input
               type="hidden"
@@ -132,64 +130,28 @@ export default function NoteModalForm({
               {...register('id', { required: true, valueAsNumber: true })}
             />
           )}
-          {isUnsplashAllowed && (
-            <UnsplashImagesDropdown imageSelected={(url) => setImageUrl(url)} />
-          )}
-          {mode === 'update' && note?.id && note.imageUrl && (
-            <div className="space-y-2">
-              <div className="rounded-lg overflow-hidden border">
-                <Image
-                  width="800"
-                  height="0"
-                  src={getImageUrlOrFile(note.imageUrl)}
-                  alt={`Preview image of ${note.title}`}
-                  className="w-auto h-auto"
-                  priority={false}
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-destructive"
-                onClick={async () => {
-                  await deleteImage(note.id, note.imageUrl);
-                }}
-              >
-                <TrashIcon className="h-4 w-4 mr-1" />
-                Remove image
-              </Button>
-            </div>
-          )}
-          <div>
-            <Label htmlFor="image">
-              Select image from your device{' '}
-              <span className="text-muted-foreground">(optional)</span>
-            </Label>
-            <Input
-              id="image"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0])}
-              className="cursor-pointer"
-            />
-          </div>
-          <div>
+          <div className="space-y-2 relative pb-5">
             <Label htmlFor="title">
-              Title <span className="text-destructive">*</span>
+              Title <span className="text-red-500">*</span>
             </Label>
             <Input
               id="title"
               placeholder="Your note title"
               defaultValue={note?.title}
               {...register('title', { required: true })}
-              className={errors.title ? 'border-destructive' : ''}
+              className={
+                errors.title
+                  ? 'border-red-300 focus-visible:border-red-300 focus-visible:ring-red-300'
+                  : ''
+              }
             />
             {errors.title && (
-              <p className="text-sm text-destructive mt-1">Title is required</p>
+              <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                Title is required
+              </p>
             )}
           </div>
-          <div>
+          <div className="space-y-2 relative pb-5">
             <Label htmlFor="content">Content</Label>
             <Textarea
               id="content"
@@ -199,6 +161,20 @@ export default function NoteModalForm({
               {...register('content')}
             />
           </div>
+          <ImageSection
+            currentImageUrl={note?.imageUrl}
+            isUnsplashAllowed={isUnsplashAllowed}
+            altText={`Preview image of ${note?.title || 'new note'}`}
+            onImageFileChange={setImageFile}
+            onImageUrlChange={setImageUrl}
+            onDeleteImage={
+              note?.id && note.imageUrl
+                ? async () => {
+                    await deleteImage(note.id, note.imageUrl);
+                  }
+                : undefined
+            }
+          />
           <DialogFooter>
             <Button
               type="button"

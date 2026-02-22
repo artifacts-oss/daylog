@@ -1,7 +1,11 @@
 'use client';
 
 import Loader from '@/components/Loader';
-import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import {
+  XMarkIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -24,8 +28,10 @@ type UnsplashImage = {
 
 export default function UnsplashImagesDropdown({
   imageSelected,
+  className,
 }: {
   imageSelected: (imageUrl: string) => void;
+  className?: string;
 }) {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [images, setImages] = useState<UnsplashImage[]>([]);
@@ -34,14 +40,14 @@ export default function UnsplashImagesDropdown({
   const [page, setPage] = useState<number>(1);
   const [selection, setSelection] = useState<string>('');
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
-    null
+    null,
   );
   const [open, setOpen] = useState(false);
 
   const debounceSearch = (
     keyword: string,
     page: number,
-    time: number = 1000
+    time: number = 1000,
   ) => {
     if (debounceTimer) clearTimeout(debounceTimer);
 
@@ -60,7 +66,7 @@ export default function UnsplashImagesDropdown({
 
     setLoading(true);
     const res = await fetch(
-      `/api/v1/images/unsplash?keyword=${keyword}&page=${page}&per_page=9`
+      `/api/v1/images/unsplash?keyword=${keyword}&page=${page}&per_page=9`,
     ).finally(() => {
       setKeyword(keyword);
       setLoading(false);
@@ -78,12 +84,17 @@ export default function UnsplashImagesDropdown({
         <Button
           type="button"
           variant={imageUrl ? 'default' : 'outline'}
-          className="w-full"
+          className={cn('w-full', className)}
         >
           {imageUrl ? 'Image selected' : 'Search Unsplash images'}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-80 p-4" align="start">
+      <DropdownMenuContent
+        className="w-80 p-4"
+        align="start"
+        side="right"
+        sideOffset={10}
+      >
         <div className="space-y-3">
           <div>
             <Label>Search by keyword</Label>
@@ -120,7 +131,7 @@ export default function UnsplashImagesDropdown({
                   'relative aspect-square overflow-hidden rounded border-2 transition-colors',
                   selection === image.id
                     ? 'border-primary'
-                    : 'border-transparent hover:border-muted-foreground'
+                    : 'border-transparent hover:border-muted-foreground',
                 )}
                 onClick={() => {
                   setSelection(image.id);

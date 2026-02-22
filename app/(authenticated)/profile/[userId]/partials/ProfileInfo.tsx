@@ -30,10 +30,10 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
             Update your account&apos;s profile information and email address.
           </p>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-2">
           <input type="hidden" name="id" value={profile.id ?? 0} />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2 relative pb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="space-y-2 relative pb-5">
               <Label htmlFor="name">Name</Label>
               <Input
                 id="name"
@@ -52,7 +52,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
                 </p>
               )}
             </div>
-            <div className="space-y-2 relative pb-4">
+            <div className="space-y-2 relative pb-5">
               <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"

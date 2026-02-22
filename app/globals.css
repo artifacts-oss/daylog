@@ -31,10 +31,10 @@
   --color-card: hsl(0 0% 100%);
   --color-card-foreground: hsl(0 0% 3.9%);
 
-  --radius: 0.5rem;
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-md: 12px;
+  --radius-sm: 6px;
 }
 
 .dark {

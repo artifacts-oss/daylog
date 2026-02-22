@@ -36,7 +36,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
     .slice(0, 2);
 
   return (
-    <header className="hidden md:flex flex-shrink-0 items-center justify-between h-16 px-6 border-b border-[#F3F4F6] bg-[#FFFFFF]">
+    <header className="hidden md:flex flex-shrink-0 items-center justify-between h-20 px-6 border-b border-[#E5E7EB] bg-[#FFFFFF]">
       <div className="flex-1 max-w-md">
         <NavSearch />
       </div>

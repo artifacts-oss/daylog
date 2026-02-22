@@ -6,6 +6,7 @@ import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
 import { getNote } from '../lib/actions';
 import Editor from './components/Editor';
+import { getImageUrlOrFile } from '@/utils/image';
 
 export default async function NotePage({
   params,
@@ -48,7 +49,11 @@ export default async function NotePage({
               ).format(note.updatedAt)}`
             : undefined
         }
-        imageUrl={note?.imageUrl}
+        imageUrl={
+          note?.imageUrl
+            ? getImageUrlOrFile(encodeURI(note.imageUrl))
+            : undefined
+        }
         breadcrumbs={breadcrumbs}
       />
       <PageBody>{note && <Editor note={note} />}</PageBody>

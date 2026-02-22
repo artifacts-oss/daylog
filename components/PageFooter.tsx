@@ -8,7 +8,7 @@ export default function PageFooter() {
   return showSponsor ? (
     <PageFooterSponsor />
   ) : (
-    <footer className="border-t border-[#F3F4F6] bg-[#FFFFFF] py-6">
+    <footer className="border-t border-[#E5E7EB] bg-[#FFFFFF] py-6">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-center gap-6 text-[12px] font-[500] uppercase text-[#9CA3AF]">
           <a

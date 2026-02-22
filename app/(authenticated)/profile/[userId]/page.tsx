@@ -57,6 +57,15 @@ export default async function Profile({
         breadcrumbs={breadcrumbs}
       />
       <PageBody>
+        {user.role === 'admin' && user.id !== profile.id && (
+          <Alert className="mb-6 border-blue-500 text-blue-700 bg-blue-50 [&>svg]:text-blue-700 [&>h5]:text-blue-700">
+            <InformationCircleIcon className="h-4 w-4 text-blue-700" />
+            <AlertTitle>Admin Notice</AlertTitle>
+            <AlertDescription className="text-blue-700">
+              You are impersonating this profile as an admin.
+            </AlertDescription>
+          </Alert>
+        )}
         {settings?.mfa && !profile.mfa && (
           <Alert variant="destructive" className="mb-6">
             <ExclamationTriangleIcon className="h-4 w-4" />
@@ -64,15 +73,6 @@ export default async function Profile({
             <AlertDescription>
               2FA Authentication is not enabled for this profile. It is
               recommended to enable it for security reasons.
-            </AlertDescription>
-          </Alert>
-        )}
-        {user.role === 'admin' && user.id !== profile.id && (
-          <Alert className="mb-6 border-blue-500 text-blue-700 bg-blue-50 [&>svg]:text-blue-700 [&>h5]:text-blue-700">
-            <InformationCircleIcon className="h-4 w-4 text-blue-700" />
-            <AlertTitle>Admin Notice</AlertTitle>
-            <AlertDescription className="text-blue-700">
-              You are impersonating this profile as an admin.
             </AlertDescription>
           </Alert>
         )}

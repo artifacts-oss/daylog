@@ -72,7 +72,7 @@ export default function DangerZone({ profile }: BackupType) {
                   <AlertDescription>{state.message}</AlertDescription>
                 </Alert>
               )}
-              <div className="space-y-2 relative pb-4">
+              <div className="space-y-2 relative pb-5">
                 <Input
                   type="password"
                   name="password"
@@ -84,7 +84,7 @@ export default function DangerZone({ profile }: BackupType) {
                   }
                 />
                 {state?.errors?.password && (
-                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                  <p className="text-[12px] text-red-500 absolute bottom-0 left-0">
                     {state?.errors?.password}
                   </p>
                 )}

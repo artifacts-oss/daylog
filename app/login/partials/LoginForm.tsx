@@ -51,7 +51,12 @@ export default function LoginForm() {
             <CardTitle>Login to your account</CardTitle>
           </CardHeader>
           <CardContent>
-            <form action={action} autoComplete="off" noValidate className="space-y-4">
+            <form
+              action={action}
+              autoComplete="off"
+              noValidate
+              className="space-y-2"
+            >
               <FormField
                 label="Email address"
                 name="email"

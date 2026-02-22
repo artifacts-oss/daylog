@@ -72,7 +72,7 @@ export default function NavSearch() {
 
   const handleKeyDown = (key: string) => {
     const anchors = Array.from(
-      document.querySelectorAll<HTMLAnchorElement>('#search-results a')
+      document.querySelectorAll<HTMLAnchorElement>('#search-results a'),
     );
     const active = document.activeElement as HTMLAnchorElement | null;
     const currentIndex = anchors.findIndex((a) => a === active);
@@ -93,23 +93,30 @@ export default function NavSearch() {
   return (
     <>
       <button
+        id="nav-search-trigger"
         onClick={() => setOpen(true)}
         type="button"
-        className="flex items-center gap-2 px-4 py-2 text-sm text-muted-foreground bg-muted/50 hover:bg-muted rounded-full transition-colors"
+        className="flex items-center gap-2 px-4 py-2 text-sm text-[#6B7280] bg-[#F8F8F8] border border-[#E5E7EB] hover:bg-[#F3F4F6] rounded-xl transition-all duration-300"
       >
         <MagnifyingGlassIcon className="h-4 w-4" />
-        <span>Search</span>
-        <div className="hidden md:flex items-center gap-1 ml-2 text-xs">
-          <kbd className="px-1.5 py-0.5 bg-background border rounded">Alt</kbd>
+        <span className="font-medium">Search anything...</span>
+        <div className="hidden md:flex items-center gap-1 ml-4 text-[10px] font-bold uppercase tracking-widest opacity-60">
+          <kbd className="px-1.5 py-0.5 bg-white border border-[#E5E7EB] rounded-md">
+            Alt
+          </kbd>
           <span>+</span>
-          <kbd className="px-1.5 py-0.5 bg-background border rounded">K</kbd>
+          <kbd className="px-1.5 py-0.5 bg-white border border-[#E5E7EB] rounded-md">
+            K
+          </kbd>
         </div>
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl top-[20%] translate-y-0">
-          <DialogHeader className="sr-only">
-            <DialogTitle>Search</DialogTitle>
+        <DialogContent className="max-w-2xl top-[20%] translate-y-0 pt-6">
+          <DialogHeader>
+            <DialogTitle className="text-[24px] font-[700] text-[#000000] tracking-tight">
+              Search
+            </DialogTitle>
           </DialogHeader>
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -125,53 +132,86 @@ export default function NavSearch() {
           </div>
           <div
             id="search-results"
-            className="max-h-[300px] overflow-y-auto"
+            className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-1"
             onKeyDown={(e) => handleKeyDown(e.key)}
           >
             {results.length === 0 ? (
               loading ? (
-                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                  <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mb-2" />
-                  <span>Searching...</span>
+                <div className="flex flex-col items-center justify-center py-12 text-[#9CA3AF]">
+                  <div className="animate-spin h-8 w-8 border-2 border-[#000000] border-t-transparent rounded-full mb-3" />
+                  <span className="text-xs font-bold uppercase tracking-widest">
+                    Searching...
+                  </span>
                 </div>
               ) : query ? (
-                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                  <span>No results found</span>
+                <div className="flex flex-col items-center justify-center py-12 text-[#9CA3AF]">
+                  <span className="text-sm">
+                    No results found for "{query}"
+                  </span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                  <span>Type to search boards and notes</span>
+                <div className="flex flex-col items-center justify-center py-12 text-[#9CA3AF]">
+                  <MagnifyingGlassIcon className="h-10 w-10 mb-4 opacity-20" />
+                  <span className="text-sm">
+                    Quickly find boards and notes by title or content
+                  </span>
                 </div>
               )
             ) : (
-              <div className="divide-y">
+              <div className="flex flex-col gap-1">
                 {results.map((item, index) => (
                   <Link
                     key={index}
                     href={item.url}
-                    className="flex items-center gap-3 px-2 py-2 hover:bg-muted rounded-lg transition-colors"
+                    className="flex flex-col gap-1 px-4 py-3 hover:bg-[#F8F8F8] border border-transparent hover:border-[#E5E7EB] rounded-xl transition-all duration-200 group focus:bg-[#F8F8F8] focus:border-[#E5E7EB] outline-none"
                     onClick={() => setOpen(false)}
                   >
-                    {item.type === 'note' ? (
-                      <DocumentTextIcon
-                        data-testid="note-icon"
-                        className="h-5 w-5 text-orange-500"
-                      />
-                    ) : (
-                      <Squares2X2Icon
-                        data-testid="chalkboard-icon"
-                        className="h-5 w-5 text-blue-500"
-                      />
+                    <div className="flex items-center gap-3">
+                      {item.type === 'note' ? (
+                        <div className="p-2 bg-orange-50 rounded-lg group-hover:bg-orange-100 transition-colors">
+                          <DocumentTextIcon className="h-4 w-4 text-orange-600" />
+                        </div>
+                      ) : (
+                        <div className="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
+                          <Squares2X2Icon className="h-4 w-4 text-blue-600" />
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-[14px] font-bold text-[#000000] line-clamp-1">
+                          {truncateWord(item.title, 80)}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">
+                          {item.type}
+                        </span>
+                      </div>
+                    </div>
+                    {item.matchContent && (
+                      <p className="text-[12px] text-[#6B7280] leading-relaxed ml-11 line-clamp-2 italic">
+                        {item.matchContent}
+                      </p>
                     )}
-                    <span className="text-sm">{truncateWord(item.title, 120)}</span>
                   </Link>
                 ))}
               </div>
             )}
           </div>
           {results.length > 0 && (
-            <div className="text-xs text-muted-foreground pt-2 border-t">
-              Use arrow keys to navigate, Enter to select
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] pt-4 border-t border-[#E5E7EB] mt-2">
+              <div className="flex items-center gap-4">
+                <span className="flex items-center gap-1.5">
+                  <kbd className="px-1 py-0.5 bg-[#F8F8F8] border border-[#E5E7EB] rounded text-[10px]">
+                    ↑↓
+                  </kbd>
+                  Navigate
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <kbd className="px-1 py-0.5 bg-[#F8F8F8] border border-[#E5E7EB] rounded text-[10px]">
+                    Enter
+                  </kbd>
+                  Open
+                </span>
+              </div>
+              <span>{results.length} results</span>
             </div>
           )}
         </DialogContent>

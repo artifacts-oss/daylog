@@ -58,7 +58,7 @@ export default async function Boards({
             trigger={
               <Button
                 id="new-board-button"
-                className="rounded-[12px] px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-[#FFFFFF]"
+                className="rounded-xl px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-[#FFFFFF]"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>New Board</span>
@@ -80,7 +80,7 @@ export default async function Boards({
       <PageBody>
         <div className="flex flex-col gap-12 py-4">
           {!boards || boards.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center bg-[#F3F4F6] rounded-[20px] border-2 border-dashed border-[#F3F4F6]">
+            <div className="flex flex-col items-center justify-center py-24 text-center bg-[#F3F4F6] rounded-[20px] border-2 border-dashed border-[#E5E7EB]">
               <div className="p-4 rounded-full bg-background mb-4 shadow-sm text-muted-foreground">
                 <FaceSmileIcon className="h-10 w-10 text-muted-foreground" />
               </div>
@@ -96,7 +96,7 @@ export default async function Boards({
                 modalId="new-board-modal-empty"
                 isUnsplashAllowed={settings?.allowUnsplash}
                 trigger={
-                  <Button className="rounded-[12px] px-8 font-bold transition-all text-[#FFFFFF]">
+                  <Button className="rounded-xl px-8 font-bold transition-all text-[#FFFFFF]">
                     Create My First Board
                   </Button>
                 }

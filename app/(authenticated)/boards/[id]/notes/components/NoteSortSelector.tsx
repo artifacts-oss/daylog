@@ -51,7 +51,7 @@ export default function NoteSortSelector({
           variant="outline"
           size="sm"
           className={cn(
-            'rounded-full px-4 gap-2 bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-all',
+            'rounded-xl px-4 gap-2 bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-all',
             isPending && 'animate-pulse',
           )}
         >

@@ -25,7 +25,7 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-      className="group relative flex flex-col rounded-[20px] border border-[#F3F4F6] bg-[#FFFFFF] hover:shadow-sm hover:-translate-y-1 transition-all duration-500 overflow-hidden"
+      className="group relative flex flex-col rounded-[20px] border border-[#E5E7EB] bg-[#FFFFFF] hover:shadow-sm hover:-translate-y-1 transition-all duration-500 overflow-hidden"
     >
       <Link
         href={`/boards/${note.boardsId}/notes/${note.id}`}
@@ -64,7 +64,7 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
           </p>
         </div>
 
-        <div className="pt-4 flex items-center justify-between border-t border-[#F3F4F6] relative z-20">
+        <div className="pt-4 flex items-center justify-between border-t border-[#E5E7EB] relative z-20">
           <div className="flex items-center gap-2">
             <span className="text-[12px] font-[500] uppercase tracking-wider text-[#9CA3AF]">
               <TimeDiff updatedAt={note?.updatedAt} />
