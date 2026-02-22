@@ -1,7 +1,7 @@
 import { getSettings } from '@/app/admin/lib/actions';
 import { getCurrentSession } from '@/app/login/lib/actions';
 import NavHeader from '@/components/NavHeader';
-import NavMenu from '@/components/NavMenu';
+import NavSidebar from '@/components/NavSidebar';
 import Page from '@/components/Page';
 import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
@@ -57,7 +57,7 @@ export default async function Notes({
 
   return (
     <Page>
-      <NavMenu user={user} />
+      <NavSidebar user={user} />
       <MainContent>
         <NavHeader user={user} />
         <PageContainer>

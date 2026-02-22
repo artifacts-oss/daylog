@@ -1,7 +1,7 @@
 'use client';
 
 import NavHeader from '@/components/NavHeader';
-import NavMenu from '@/components/NavMenu';
+import NavSidebar from '@/components/NavSidebar';
 import Page from '@/components/Page';
 import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
@@ -62,7 +62,7 @@ export default function Admin() {
 
   return (
     <Page>
-      <NavMenu user={currentUser} />
+      <NavSidebar user={currentUser} />
       <MainContent>
         <NavHeader user={currentUser} />
         <PageContainer>

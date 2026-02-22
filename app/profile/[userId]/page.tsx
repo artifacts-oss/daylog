@@ -1,6 +1,6 @@
 import { getSettings } from '@/app/admin/lib/actions';
 import NavHeader from '@/components/NavHeader';
-import NavMenu from '@/components/NavMenu';
+import NavSidebar from '@/components/NavSidebar';
 import Page from '@/components/Page';
 import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
@@ -31,7 +31,7 @@ export default async function Profile({
   if (profile === null) {
     return (
       <Page>
-        <NavMenu user={user}></NavMenu>
+        <NavSidebar user={user} />
         <MainContent>
           <NavHeader user={user}></NavHeader>
           <PageContainer>
@@ -57,7 +57,7 @@ export default async function Profile({
 
   return (
     <Page>
-      <NavMenu user={user}></NavMenu>
+      <NavSidebar user={user} />
       <MainContent>
         <NavHeader user={user}></NavHeader>
         <PageContainer>

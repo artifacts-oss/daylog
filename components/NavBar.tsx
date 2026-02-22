@@ -9,10 +9,15 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export default function NavBar({ user }: { user: User }) {
+interface NavBarProps {
+  user: any;
+  isCollapsed?: boolean;
+}
+
+export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
   const path = usePathname();
   const adminPattern = /^\/admin\/?$/;
   const homePattern = /^\/$/;
@@ -49,31 +54,58 @@ export default function NavBar({ user }: { user: User }) {
       active: adminPattern.test(path),
     });
   }
-
   return (
-    <nav className="flex flex-col gap-2 px-4 py-2">
+    <nav
+      className={cn(
+        'flex flex-col gap-2 px-3 transition-all duration-300',
+        isCollapsed ? 'items-center' : 'px-4',
+      )}
+    >
       {navItems.map((item) => (
         <motion.div
           key={item.name}
-          animate={{
-            scale: item.active ? [1, 1.02, 1] : 1,
-          }}
-          transition={{
-            scale: { duration: 0.3, ease: 'easeInOut' },
-          }}
+          layout
+          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          className="w-full"
         >
           <Link
             href={item.href}
             prefetch={true}
             className={cn(
-              'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
+              'group relative flex items-center rounded-xl transition-all duration-300',
+              isCollapsed ? 'justify-center h-12 w-12' : 'gap-3 px-3 py-2.5',
               item.active
-                ? 'bg-primary text-primary-foreground'
+                ? 'text-primary-foreground'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground',
             )}
           >
-            <item.icon className="h-5 w-5" />
-            <span className="font-medium">{item.name}</span>
+            {item.active && (
+              <motion.div
+                layoutId="active-pill"
+                className="absolute inset-0 bg-primary rounded-xl shadow-lg shadow-primary/20"
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              />
+            )}
+            <item.icon
+              className={cn(
+                'h-5 w-5 relative z-10 transition-transform duration-300',
+                !item.active && 'group-hover:scale-110',
+              )}
+            />
+
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  className="relative z-10 font-bold text-sm tracking-tight whitespace-nowrap"
+                >
+                  {item.name}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Link>
         </motion.div>
       ))}
