@@ -16,7 +16,7 @@
   --color-secondary: hsl(0 0% 96.1%);
   --color-secondary-foreground: hsl(0 0% 9%);
 
-  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive: hsl(0 72% 51%);
   --color-destructive-foreground: hsl(0 0% 98%);
 
   --color-muted: hsl(0 0% 96.1%);
@@ -24,6 +24,13 @@
 
   --color-accent: hsl(0 0% 96.1%);
   --color-accent-foreground: hsl(0 0% 9%);
+
+  --color-accent-red: hsl(0 80% 94%);
+  --color-text-accent-red: hsl(0 72% 51%);
+
+  --color-accent-pink: hsl(324, 85%, 89%);
+  --color-text-accent-pink: hsl(333, 71%, 51%);
+
 
   --color-popover: hsl(0 0% 100%);
   --color-popover-foreground: hsl(0 0% 3.9%);
@@ -50,7 +57,7 @@
   --color-secondary: hsl(0 0% 8%);
   --color-secondary-foreground: hsl(0 0% 90%);
 
-  --color-destructive: hsl(0 62.8% 30.6%);
+  --color-destructive: hsl(0 91% 71%);
   --color-destructive-foreground: hsl(0 0% 90%);
 
   --color-muted: hsl(0 0% 6%);
@@ -58,6 +65,13 @@
 
   --color-accent: hsl(0 0% 8%);
   --color-accent-foreground: hsl(0 0% 90%);
+
+  --color-accent-red: hsl(0 74% 16%);
+  --color-text-accent-red: hsl(0 91% 71%);
+
+  --color-accent-pink: hsl(326, 39%, 14%);
+  --color-text-accent-pink: hsl(329, 86%, 70%);
+
 
   --color-popover: hsl(0 0% 3%);
   --color-popover-foreground: hsl(0 0% 90%);
@@ -101,6 +115,24 @@
 
 .dark .logo-invert {
   filter: invert(1) brightness(0.9);
+}
+
+/* Danger Action & Alert Utilities */
+@utility text-accent-red {
+  color: var(--color-text-accent-red);
+}
+@utility text-accent-pink {
+  color: var(--color-text-accent-pink);
+}
+
+@utility btn-danger-soft {
+  background-color: var(--color-accent-red);
+  color: var(--color-text-accent-red);
+}
+
+@utility alert-danger {
+  background-color: var(--color-accent-red);
+  color: var(--color-text-accent-red);
 }
 
 
@@ -233,4 +265,18 @@ body .wmde-markdown {
   .masonry-container {
     column-count: 3;
   }
+}
+@utility glass-card {
+  background: var(--color-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@keyframes slow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+
+.animate-slow-pulse {
+  animation: slow-pulse 8s ease-in-out infinite;
 }

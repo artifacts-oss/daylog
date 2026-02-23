@@ -34,7 +34,7 @@ export default function Page() {
         </div>
 
         {state?.success && (
-          <Alert className="border-green-500 text-green-500">
+          <Alert className="border-green-500/20 bg-green-500/5 text-green-500">
             <CheckCircleIcon className="h-4 w-4" />
             <AlertTitle>Account reset</AlertTitle>
             <AlertDescription>

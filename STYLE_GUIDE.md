@@ -19,6 +19,8 @@ The `frontend-design` skill must use these semantic tokens. When `class="dark"` 
 | `border-default`   | #F3F4F6               | #2D2D2E            | Dividers and card outlines                          |
 | `accent-pink`      | #FBCFE8               | #321626            | Darker pink base for tags                           |
 | `text-accent-pink` | #DB2777               | #F472B6            | Lighter pink text for readability                   |
+| `accent-red`       | #FEE2E2               | #450A0A            | Soft red base for danger elements                   |
+| `text-accent-red`  | #DC2626               | #F87171            | High-contrast red for text/actions                  |
 
 ## 2. Dark Mode Specific Rules
 
@@ -79,6 +81,12 @@ To maintain the "clean and spacious" look from the dashboard, all forms must fol
 
 - **Primary Action:** Black background (#000000), white text, `radius-md` (12px), centered or full-width depending on modal size.
 - **Secondary/Cancel:** Transparent background with `text-secondary` (#6B7280), no border, or subtle grey background (#F3F4F6).
+- **Danger Action:** Use `accent-red` background with `text-accent-red` text for soft danger actions, or solid `bg-red-600` with white text for critical destructive actions.
+
+### D. Danger Alerts & Elements
+
+- **Alert Backgrounds:** Use `accent-red` for the background block to ensure visual distinction.
+- **Alert Text/Icons:** Use `text-accent-red` for high contrast and to signify danger/error states.
 
 ---
 

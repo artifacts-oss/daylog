@@ -4,23 +4,21 @@ import {
   ExclamationTriangleIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { deleteAccount } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertOctagon } from 'lucide-react';
 
 type BackupType = {
   profile: {
@@ -31,78 +29,107 @@ type BackupType = {
 };
 
 export default function DangerZone({ profile }: BackupType) {
+  const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState(deleteAccount, undefined);
 
   return (
-    <form action={action}>
-      <input type="hidden" name="userId" defaultValue={profile.id} />
-      <Card className="mt-4 border-destructive">
-        <CardHeader>
-          <CardTitle className="text-destructive flex items-center gap-2">
-            <ExclamationTriangleIcon className="h-5 w-5" />
-            Danger Zone
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Once your account is deleted, all of its resources and data will be
-            permanently deleted. Before deleting your account, please download
-            any data or information that you wish to retain.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive">
-                <TrashIcon className="h-4 w-4 mr-2" />
-                Delete Account
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
-                  <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />
-                  Are you sure?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Do you really want to delete your account? This action cannot
-                  be undone.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              {!state?.success && state?.message && (
-                <Alert variant="destructive">
-                  <AlertDescription>{state.message}</AlertDescription>
-                </Alert>
-              )}
-              <div className="space-y-2 relative pb-5">
-                <Input
-                  type="password"
-                  name="password"
-                  placeholder="Your password is required"
-                  className={
-                    state?.errors?.password
-                      ? 'border-red-300 focus-visible:border-red-300 focus-visible:ring-red-300'
-                      : ''
-                  }
-                />
-                {state?.errors?.password && (
-                  <p className="text-[12px] text-red-500 absolute bottom-0 left-0">
-                    {state?.errors?.password}
+    <Card className="mt-4 rounded-[20px] bg-card shadow-none">
+      <CardHeader>
+        <Label className="text-destructive">Danger Zone</Label>
+        <CardTitle>Delete Account</CardTitle>
+        <p className="text-sm text-muted-foreground font-medium">
+          Once your account is deleted, all of its resources and data will be
+          permanently deleted.
+        </p>
+      </CardHeader>
+      <CardContent>
+        <Button
+          variant="danger"
+          onClick={() => setOpen(true)}
+          className="rounded-[12px] font-bold h-[44px] px-6 transition-all hover:scale-[1.02] active:scale-95 shadow-none"
+        >
+          <TrashIcon className="h-4 w-4 mr-2" />
+          Delete My Account
+        </Button>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="p-10 max-w-[480px]">
+            <DialogHeader className="mb-6">
+              <Label className="text-destructive">Security Verification</Label>
+              <DialogTitle className="flex items-center gap-2">
+                Confirm Deletion
+              </DialogTitle>
+            </DialogHeader>
+
+            <form action={action}>
+              <input type="hidden" name="userId" value={profile.id} />
+
+              <div className="space-y-8">
+                <p className="text-sm text-muted-foreground leading-relaxed antialiased">
+                  This action is permanent and cannot be undone. All your notes,
+                  settings, and personal data will be erased from our servers.
+                </p>
+
+                <div className="space-y-4">
+                  <div className="text-[12px] font-bold text-muted-foreground uppercase tracking-tight ml-1">
+                    Confirm Password
+                  </div>
+                  <Input
+                    type="password"
+                    name="password"
+                    placeholder="Enter your account password"
+                    className={`h-[48px] rounded-[12px] border-border/60 bg-secondary/5 px-4 font-medium ${
+                      state?.errors?.password
+                        ? 'border-destructive ring-destructive/20'
+                        : ''
+                    }`}
+                  />
+                  {state?.errors?.password && (
+                    <p className="text-[12px] font-bold text-accent-red mt-1 ml-1 animate-in fade-in slide-in-from-top-1">
+                      {state?.errors?.password}
+                    </p>
+                  )}
+                </div>
+
+                <div className="p-4 bg-[var(--color-accent-red)] rounded-[12px] border border-destructive/20">
+                  <p className="text-[12px] text-destructive font-medium leading-normal flex gap-2">
+                    <AlertOctagon className="h-4 w-4 flex-shrink-0" />
+                    Warning: You will lose access to all your 2FA settings and
+                    recovery codes.
                   </p>
+                </div>
+
+                {!state?.success && state?.message && (
+                  <Alert variant="destructive">
+                    <AlertDescription className="text-xs font-bold">
+                      {state.message}
+                    </AlertDescription>
+                  </Alert>
                 )}
               </div>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  disabled={pending}
-                  onClick={() => {}}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+
+              <DialogFooter className="mt-8 gap-3 sm:gap-0">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setOpen(false)}
+                  className="rounded-[12px] text-muted-foreground font-bold hover:bg-secondary/10"
                 >
-                  {pending ? 'Deleting...' : 'Yes, delete'}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </CardContent>
-      </Card>
-    </form>
+                  Cancel
+                </Button>
+                <Button
+                  variant="danger"
+                  type="submit"
+                  disabled={pending}
+                  className="font-bold px-8 shadow-none"
+                >
+                  {pending ? 'Deleting...' : 'Yes, Delete Account'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </CardContent>
+    </Card>
   );
 }

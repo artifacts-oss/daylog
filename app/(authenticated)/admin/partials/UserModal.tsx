@@ -50,10 +50,10 @@ export default function UserModal() {
                 name="name"
                 defaultValue={state?.data?.name?.toString()}
                 placeholder="Enter name"
-                className={state?.errors?.name ? 'border-red-300' : ''}
+                className={state?.errors?.name ? 'border-destructive' : ''}
               />
               {state?.errors?.name && (
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                   {state?.errors?.name}
                 </p>
               )}
@@ -66,10 +66,10 @@ export default function UserModal() {
                 type="email"
                 defaultValue={state?.data?.email?.toString()}
                 placeholder="Enter email"
-                className={state?.errors?.email ? 'border-red-300' : ''}
+                className={state?.errors?.email ? 'border-destructive' : ''}
               />
               {state?.errors?.email && (
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                   {Array.isArray(state?.errors?.email)
                     ? state?.errors?.email.join(', ')
                     : state?.errors?.email}
@@ -87,7 +87,9 @@ export default function UserModal() {
                   placeholder="Password"
                   autoComplete="off"
                   className={
-                    state?.errors?.password ? 'border-red-300 pr-10' : 'pr-10'
+                    state?.errors?.password
+                      ? 'border-destructive pr-10'
+                      : 'pr-10'
                   }
                 />
                 <button
@@ -103,7 +105,7 @@ export default function UserModal() {
                 </button>
               </div>
               {state?.errors?.password && (
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                   {Array.isArray(state?.errors?.password)
                     ? state?.errors?.password.join(', ')
                     : state?.errors?.password}

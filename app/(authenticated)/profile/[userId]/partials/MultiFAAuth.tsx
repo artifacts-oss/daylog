@@ -9,6 +9,7 @@ import {
   DevicePhoneMobileIcon,
 } from '@heroicons/react/24/outline';
 import { QRCodeSVG } from 'qrcode.react';
+import { AlertOctagon } from 'lucide-react';
 import { useActionState, useEffect, useState } from 'react';
 import { deleteMFA, sendOTP, updateMFA } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +25,7 @@ import {
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Label } from '@/components/ui/label';
 
 type ProfileInfoType = {
   profile: User;
@@ -31,19 +33,22 @@ type ProfileInfoType = {
 
 export default function MultiFAAuth({ profile }: ProfileInfoType) {
   return (
-    <Card className="mt-4">
+    <Card className="mt-4 rounded-[20px] bg-card shadow-none">
       <CardHeader>
+        <Label>Security Settings</Label>
         <CardTitle>2FA Authentication</CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground font-medium">
           Configure your Account 2FA Authentication
         </p>
       </CardHeader>
       <CardContent>
-        {!profile.mfa ? (
-          <ModalUpdate profile={profile} />
-        ) : (
-          <ModalDelete profile={profile} />
-        )}
+        <div className="flex items-center gap-4">
+          {!profile.mfa ? (
+            <ModalUpdate profile={profile} />
+          ) : (
+            <ModalDelete profile={profile} />
+          )}
+        </div>
       </CardContent>
     </Card>
   );
@@ -58,83 +63,109 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
 
   return (
     <>
-      <Button variant="destructive" onClick={() => setOpen(true)}>
+      <Button
+        variant="danger"
+        onClick={() => setOpen(true)}
+        className="rounded-[12px] font-bold h-[44px] px-6 transition-all hover:scale-[1.02] active:scale-95 shadow-none"
+      >
         <DevicePhoneMobileIcon className="h-4 w-4 mr-2" />
-        Delete Device
+        Disable 2FA
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-destructive">
-              <DevicePhoneMobileIcon className="h-5 w-5" />
-              Delete your OTP Device
+        <DialogContent className="p-10 max-w-[480px]">
+          <DialogHeader className="mb-6">
+            <Label className="text-destructive">Security Verification</Label>
+            <DialogTitle className="flex items-center gap-2">
+              Disable 2FA
             </DialogTitle>
           </DialogHeader>
           <form action={action}>
             <input type="hidden" name="id" value={profile.id} />
             <input name="password" type="hidden" value={password} />
             {!state?.success ? (
-              <div className="space-y-6">
-                <p className="text-sm text-muted-foreground">
-                  Type the password of your current authenticator app or send
-                  one to your e-mail.
+              <div className="space-y-8">
+                <p className="text-sm text-muted-foreground leading-relaxed antialiased">
+                  To disable multifactor authentication, please type the code
+                  from your current authenticator app or request one via email.
                 </p>
-                <div className="flex justify-center">
-                  <OTPInputWrapper onChange={(value) => setPassword(value)} />
+
+                <div className="space-y-4">
+                  <Label>Enter Verification Code</Label>
+                  <div className="flex justify-center py-2 bg-secondary/5 rounded-[12px] border border-border/40">
+                    <OTPInputWrapper onChange={(value) => setPassword(value)} />
+                  </div>
+                  {state?.errors?.password && (
+                    <p className="text-[12px] font-bold text-accent-red mt-1 ml-1 animate-in fade-in slide-in-from-top-1">
+                      {state?.errors?.password}
+                    </p>
+                  )}
                 </div>
-                {state?.errors?.password && (
-                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
-                    {state?.errors?.password}
+
+                <div className="flex flex-col gap-3">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-foreground hover:bg-secondary/10 font-bold text-xs uppercase tracking-wider"
+                    disabled={sending}
+                    onClick={async () => {
+                      setSending(true);
+                      const result = await sendOTP();
+                      setSending(false);
+                      setOtpSent(result.success ? 'sent' : 'failed');
+                    }}
+                  >
+                    {otpSent === 'sent'
+                      ? '✓ Code resent to email'
+                      : 'Send backup code to email'}
+                  </Button>
+                  {otpSent === 'failed' && (
+                    <p className="text-[11px] text-accent-red font-bold text-center">
+                      Failed to send code. Please try again later.
+                    </p>
+                  )}
+                </div>
+
+                <div className="p-4 bg-[var(--color-accent-red)] rounded-[12px] border border-destructive/20">
+                  <p className="text-[12px] text-destructive font-medium leading-normal flex gap-2">
+                    <AlertOctagon className="h-4 w-4 flex-shrink-0" />
+                    Warning: Disabling 2FA will reduce your account security.
                   </p>
-                )}
-                {otpSent === 'sent' && (
-                  <p className="text-sm text-green-500">
-                    Code sent to your e-mail.
-                  </p>
-                )}
-                {otpSent === 'failed' && (
-                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
-                    Failed to send code to your e-mail.
-                  </p>
-                )}
-                <Button
-                  type="button"
-                  variant="link"
-                  disabled={sending}
-                  onClick={async () => {
-                    setSending(true);
-                    const result = await sendOTP();
-                    setSending(false);
-                    setOtpSent(result.success ? 'sent' : 'failed');
-                  }}
-                >
-                  Send {otpSent === 'sent' ? 'another' : 'a'} code to my e-mail.
-                </Button>
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
-                  If you change the TOTP device, you will lose access to the
-                  other configured devices.
-                </p>
+                </div>
+
                 {!state?.success && state?.message && (
                   <Alert variant="destructive">
-                    <AlertDescription>{state.message}</AlertDescription>
+                    <AlertDescription className="text-xs font-bold">
+                      {state.message}
+                    </AlertDescription>
                   </Alert>
                 )}
               </div>
             ) : (
               state?.message && (
-                <Alert className="border-green-500 text-green-500">
+                <Alert className="border-green-500/20 bg-green-500/5 text-green-500">
                   <CheckCircleIcon className="h-4 w-4" />
-                  <AlertDescription>{state.message}</AlertDescription>
+                  <AlertDescription className="font-bold">
+                    {state.message}
+                  </AlertDescription>
                 </Alert>
               )
             )}
-            <DialogFooter className="mt-4">
-              <Button variant="outline" onClick={() => setOpen(false)}>
-                {state?.success ? 'Close' : 'Cancel'}
+            <DialogFooter className="mt-8 gap-3 sm:gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setOpen(false)}
+                className="font-bold"
+              >
+                {state?.success ? 'Go Back' : 'Keep 2FA Active'}
               </Button>
               {!state?.success && (
-                <Button variant="destructive" type="submit" disabled={pending}>
-                  {pending ? 'Deleting...' : 'Delete'}
+                <Button
+                  variant="danger"
+                  type="submit"
+                  disabled={pending}
+                  className="font-bold px-8 shadow-none"
+                >
+                  {pending ? 'Disabling...' : 'Confirm Disable'}
                 </Button>
               )}
             </DialogFooter>
@@ -164,16 +195,19 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)}>
+      <Button
+        onClick={() => setOpen(true)}
+        className="rounded-[12px] bg-primary font-bold h-[44px] px-6 transition-all hover:scale-[1.02] active:scale-95 shadow-none"
+      >
         <DevicePhoneMobileIcon className="h-4 w-4 mr-2" />
-        Configure a TOTP
+        Configure TOTP
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
+        <DialogContent className="p-10 max-w-[480px]">
+          <DialogHeader className="mb-6">
+            <Label>Step-by-step Setup</Label>
             <DialogTitle className="flex items-center gap-2">
-              <DevicePhoneMobileIcon className="h-5 w-5" />
-              Configure TOTP
+              Setup Authenticator
             </DialogTitle>
           </DialogHeader>
           <form action={action}>
@@ -181,83 +215,100 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
             <input name="secret" type="hidden" value={secret} />
             <input name="password" type="hidden" value={password} />
             {!state?.success ? (
-              <div className="space-y-6">
-                <p className="text-sm text-muted-foreground">
-                  Here you can configure your Time-based one-time passwords
-                  (TOTP).
-                </p>
-                <div className="flex justify-center">
-                  {url !== '' ? (
-                    <QRCodeSVG value={url} />
-                  ) : (
-                    <Skeleton className="h-32 w-32" />
+              <div className="space-y-8">
+                <div className="space-y-4">
+                  <Label>1. Scan QR Code</Label>
+                  <div className="flex justify-center p-6 bg-white rounded-[20px] border border-border/40 shadow-sm">
+                    {url !== '' ? (
+                      <QRCodeSVG value={url} size={180} />
+                    ) : (
+                      <Skeleton className="h-[180px] w-[180px] rounded-[12px]" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed px-1">
+                    Scan this code with Google Authenticator, Authy, or your
+                    preferred TOTP app.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>2. Manual Configuration</Label>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Input
+                        readOnly
+                        type={isShowPassword ? 'text' : 'password'}
+                        value={secret}
+                        className="h-[48px] rounded-[12px] border-border/60 bg-secondary/5 pr-12 font-mono text-sm tracking-widest"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        onClick={() => setIsShowPassword(!isShowPassword)}
+                      >
+                        {isShowPassword ? (
+                          <EyeSlashIcon className="h-5 w-5" />
+                        ) : (
+                          <EyeIcon className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-[48px] rounded-[12px] border-border/60 font-bold px-4 hover:bg-secondary/5"
+                      onClick={() => navigator.clipboard.writeText(secret)}
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <Label>3. Verify Setup</Label>
+                  <div className="flex justify-center py-2 bg-secondary/5 rounded-[12px] border border-border/40">
+                    <OTPInputWrapper onChange={(value) => setPassword(value)} />
+                  </div>
+                  {state?.errors?.password && (
+                    <p className="text-[12px] font-bold text-accent-red mt-1 ml-1 animate-in fade-in slide-in-from-top-1">
+                      {state?.errors?.password}
+                    </p>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Scan the QR code using your authenticator app or copy your
-                  secret code.
-                </p>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Input
-                      readOnly
-                      type={isShowPassword ? 'text' : 'password'}
-                      value={secret}
-                      className="pr-10"
-                    />
-                    <button
-                      type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      onClick={() => setIsShowPassword(!isShowPassword)}
-                    >
-                      {isShowPassword ? (
-                        <EyeSlashIcon className="h-4 w-4" />
-                      ) : (
-                        <EyeIcon className="h-4 w-4" />
-                      )}
-                    </button>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigator.clipboard.writeText(secret)}
-                  >
-                    Copy
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Next, enter the one-time code generated by your authenticator
-                  app to verify setup.
-                </p>
-                <div className="flex justify-center">
-                  <OTPInputWrapper onChange={(value) => setPassword(value)} />
-                </div>
-                {state?.errors?.password && (
-                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
-                    {state?.errors?.password}
-                  </p>
-                )}
+
                 {!state?.success && state?.message && (
                   <Alert variant="destructive">
-                    <AlertDescription>{state.message}</AlertDescription>
+                    <AlertDescription className="text-xs font-bold">
+                      {state.message}
+                    </AlertDescription>
                   </Alert>
                 )}
               </div>
             ) : (
               state?.message && (
-                <Alert className="border-green-500 text-green-500">
+                <Alert className="border-green-500/20 bg-green-500/5 text-green-500">
                   <CheckCircleIcon className="h-4 w-4" />
-                  <AlertDescription>{state.message}</AlertDescription>
+                  <AlertDescription className="font-bold">
+                    {state.message}
+                  </AlertDescription>
                 </Alert>
               )
             )}
-            <DialogFooter className="mt-4">
-              <Button variant="outline" onClick={() => setOpen(false)}>
-                {state?.success ? 'Close' : 'Cancel'}
+            <DialogFooter className="mt-8 gap-3 sm:gap-2">
+              <Button
+                variant="ghost"
+                onClick={() => setOpen(false)}
+                className="font-bold"
+              >
+                {state?.success ? 'Finish' : 'Cancel Setup'}
               </Button>
               {!state?.success && (
-                <Button type="submit" disabled={pending}>
-                  {pending ? 'Saving...' : 'Save device'}
+                <Button
+                  type="submit"
+                  disabled={pending}
+                  className="font-bold px-8 shadow-none"
+                >
+                  {pending ? 'Saving...' : 'Confirm Setup'}
                 </Button>
               )}
             </DialogFooter>

@@ -26,13 +26,13 @@ export default function BoardFavoriteButton({
     <Button
       variant="ghost"
       size="icon"
-      className="h-8 w-8 text-white hover:text-red-500 hover:bg-white/10"
+      className="h-8 w-8 text-white hover:text-accent-red hover:bg-white/10"
       onClick={handleFavoriteClick}
     >
       {board.favorite ? (
         <HeartSolidIcon
           data-testid="filled-heart"
-          className="h-5 w-5 text-red-500"
+          className="h-5 w-5 text-accent-red"
         />
       ) : (
         <HeartIcon className="h-5 w-5" />

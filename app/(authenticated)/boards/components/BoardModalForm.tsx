@@ -130,14 +130,14 @@ export default function BoardModalForm({
       ) : null}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-[24px] font-[700] tracking-tight text-foreground">
+          <DialogTitle>
             {mode === 'create' ? 'Create board' : 'Update board'}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
           <div className="space-y-2 relative pb-5">
             <Label htmlFor="title">
-              Title <span className="text-red-500">*</span>
+              Title <span className="text-accent-red">*</span>
             </Label>
             <Input
               id="title"
@@ -146,12 +146,12 @@ export default function BoardModalForm({
               {...register('title', { required: true })}
               className={
                 errors.title
-                  ? 'border-red-300 focus-visible:border-red-300 focus-visible:ring-red-300'
+                  ? 'border-destructive focus-visible:border-destructive focus-visible:ring-destructive'
                   : ''
               }
             />
             {errors.title && (
-              <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+              <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                 Title is required
               </p>
             )}
@@ -182,7 +182,7 @@ export default function BoardModalForm({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={() => setOpen(false)}
             >
               Close

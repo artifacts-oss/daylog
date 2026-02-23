@@ -47,7 +47,7 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
                   placeholder="Enter current password"
                 />
                 {state?.errors?.current && (
-                  <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                  <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                     {state?.errors?.current}
                   </p>
                 )}
@@ -63,7 +63,7 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
                 placeholder="Enter your new secure password"
               />
               {state?.errors?.password && (
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                   {state?.errors?.password}
                 </p>
               )}
@@ -77,7 +77,7 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
                 placeholder="Confirm your new password"
               />
               {state?.errors?.confirm && (
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                   {state?.errors?.confirm}
                 </p>
               )}
@@ -90,7 +90,7 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
             </Alert>
           )}
           {state?.success && state?.message && (
-            <Alert className="border-green-500 text-green-500">
+            <Alert className="border-green-500/20 bg-green-500/5 text-green-500">
               <CheckCircleIcon className="h-4 w-4" />
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>

@@ -114,9 +114,7 @@ export default function NavSearch() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl top-[20%] translate-y-0 pt-6">
           <DialogHeader>
-            <DialogTitle className="text-[24px] font-[700] text-foreground tracking-tight">
-              Search
-            </DialogTitle>
+            <DialogTitle>Search</DialogTitle>
           </DialogHeader>
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

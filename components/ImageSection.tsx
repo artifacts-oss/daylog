@@ -201,14 +201,14 @@ export default function ImageSection({
                 </div>
               ) : error ? (
                 <div className="flex h-full items-center justify-center py-12 px-8 text-center">
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 animate-in fade-in zoom-in-95 duration-300">
-                    <div className="p-2 rounded-full bg-red-100 w-fit mx-auto mb-3">
-                      <XMarkIcon className="h-6 w-6 text-red-600" />
+                  <div className="alert-danger border border-destructive/20 rounded-xl p-4 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="p-2 rounded-full bg-[var(--color-text-accent-red)]/10 w-fit mx-auto mb-3">
+                      <XMarkIcon className="h-6 w-6 text-accent-red" />
                     </div>
-                    <p className="text-sm font-bold text-red-900 mb-1">
+                    <p className="text-sm font-bold text-accent-red mb-1">
                       Search Failed
                     </p>
-                    <p className="text-xs text-red-700 leading-relaxed">
+                    <p className="text-xs text-accent-red leading-relaxed">
                       {error}
                     </p>
                   </div>

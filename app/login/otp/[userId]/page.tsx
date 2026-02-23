@@ -1,39 +1,82 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { getUserMFA } from '../../lib/actions';
 import OTPLoginForm from './partials/OTPLoginForm';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
-export default async function OTPLogin({
-  params,
-}: {
-  params: Promise<{ userId: string }>;
-}) {
-  // Get the profile of the user
-  const userId = parseInt((await params).userId);
-  const mfa = await getUserMFA(userId);
+export default function OTPLogin() {
+  const params = useParams();
+  const userId = parseInt(params?.userId as string);
+  const [mfa, setMfa] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (userId) {
+      getUserMFA(userId).then(setMfa);
+    }
+  }, [userId]);
 
   return (
-    <div className="page page-center">
-      <div className="container container-tight py-4">
-        <div className="text-center mb-4">
-          <Link href="/" className="navbar-brand navbar-brand-autodark">
+    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
+      {/* Background Decorative Elements */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] animate-slow-pulse" />
+        <div
+          className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] animate-slow-pulse"
+          style={{ animationDelay: '2s' }}
+        />
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+        className="relative z-10 w-full max-w-sm space-y-6"
+      >
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="text-center"
+        >
+          <Link href="/">
             <Image
               src="/daylog.svg"
               width="0"
               height="0"
-              alt={'daylog'}
+              alt="daylog"
               priority={true}
-              className="navbar-brand-image logo-invert"
-              style={{ width: 'auto', height: '48px' }}
+              className="mx-auto logo-invert drop-shadow-sm"
+              style={{ width: 'auto', height: '56px' }}
             />
           </Link>
-        </div>
-        {mfa ? (
+          <p className="mt-2 text-sm text-muted-foreground font-medium tracking-wide uppercase">
+            Multifactor Authentication
+          </p>
+        </motion.div>
+
+        {mfa === true ? (
           <OTPLoginForm userId={userId} />
+        ) : mfa === false ? (
+          <div className="text-center p-8 glass-card border rounded-lg">
+            <p className="text-muted-foreground">
+              Access denied or MFA not configured.
+            </p>
+            <Button variant="link" asChild className="mt-2">
+              <Link href="/login">Return to login</Link>
+            </Button>
+          </div>
         ) : (
-          <div className="text-center">Not allowed.</div>
+          <div className="flex justify-center py-12">
+            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" />
+          </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
+
+import { Button } from '@/components/ui/button';

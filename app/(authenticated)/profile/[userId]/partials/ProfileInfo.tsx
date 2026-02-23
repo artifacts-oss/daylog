@@ -47,7 +47,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
                 placeholder="Enter your nickname, name or fullname"
               />
               {state?.errors?.name && (
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                   {state?.errors?.name}
                 </p>
               )}
@@ -66,7 +66,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
                 placeholder="Enter your email for password recovery"
               />
               {state?.errors?.email && (
-                <p className="text-[12px] text-red-500 absolute -bottom-0 left-0">
+                <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
                   {Array.isArray(state?.errors?.email)
                     ? state?.errors?.email.join(', ')
                     : state?.errors?.email}
@@ -81,7 +81,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
             </Alert>
           )}
           {state?.success && state?.message && (
-            <Alert className="border-green-500 text-green-500">
+            <Alert className="border-green-500/20 bg-green-500/5 text-green-500">
               <CheckCircleIcon className="h-4 w-4" />
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>

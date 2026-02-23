@@ -30,7 +30,7 @@ export default function NoteFavoriteButton({ note }: NoteFavoriteButtonType) {
       {note.favorite ? (
         <HeartSolidIcon
           data-testid="filled-heart"
-          className="h-4 w-4 text-red-500"
+          className="h-4 w-4 text-accent-red"
         />
       ) : (
         <HeartIcon className="h-4 w-4" />

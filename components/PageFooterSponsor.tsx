@@ -9,7 +9,7 @@ export default function PageFooterSponsor() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-[12px] font-[500] uppercase text-muted-foreground/70">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
-              Made with <HeartIcon className="h-4 w-4 text-red-500" /> by{' '}
+              Made with <HeartIcon className="h-4 w-4 text-accent-red" /> by{' '}
               <a
                 href="https://github.com/artifacts-dav"
                 className="hover:text-foreground transition-colors capitalize"

@@ -32,18 +32,17 @@ describe('DangerZone', () => {
     expect(screen.getByText('Danger Zone')).toBeDefined();
     expect(
       screen.getByText(
-        'Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.'
-      )
+        'Once your account is deleted, all of its resources and data will be permanently deleted.',
+      ),
     ).toBeDefined();
   });
 
   it('opens modal on delete button click', () => {
     render(<DangerZone profile={profile} />);
 
-    // Firing open modal is not necessary because of Bootstrap, but in case it changes, I'll keep it.
-    fireEvent.click(screen.getByText('Delete Account'));
+    fireEvent.click(screen.getByText('Delete My Account'));
 
-    expect(screen.getByText('Are you sure?')).toBeDefined();
+    expect(screen.getByText('Confirm Deletion')).toBeDefined();
   });
 
   it('displays error message if state has message', () => {
@@ -58,7 +57,7 @@ describe('DangerZone', () => {
       false,
     ]);
     render(<DangerZone profile={profile} />);
-    fireEvent.click(screen.getByText('Delete Account'));
+    fireEvent.click(screen.getByText('Delete My Account'));
     expect(screen.getByText('Error deleting account')).toBeDefined();
   });
 
@@ -74,7 +73,7 @@ describe('DangerZone', () => {
       false,
     ]);
     render(<DangerZone profile={profile} />);
-    fireEvent.click(screen.getByText('Delete Account'));
+    fireEvent.click(screen.getByText('Delete My Account'));
     expect(screen.getByText('Password is required')).toBeDefined();
   });
 
@@ -82,9 +81,10 @@ describe('DangerZone', () => {
     mocks.useActionState.mockReturnValue([state, vi.fn(), true]);
     render(<DangerZone profile={profile} />);
 
-    const submitButton = screen.getByText('Delete Account');
-    fireEvent.click(submitButton);
+    // First open the modal
+    fireEvent.click(screen.getByText('Delete My Account'));
 
-    expect(screen.getByText('Yes, delete')).toBeDisabled();
+    const submitButton = screen.getByText('Deleting...');
+    expect(submitButton).toBeDisabled();
   });
 });
