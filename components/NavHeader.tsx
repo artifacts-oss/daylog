@@ -17,7 +17,7 @@ import {
   ArrowRightStartOnRectangleIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { signout } from '@/app/lib/actions';
+import { signout } from '@/app/(authenticated)/lib/actions';
 
 interface NavHeaderProps {
   user: any;

@@ -1,4 +1,4 @@
-import getVersion from '@/app/lib/version';
+import getVersion from '@/app/(authenticated)/lib/version';
 import PageFooterSponsor from './PageFooterSponsor';
 
 export default function PageFooter() {

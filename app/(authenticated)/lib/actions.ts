@@ -1,9 +1,9 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { prisma } from '../../prisma/client';
-import { deleteSessionTokenCookie } from '../login/lib/cookies';
-import { getCurrentSession } from '../login/lib/actions';
+import { prisma } from '../../../prisma/client';
+import { deleteSessionTokenCookie } from '../../login/lib/cookies';
+import { getCurrentSession } from '../../login/lib/actions';
 
 export async function signout() {
   const { user } = await getCurrentSession();

@@ -1,6 +1,6 @@
 'use client';
 
-import { search, SearchResult } from '@/app/lib/actions';
+import { search, SearchResult } from '@/app/(authenticated)/lib/actions';
 import { truncateWord } from '@/utils/text';
 import {
   MagnifyingGlassIcon,

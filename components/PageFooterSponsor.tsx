@@ -1,4 +1,4 @@
-import getVersion from '@/app/lib/version';
+import getVersion from '@/app/(authenticated)/lib/version';
 import { HeartIcon } from '@heroicons/react/24/solid';
 import { GithubIcon, Coffee } from 'lucide-react';
 

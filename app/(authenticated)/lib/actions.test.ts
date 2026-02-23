@@ -2,7 +2,7 @@ import { Board } from '@/prisma/generated/client';
 import { prismaMock } from '@/prisma/singleton';
 import { redirect } from 'next/navigation';
 import { describe, expect, it, vi } from 'vitest';
-import { deleteSessionTokenCookie } from '../login/lib/cookies';
+import { deleteSessionTokenCookie } from '../../login/lib/cookies';
 import { getBoardsCount, search, SearchResult, signout } from './actions';
 import { NoteWithBoards } from '../boards/[id]/notes/lib/types';
 
@@ -64,7 +64,10 @@ describe('search', () => {
     });
     expect(prismaMock.note.findMany).toHaveBeenCalledWith({
       select: { id: true, title: true, boardsId: true },
-      where: { title: { contains: keywords, mode: 'insensitive' }, boards: { userId: 1 } },
+      where: {
+        title: { contains: keywords, mode: 'insensitive' },
+        boards: { userId: 1 },
+      },
     });
     expect(results).toEqual([
       {

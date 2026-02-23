@@ -30,7 +30,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { signout } from '@/app/lib/actions';
+import { signout } from '@/app/(authenticated)/lib/actions';
 import NavThemeToggle from './NavThemeToggle';
 import { cn } from '@/lib/utils';
 
