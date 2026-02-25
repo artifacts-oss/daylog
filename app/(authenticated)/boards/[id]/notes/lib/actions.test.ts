@@ -135,7 +135,9 @@ describe('Note Actions', () => {
 
     await updateNote(note as Note);
 
-    expect(mocks.revalidatePath).toHaveBeenCalledWith(`/boards/${note.boardsId}/notes`);
+    expect(mocks.revalidatePath).toHaveBeenCalledWith(
+      `/boards/${note.boardsId}/notes`,
+    );
   });
 
   it('should delete a note', async () => {
@@ -164,7 +166,7 @@ describe('Note Actions', () => {
 
     expect(result).toEqual(notes);
     expect(prismaMock.note.findMany).toHaveBeenCalledWith({
-      where: { boardsId: boardId, boards: { userId: user.id } },
+      where: { boards: { id: boardId, userId: user.id } },
       include: { boards: true },
       orderBy: [getSorting('created_desc')],
       take: 10,
@@ -195,7 +197,7 @@ describe('Note Actions', () => {
 
     expect(result).toBe(notesCount);
     expect(prismaMock.note.count).toHaveBeenCalledWith({
-      where: { boardsId: boardId, boards: { userId: user.id } },
+      where: { boards: { id: boardId, userId: user.id } },
     });
   });
 
@@ -212,7 +214,7 @@ describe('Note Actions', () => {
 
     expect(result).toEqual(notes);
     expect(prismaMock.note.findMany).toHaveBeenCalledWith({
-      where: { boardsId: boardId, boards: { userId: user.id } },
+      where: { boards: { id: boardId, userId: user.id } },
       include: { boards: true },
       orderBy: [getSorting('created_desc')],
       take: 10,
@@ -346,7 +348,7 @@ describe('Note Actions', () => {
     expect(prisma.picture.delete).toHaveBeenCalledWith({
       where: { id: picture.id },
     });
-  })
+  });
 
   it('if picture is not removed should not delete picture', async () => {
     const noteId = 1;
@@ -366,7 +368,7 @@ describe('Note Actions', () => {
 
     expect(mocks.removeFile).toHaveBeenCalledWith(picture.imageUrl);
     expect(prisma.picture.delete).not.toHaveBeenCalled();
-  })
+  });
 
   it('should get pictures', async () => {
     const noteId = 1;
@@ -387,5 +389,5 @@ describe('Note Actions', () => {
     expect(prisma.picture.findMany).toHaveBeenCalledWith({
       where: { notesId: noteId },
     });
-  })
+  });
 });

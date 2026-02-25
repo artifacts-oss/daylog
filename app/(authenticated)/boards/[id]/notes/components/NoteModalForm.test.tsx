@@ -163,6 +163,7 @@ describe('NoteModalForm', () => {
         id: 1,
         title: 'Updated Note',
         content: 'Updated Content',
+        imageUrl: 'test.jpg',
       });
     });
   });

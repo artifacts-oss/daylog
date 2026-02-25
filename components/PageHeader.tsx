@@ -26,8 +26,8 @@ export default function PageHeader({
   return (
     <div className="relative border-b border-border bg-background overflow-hidden">
       {/* Decorative background elements */}
-      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/3 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl transform-gpu pointer-events-none" />
+      <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-64 h-64 bg-primary/3 rounded-full blur-2xl transform-gpu pointer-events-none" />
 
       {props.imageUrl && (
         <div className="absolute inset-0 z-0 pointer-events-none">
@@ -35,7 +35,7 @@ export default function PageHeader({
             className="absolute inset-0 bg-cover bg-center opacity-25"
             style={{ backgroundImage: `url(${props.imageUrl})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background to-transparent" />
         </div>
       )}
 
