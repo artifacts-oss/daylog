@@ -171,8 +171,10 @@ Check the `.env` file to see the available environment variables.
 
 - [NextJS](https://nextjs.org/)
 - [Prisma ORM](https://www.prisma.io/)
-- [Bootstrap](https://getbootstrap.com/)
-- [Tabler UI](https://tabler.io/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Radix UI](https://www.radix-ui.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Lucide Icons](https://lucide.dev/)
 - [Marked](https://github.com/markedjs/marked)
 - [Zod](https://github.com/colinhacks/zod)
 - [Nodemailer](https://github.com/nodemailer/nodemailer)
