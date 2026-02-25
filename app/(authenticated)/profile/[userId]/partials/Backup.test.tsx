@@ -17,7 +17,13 @@ vi.mock('../lib/actions', () => ({
   backupData: vi.fn(),
 }));
 
-vi.mock('react', () => ({ useActionState: mocks.useActionState }));
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return {
+    ...actual,
+    useActionState: mocks.useActionState,
+  };
+});
 
 describe('Backup', () => {
   const profile = { id: 1, name: 'John Doe', email: 'john@example.com' };
@@ -64,7 +70,7 @@ describe('Backup', () => {
     mocks.useActionState.mockReturnValue([state, vi.fn(), true]);
     render(<Backup profile={profile} />);
 
-    const submitButton = screen.getByText(/Download Data/i);
+    const submitButton = screen.getByText(/Processing.../i);
     expect(submitButton).toBeDisabled();
   });
 

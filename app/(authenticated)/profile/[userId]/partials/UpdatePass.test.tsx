@@ -17,7 +17,13 @@ vi.mock('../lib/actions', () => ({
   updatePassword: vi.fn(),
 }));
 
-vi.mock('react', () => ({ useActionState: mocks.useActionState }));
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return {
+    ...actual,
+    useActionState: mocks.useActionState,
+  };
+});
 
 describe('UpdatePass Component', () => {
   const mockProfile = {
@@ -85,7 +91,7 @@ describe('UpdatePass Component', () => {
   it('disables the submit button when pending is true', () => {
     mocks.useActionState.mockReturnValueOnce([state, vi.fn(), true]);
     render(<UpdatePass userId={1} profile={mockProfile} />);
-    const submitButton = screen.getByText(/Change Password/i);
+    const submitButton = screen.getByText(/Updating.../i);
     expect(submitButton).toBeDisabled();
   });
 

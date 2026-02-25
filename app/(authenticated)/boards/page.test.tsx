@@ -1,7 +1,6 @@
 import '@/utils/test/commonMocks';
 
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
-import { redirect } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BoardCardType } from './components/BoardCard';
 import Boards from './page';
@@ -10,15 +9,28 @@ const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
   getBoardsCount: vi.fn(),
   getBoards: vi.fn(),
+  getSettings: vi.fn(),
 }));
 
-vi.mock('../login/lib/actions', () => ({
+vi.mock('@/app/login/lib/actions', () => ({
   getCurrentSession: mocks.getCurrentSession,
 }));
 
 vi.mock('./lib/actions', () => ({
   getBoardsCount: mocks.getBoardsCount,
   getBoards: mocks.getBoards,
+}));
+
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
+  getSettings: mocks.getSettings,
+}));
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  })),
 }));
 
 vi.mock('@/app/(authenticated)/boards/components/BoardCard', () => ({
@@ -36,13 +48,14 @@ describe('Boards Page', () => {
 
   beforeEach(() => {
     cleanup();
+    mocks.getSettings.mockResolvedValue({ allowUnsplash: true });
   });
 
-  it('redirects to login if user is not authenticated', async () => {
+  it('returns null if user is not authenticated', async () => {
     mocks.getCurrentSession.mockResolvedValue({ user: null });
-    render(await Boards(defaultSearchParams));
+    const result = await Boards(defaultSearchParams);
 
-    expect(redirect).toHaveBeenCalledWith('/login');
+    expect(result).toBeNull();
   });
 
   it('renders boards if user is authenticated', async () => {
@@ -70,7 +83,7 @@ describe('Boards Page', () => {
     render(await Boards(defaultSearchParams));
 
     await waitFor(() => {
-      expect(screen.getByText('Your boards are empty')).toBeInTheDocument();
+      expect(screen.getByText('No boards found')).toBeInTheDocument();
     });
   });
 });

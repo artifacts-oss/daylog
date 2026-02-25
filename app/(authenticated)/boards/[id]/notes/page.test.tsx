@@ -1,7 +1,6 @@
 import '@/utils/test/commonMocks';
 
 import { cleanup, render, screen } from '@testing-library/react';
-import { redirect } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Notes from './page';
 
@@ -10,6 +9,16 @@ const mocks = vi.hoisted(() => ({
   getNotesCount: vi.fn(),
   getNotes: vi.fn(),
   getBoard: vi.fn(),
+  getSettings: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  redirect: vi.fn(),
+  useRouter: vi.fn(() => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+    back: vi.fn(),
+  })),
 }));
 
 vi.mock('@/app/login/lib/actions', () => ({
@@ -20,17 +29,32 @@ vi.mock('@/app/(authenticated)/boards/lib/actions', () => ({
   getBoard: mocks.getBoard,
 }));
 
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
+  getSettings: mocks.getSettings,
+}));
+
 vi.mock('./lib/actions', () => ({
   getNotes: mocks.getNotes,
   getNotesCount: mocks.getNotesCount,
 }));
 
-vi.mock('./components/NoteModalForm');
-vi.mock('./components/NoteCard', () => ({
-  default: vi.fn(({ noteId }: { noteId: number }) => <div>Note {noteId}</div>),
+vi.mock('@/utils/image', () => ({
+  getImageUrlOrFile: vi.fn((url) => url),
 }));
 
-describe('Home Page', () => {
+vi.mock('./components/NoteModalForm', () => ({
+  default: () => <div data-testid="NoteModalForm" />,
+}));
+
+vi.mock('./components/NoteSortSelector', () => ({
+  default: () => <div data-testid="NoteSortSelector" />,
+}));
+
+vi.mock('./components/NoteCard', () => ({
+  default: vi.fn(({ note }: { note: any }) => <div>Note {note.id}</div>),
+}));
+
+describe('Notes Page', () => {
   const defaultParams = {
     params: Promise.resolve({ id: '1' }),
     searchParams: Promise.resolve({
@@ -40,16 +64,17 @@ describe('Home Page', () => {
 
   beforeEach(() => {
     cleanup();
+    mocks.getSettings.mockResolvedValue({ allowUnsplash: true });
   });
 
-  it('should redirect to login if user is not authenticated', async () => {
+  it('should return null if user is not authenticated', async () => {
     mocks.getCurrentSession.mockResolvedValue({ user: null });
     mocks.getNotes.mockResolvedValue([]);
     mocks.getNotesCount.mockResolvedValue(0);
 
-    await Notes(defaultParams);
+    const result = await Notes(defaultParams);
 
-    expect(redirect).toHaveBeenCalledWith('/login');
+    expect(result).toBeNull();
   });
 
   it('should render notes if user is authenticated', async () => {
@@ -58,7 +83,7 @@ describe('Home Page', () => {
     });
     mocks.getNotes.mockResolvedValue([{ id: 1 }]);
     mocks.getNotesCount.mockResolvedValue(1);
-    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board' });
+    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board', updatedAt: new Date() });
 
     render(await Notes(defaultParams));
 
@@ -71,14 +96,14 @@ describe('Home Page', () => {
     });
     mocks.getNotes.mockResolvedValue([]);
     mocks.getNotesCount.mockResolvedValue(0);
-    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board' });
+    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board', updatedAt: new Date() });
 
     render(await Notes(defaultParams));
 
-    expect(screen.getByText('Your notes are empty')).toBeInTheDocument();
+    expect(screen.getByText('No notes in this board')).toBeInTheDocument();
   });
 
-  it('should redirect to all boards if board not exists', async () => {
+  it('should return null if board not exists', async () => {
     mocks.getCurrentSession.mockResolvedValue({
       user: { id: 1, name: 'Test User' },
     });
@@ -86,8 +111,8 @@ describe('Home Page', () => {
     mocks.getNotesCount.mockResolvedValue(0);
     mocks.getBoard.mockResolvedValue(null);
 
-    await Notes(defaultParams);
+    const result = await Notes(defaultParams);
 
-    expect(redirect).toHaveBeenCalledWith('/boards');
-  })
+    expect(result).toBeNull();
+  });
 });

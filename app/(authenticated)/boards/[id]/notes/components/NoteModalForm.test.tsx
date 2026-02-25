@@ -37,6 +37,22 @@ vi.mock('next/navigation', () => ({
   })),
 }));
 
+vi.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => {
+    const { fill, priority, sizes, ...rest } = props;
+    return <img {...rest} />;
+  },
+}));
+
+// Mock URL.createObjectURL for jsdom (used by ImageSection)
+if (!URL.createObjectURL) {
+  URL.createObjectURL = vi.fn(() => 'blob:http://localhost/test-blob');
+}
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = vi.fn();
+}
+
 describe('NoteModalForm', () => {
   beforeEach(() => {
     cleanup();

@@ -17,6 +17,8 @@ const mocks = vi.hoisted(() => ({
   resizeImage: vi.fn(),
   refresh: vi.fn(),
   getImageUrlOrFile: vi.fn(() => 'https://dummy.com/test.jpg'),
+  getCurrentSession: vi.fn(() => Promise.resolve({ user: { id: 1 } })),
+  getSettings: vi.fn(() => Promise.resolve({ allowUnsplash: true })),
 }));
 
 vi.mock('@/app/(authenticated)/boards/lib/actions', () => ({
@@ -26,6 +28,14 @@ vi.mock('@/app/(authenticated)/boards/lib/actions', () => ({
   saveImage: mocks.saveImage,
 }));
 
+vi.mock('@/app/login/lib/actions', () => ({
+  getCurrentSession: mocks.getCurrentSession,
+}));
+
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
+  getSettings: mocks.getSettings,
+}));
+
 vi.mock('@/utils/image', () => ({
   resizeImage: mocks.resizeImage,
   getImageUrlOrFile: mocks.getImageUrlOrFile,
@@ -33,9 +43,29 @@ vi.mock('@/utils/image', () => ({
 
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(() => ({
-    refresh: vi.fn(),
+    refresh: mocks.refresh,
   })),
 }));
+
+vi.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img {...props} />;
+  },
+}));
+
+vi.mock('./UnsplashImagesDropdown', () => ({
+  default: () => <div data-testid="UnsplashImagesDropdown" />,
+}));
+
+// Mock URL.createObjectURL for jsdom
+if (!URL.createObjectURL) {
+  URL.createObjectURL = vi.fn(() => 'blob:http://localhost/test-blob');
+}
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = vi.fn();
+}
 
 describe('BoardModalForm', () => {
   beforeEach(() => {

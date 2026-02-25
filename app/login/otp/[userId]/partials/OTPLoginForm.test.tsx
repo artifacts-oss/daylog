@@ -50,8 +50,10 @@ describe('OTPLoginForm', () => {
   it('renders the form with initial state', () => {
     render(<OTPLoginForm userId={1} />);
 
-    expect(screen.getByText('Login using OTP')).toBeInTheDocument();
-    expect(screen.getByText('Your OTP is required.')).toBeInTheDocument();
+    expect(screen.getByText('Security Code')).toBeInTheDocument();
+    expect(
+      screen.getByText('Enter the 6-digit code from your authenticator app'),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Verify securely/i }),
     ).toBeInTheDocument();
@@ -66,7 +68,7 @@ describe('OTPLoginForm', () => {
 
     render(<OTPLoginForm userId={1} />);
 
-    expect(screen.getByText('Could not login')).toBeInTheDocument();
+    expect(screen.getByText('Verification failed')).toBeInTheDocument();
     expect(screen.getByText('Error message')).toBeInTheDocument();
   });
 

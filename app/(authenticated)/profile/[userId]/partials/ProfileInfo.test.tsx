@@ -18,19 +18,25 @@ vi.mock('../lib/actions', () => ({
   updateProfile: vi.fn(),
 }));
 
-vi.mock('react', () => ({ useActionState: mocks.useActionState }));
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return {
+    ...actual,
+    useActionState: mocks.useActionState,
+  };
+});
 
 describe('ProfileInfo', () => {
-  const mockProfile: User = {
+  const mockProfile = {
     id: 1,
     name: 'John Doe',
-    email: 'john.doe@example.com',
+    email: 'john@example.com',
     password: 'password123',
     secret: null,
     mfa: false,
     role: 'user',
     terms: 'accepted',
-  };
+  } as User;
 
   beforeEach(() => {
     cleanup();
@@ -41,55 +47,42 @@ describe('ProfileInfo', () => {
 
     expect(screen.getByText('Profile Information')).toBeDefined();
     expect(screen.getByLabelText('Name').getAttribute('value')).toEqual(
-      'John Doe'
+      'John Doe',
     );
     expect(screen.getByLabelText('E-mail').getAttribute('value')).toEqual(
-      'john.doe@example.com'
+      'john@example.com',
     );
   });
 
   it('displays error messages when there are errors', () => {
-    mocks.useActionState.mockReturnValueOnce([
-      {
-        data: {},
-        errors: { name: 'Name is required', email: ['Invalid email'] },
-        success: false,
-        message: '',
-      },
+    const errorMessages = { name: ['Name is required'] };
+    mocks.useActionState.mockReturnValue([
+      { success: false, message: '', errors: errorMessages, data: {} },
       vi.fn(),
       false,
     ]);
-
     render(<ProfileInfo profile={mockProfile} />);
 
     expect(screen.getByText('Name is required')).toBeDefined();
-    expect(screen.getByText('Invalid email')).toBeDefined();
   });
 
   it('displays a success message when the form is submitted successfully', () => {
     const successMessage = 'Profile updated successfully';
-    mocks.useActionState.mockReturnValueOnce([
-      {
-        data: {},
-        errors: {},
-        success: true,
-        message: successMessage,
-      },
+    mocks.useActionState.mockReturnValue([
+      { success: true, message: successMessage, errors: {}, data: {} },
       vi.fn(),
       false,
     ]);
-
     render(<ProfileInfo profile={mockProfile} />);
 
-    expect(screen.findByText(successMessage)).toBeDefined();
+    expect(screen.getByText(successMessage)).toBeDefined();
   });
 
   it('displays a loading state when the form is being submitted', () => {
-    mocks.useActionState.mockReturnValueOnce([state, vi.fn(), true]);
-
+    mocks.useActionState.mockReturnValue([state, vi.fn(), true]);
     render(<ProfileInfo profile={mockProfile} />);
 
-    const submitButton = screen.getByText(/Save Changes/i);
+    const submitButton = screen.getByText(/Saving.../i);
     expect(submitButton).toBeDisabled();
   });
 

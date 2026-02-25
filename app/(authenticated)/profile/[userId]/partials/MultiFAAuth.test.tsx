@@ -10,7 +10,7 @@ vi.mock('@/components/OTPInputWrapper', () => ({
 }));
 
 describe('MultiFAAuth', () => {
-  const profileWithMFA: User = {
+  const profileWithMFA = {
     id: 1,
     email: 'test@example.com',
     mfa: true,
@@ -19,9 +19,9 @@ describe('MultiFAAuth', () => {
     secret: 'secret123',
     role: 'user',
     terms: 'accepted',
-  };
+  } as User;
 
-  const profileWithoutMFA: User = {
+  const profileWithoutMFA = {
     id: 2,
     email: 'test2@example.com',
     mfa: false,
@@ -30,7 +30,7 @@ describe('MultiFAAuth', () => {
     secret: 'secret123',
     role: 'user',
     terms: 'accepted',
-  };
+  } as User;
 
   beforeEach(() => {
     cleanup();
@@ -44,17 +44,17 @@ describe('MultiFAAuth', () => {
   it('renders the configuration message', () => {
     render(<MultiFAAuth profile={profileWithMFA} />);
     expect(
-      screen.getByText('Configure your Account 2FA Authentication')
+      screen.getByText('Configure your Account 2FA Authentication'),
     ).toBeDefined();
   });
 
   it('renders ModalUpdate when MFA is not configured', () => {
     render(<MultiFAAuth profile={profileWithoutMFA} />);
-    expect(screen.getByText('Configure a TOTP')).toBeDefined();
+    expect(screen.getByText('Configure TOTP')).toBeDefined();
   });
 
   it('renders ModalDelete when MFA is configured', () => {
     render(<MultiFAAuth profile={profileWithMFA} />);
-    expect(screen.getByText('Delete Device')).toBeDefined();
+    expect(screen.getByText('Disable 2FA')).toBeDefined();
   });
 });

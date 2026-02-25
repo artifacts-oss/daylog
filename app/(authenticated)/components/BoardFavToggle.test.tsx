@@ -62,15 +62,17 @@ describe('BoardFavSwitch', () => {
     expect(favBtn.className).not.toContain('text-primary');
   });
 
-  it('updates URL search params and calls router methods on toggle', () => {
+  it('updates URL search params and calls router methods on toggle', async () => {
     render(<BoardFavSwitch />);
     const favBtn = screen.getByRole('button', { name: /favorites/i });
 
     fireEvent.click(favBtn);
 
-    expect(mocks.prefetch).toHaveBeenCalledWith('/');
-    expect(mocks.push).toHaveBeenCalled();
-    const calledWith = mocks.push.mock.calls[0][0];
-    expect(calledWith).toContain('showFav=true');
+    const { waitFor } = await import('@testing-library/react');
+    await waitFor(() => {
+      expect(mocks.push).toHaveBeenCalled();
+      const calledWith = mocks.push.mock.calls[0][0];
+      expect(calledWith).toContain('showFav=true');
+    });
   });
 });

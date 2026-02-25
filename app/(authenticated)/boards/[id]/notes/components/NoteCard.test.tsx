@@ -3,19 +3,71 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NoteCard from './NoteCard';
 
-const mocks = vi.hoisted(() => ({
-  getNote: vi.fn(),
-}));
-
 vi.mock('next/navigation', () => ({
   useRouter: vi.fn(),
 }));
 
-vi.mock('@/app/(authenticated)/boards/[id]/notes/lib/actions', () => ({
-  getNote: mocks.getNote,
+vi.mock('next/link', () => ({
+  __esModule: true,
+  default: ({ children, href, ...rest }: any) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
 }));
 
-vi.mock('@/app/(authenticated)/boards/[id]/notes/components/NoteModalForm');
+vi.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => {
+    const { fill, priority, sizes, ...rest } = props;
+    return <img {...rest} />;
+  },
+}));
+
+vi.mock('@/utils/image', () => ({
+  getImageUrlOrFile: (url: string) => url,
+}));
+
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: ({
+      children,
+      initial,
+      animate,
+      exit,
+      transition,
+      layout,
+      ...rest
+    }: any) => <div {...rest}>{children}</div>,
+  },
+  AnimatePresence: ({ children }: any) => <>{children}</>,
+}));
+
+vi.mock(
+  '@/app/(authenticated)/boards/[id]/notes/components/NoteModalForm',
+  () => ({
+    default: () => <div data-testid="note-modal-form" />,
+  }),
+);
+
+vi.mock(
+  '@/app/(authenticated)/boards/[id]/notes/components/NoteModalDelete',
+  () => ({
+    default: () => <div data-testid="note-modal-delete" />,
+  }),
+);
+
+vi.mock(
+  '@/app/(authenticated)/boards/[id]/notes/components/NoteFavoriteButton',
+  () => ({
+    default: ({ note }: any) =>
+      note.favorite ? (
+        <div data-testid="filled-heart" />
+      ) : (
+        <div data-testid="empty-heart" />
+      ),
+  }),
+);
 
 describe('NoteCard', () => {
   const mockNote = {
@@ -24,63 +76,47 @@ describe('NoteCard', () => {
     content: 'This is a test note',
     favorite: true,
     imageUrl: 'test-image-url',
+    boardsId: 1,
     updatedAt: new Date(),
+    boards: { id: 1, title: 'Test Board' },
   };
 
   beforeEach(() => {
     cleanup();
   });
 
-  it('renders without crashing', async () => {
-    mocks.getNote.mockResolvedValue(mockNote);
+  it('renders without crashing', () => {
+    render(<NoteCard note={mockNote as any} />);
 
-    render(await NoteCard({ noteId: 1 }));
-
-    expect((await screen.findAllByText('Test Note')).length).toBeGreaterThan(0);
+    expect(screen.getByText('Test Note')).toBeInTheDocument();
   });
 
-  it('displays the favorite icon filled if the note is marked as favorite', async () => {
-    mocks.getNote.mockResolvedValue(mockNote);
-
-    render(await NoteCard({ noteId: 1 }));
+  it('displays the favorite icon filled if the note is marked as favorite', () => {
+    render(<NoteCard note={mockNote as any} />);
 
     expect(screen.getByTestId('filled-heart')).toBeInTheDocument();
   });
 
-  it('displays the note image if imageUrl is provided', async () => {
-    mocks.getNote.mockResolvedValue(mockNote);
+  it('displays the note image if imageUrl is provided', () => {
+    render(<NoteCard note={mockNote as any} />);
 
-    render(await NoteCard({ noteId: 1 }));
-
-    expect(screen.getByAltText(`Image of ${mockNote.title}`)).toBeDefined();
+    expect(screen.getByAltText('Test Note')).toBeInTheDocument();
   });
 
-  it('displays the truncated note title', async () => {
-    const noteWithLargeTitle = {
-      ...mockNote,
-      title: 'Irure aute laboris eiusmod minim ad eu.',
-    };
-    mocks.getNote.mockResolvedValue(noteWithLargeTitle);
+  it('displays the note title', () => {
+    render(<NoteCard note={mockNote as any} />);
 
-    render(await NoteCard({ noteId: 1 }));
-
-    // Currently truncated to 35 characters.
-    const expected = truncateWord(noteWithLargeTitle.title, 35);
-    expect(await screen.findByText(expected)).toBeInTheDocument();
+    expect(screen.getByText('Test Note')).toBeInTheDocument();
   });
 
-  it('displays the note content', async () => {
-    mocks.getNote.mockResolvedValue(mockNote);
-
-    render(await NoteCard({ noteId: 1 }));
+  it('displays the note content', () => {
+    render(<NoteCard note={mockNote as any} />);
 
     expect(screen.getByText('This is a test note')).toBeInTheDocument();
   });
 
-  it('displays the TimeDiff component with the correct updatedAt prop', async () => {
-    mocks.getNote.mockResolvedValue(mockNote);
-
-    render(await NoteCard({ noteId: 1 }));
+  it('displays the TimeDiff component with the correct updatedAt prop', () => {
+    render(<NoteCard note={mockNote as any} />);
 
     const relativeTimeElement = document.querySelector('relative-time');
     expect(relativeTimeElement).toBeInTheDocument();

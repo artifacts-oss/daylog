@@ -12,6 +12,9 @@ import Editor from './Editor';
 const mocks = vi.hoisted(() => ({
   updateNote: vi.fn(),
   getPictures: vi.fn(),
+  deleteImage: vi.fn(),
+  savePicture: vi.fn(),
+  deletePicture: vi.fn(),
 }));
 
 Object.defineProperty(window, 'matchMedia', {
@@ -31,22 +34,69 @@ Object.defineProperty(window, 'matchMedia', {
 vi.mock('../../lib/actions', () => ({
   updateNote: mocks.updateNote,
   getPictures: mocks.getPictures,
+  deleteImage: mocks.deleteImage,
+  savePicture: mocks.savePicture,
+  deletePicture: mocks.deletePicture,
 }));
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
+    refresh: vi.fn(),
   }),
+}));
+
+vi.mock('next-themes', () => ({
+  useTheme: () => ({ theme: 'light' }),
+}));
+
+vi.mock('next/image', () => ({
+  __esModule: true,
+  default: (props: any) => {
+    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
+    return <img {...props} />;
+  },
+}));
+
+vi.mock('@/utils/image', () => ({
+  getImageUrlOrFile: (url: string) => url,
+  resizeImage: vi.fn(),
+}));
+
+vi.mock('framer-motion', () => ({
+  motion: {
+    div: ({
+      children,
+      initial,
+      animate,
+      exit,
+      transition,
+      layout,
+      ...rest
+    }: any) => <div {...rest}>{children}</div>,
+    tr: ({
+      children,
+      initial,
+      animate,
+      exit,
+      transition,
+      layout,
+      ...rest
+    }: any) => <tr {...rest}>{children}</tr>,
+  },
+  AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
 
 vi.mock('@uiw/react-md-editor', () => {
   const MDEditor = ({
     value,
     onChange,
+    className: _className,
     ...props
   }: {
     value: string;
     onChange?: (value: string) => void;
+    className?: string;
   }) => {
     return (
       <textarea
@@ -65,26 +115,28 @@ vi.mock('@uiw/react-md-editor', () => {
 });
 
 describe('Editor', () => {
-  const mockNote = {
-    id: 1,
-    content: 'Initial content',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    boardsId: 1,
-  } as Note;
+  let mockNote: Note;
 
   const mockPicture = {
     id: 1,
-    notesId: mockNote.id,
+    notesId: 1,
     imageUrl: 'https://example.com/image.jpg',
     createdAt: new Date(),
     updatedAt: new Date(),
   } as Picture;
 
   beforeEach(() => {
+    // Recreate mockNote each test to prevent cross-test mutation
+    // (updateNoteHandler does `note.content = content` directly)
+    mockNote = {
+      id: 1,
+      content: 'Initial content',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      boardsId: 1,
+    } as Note;
     localStorage.clear();
     cleanup();
-    vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
   });
 
   afterEach(() => {
@@ -113,7 +165,7 @@ describe('Editor', () => {
     });
 
     fireEvent.change(screen.getByRole('textbox'), {
-      target: { value: 'Updated content' },
+      target: { value: 'Updated contentt' },
     });
 
     expect(screen.getByText('Saving')).toBeInTheDocument();
@@ -131,6 +183,7 @@ describe('Editor', () => {
   });
 
   it('editor updates note after debounce timer', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
     render(<Editor note={mockNote} />);
     const editor = screen.getByRole('textbox');
 
@@ -151,21 +204,32 @@ describe('Editor', () => {
 
   it('places picture at cursor position', async () => {
     mocks.getPictures.mockResolvedValue([mockPicture]);
-    render(<Editor note={mockNote} />);
+    const noteWithContent = { ...mockNote, content: 'Hello world' };
+    render(<Editor note={noteWithContent} />);
 
     await waitFor(() => {
       expect(mocks.getPictures).toHaveBeenCalledWith(mockNote.id);
     });
 
-    const picture = screen.getByTestId('picture-preview-1');
+    // Open the gallery sidebar so pictures become visible
+    const galleryButton = screen.getByRole('button', {
+      name: /Open Gallery/i,
+    });
+    fireEvent.click(galleryButton);
+
+    const picture = await screen.findByTestId('picture-preview-1');
+
+    // Enable fake timers only AFTER async DOM lookups are done
+    // (findByTestId uses real setTimeout internally for polling)
+    vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
 
     fireEvent.click(picture);
     // skip 1s debounce time
     vi.advanceTimersByTime(1000);
     await waitFor(() => {
       expect(mocks.updateNote).toHaveBeenCalledWith({
-        ...mockNote,
-        content: '![alt text](https://example.com/image.jpg)Second update',
+        ...noteWithContent,
+        content: '![alt text](https://example.com/image.jpg)Hello world',
       });
     });
   });

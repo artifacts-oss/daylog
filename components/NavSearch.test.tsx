@@ -27,7 +27,7 @@ vi.mock('@heroicons/react/24/outline', () => ({
 }));
 
 // Mock search action
-vi.mock('@/app/lib/actions', () => ({
+vi.mock('@/app/(authenticated)/lib/actions', () => ({
   search: mocks.search,
 }));
 
@@ -43,7 +43,10 @@ describe('NavSearch', () => {
       return new Promise(() => {});
     });
     render(<NavSearch />);
-    const input = screen.getByPlaceholderText(/Search boards and notes/i);
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
     fireEvent.change(input, { target: { value: 'test' } });
     // skip 1s debounce time
     vi.advanceTimersByTime(1000);
@@ -54,25 +57,13 @@ describe('NavSearch', () => {
 
   it('renders search button and modal', () => {
     render(<NavSearch />);
-    expect(screen.getByText(/Search/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Search/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Search/i })).toHaveAttribute(
-      'data-bs-toggle',
-      'modal',
-    );
-    expect(screen.getByRole('button', { name: /Search/i })).toHaveAttribute(
-      'data-bs-target',
-      '#searchModal',
-    );
-    expect(
-      screen.getByPlaceholderText(/Search boards and notes/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Search anything/i)).toBeInTheDocument();
   });
 
   it('shows empty results message when no results', async () => {
     render(<NavSearch />);
     // Open modal by simulating click
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
     vi.advanceTimersByTime(350);
     // Input is empty, so should show empty results
     expect(await screen.findByText(/Quickly find boards/i)).toBeInTheDocument();
@@ -80,35 +71,41 @@ describe('NavSearch', () => {
 
   it('shows search results when input is typed', async () => {
     render(<NavSearch />);
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
-    const input = screen.getByPlaceholderText(/Search boards and notes/i);
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
     fireEvent.change(input, { target: { value: 'test' } });
     vi.advanceTimersByTime(350);
-    await waitFor(() => {
-      expect(screen.getByText('Test Note')).toBeInTheDocument();
-      expect(screen.getByText('Test Board')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Test Note')).toBeInTheDocument();
+    expect(await screen.findByText('Test Board')).toBeInTheDocument();
 
     expect(screen.getByTestId('note-icon')).toBeInTheDocument();
     expect(screen.getByTestId('chalkboard-icon')).toBeInTheDocument();
   });
 
-  it('shows navigation instructions in modal footer', () => {
+  it('shows navigation instructions in modal footer', async () => {
     render(<NavSearch />);
-    expect(screen.getByText(/Navigate/i)).toBeInTheDocument();
-    expect(screen.getByText(/Open/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
+    fireEvent.change(input, { target: { value: 'test' } });
+    vi.advanceTimersByTime(350);
+    expect(await screen.findByText(/Navigate/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Open/i)).toBeInTheDocument();
   });
 
   it('navigates results with keyboard', async () => {
     render(<NavSearch />);
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
-    const input = screen.getByPlaceholderText(/Search boards and notes/i);
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
     fireEvent.change(input, { target: { value: 'test' } });
     vi.advanceTimersByTime(350);
-    await waitFor(() => {
-      expect(screen.getByText('Test Note')).toBeInTheDocument();
-      expect(screen.getByText('Test Board')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Test Note')).toBeInTheDocument();
+    expect(await screen.findByText('Test Board')).toBeInTheDocument();
 
     // Simulate arrow down key
     fireEvent.keyDown(input, { key: 'ArrowDown' });

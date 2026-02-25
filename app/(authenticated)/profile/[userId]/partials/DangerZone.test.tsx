@@ -13,7 +13,13 @@ const mocks = vi.hoisted(() => ({
   useActionState: vi.fn(() => [state, vi.fn(), false]),
 }));
 
-vi.mock('react', () => ({ useActionState: mocks.useActionState }));
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return {
+    ...actual,
+    useActionState: mocks.useActionState,
+  };
+});
 
 vi.mock('../lib/actions', () => ({
   deleteAccount: vi.fn(),

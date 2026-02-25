@@ -10,11 +10,11 @@ const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
 }));
 
-vi.mock('../login/lib/actions', () => ({
+vi.mock('@/app/login/lib/actions', () => ({
   getCurrentSession: mocks.getCurrentSession,
 }));
 
-vi.mock('../login/lib/cookies', () => ({
+vi.mock('@/app/login/lib/cookies', () => ({
   deleteSessionTokenCookie: vi.fn(),
 }));
 
@@ -59,13 +59,24 @@ describe('search', () => {
     const results: SearchResult[] = await search(keywords);
 
     expect(prismaMock.board.findMany).toHaveBeenCalledWith({
-      select: { id: true, title: true },
-      where: { title: { contains: keywords, mode: 'insensitive' }, userId: 1 },
+      select: { id: true, title: true, description: true },
+      take: 5,
+      where: {
+        OR: [
+          { title: { contains: keywords, mode: 'insensitive' } },
+          { description: { contains: keywords, mode: 'insensitive' } },
+        ],
+        userId: 1,
+      },
     });
     expect(prismaMock.note.findMany).toHaveBeenCalledWith({
-      select: { id: true, title: true, boardsId: true },
+      select: { id: true, title: true, content: true, boardsId: true },
+      take: 10,
       where: {
-        title: { contains: keywords, mode: 'insensitive' },
+        OR: [
+          { title: { contains: keywords, mode: 'insensitive' } },
+          { content: { contains: keywords, mode: 'insensitive' } },
+        ],
         boards: { userId: 1 },
       },
     });

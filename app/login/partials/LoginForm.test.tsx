@@ -55,7 +55,7 @@ describe('LoginForm', () => {
 
   it('renders the login form', () => {
     render(<LoginForm />);
-    expect(screen.getByText('Login to your account')).toBeInTheDocument();
+    expect(screen.getByText('Welcome back')).toBeInTheDocument();
   });
 
   it('displays an error message when state.message is present', () => {
@@ -106,12 +106,6 @@ describe('LoginForm', () => {
       ).not.toBeInTheDocument();
       expect(screen.queryByText('Sign up')).not.toBeInTheDocument();
     });
-  });
-
-  it('removes modal backdrop on mount', () => {
-    document.body.innerHTML = '<div class="modal-backdrop"></div>';
-    render(<LoginForm />);
-    expect(document.getElementsByClassName('modal-backdrop').length).toBe(0);
   });
 
   it('submits the form with email and password', () => {

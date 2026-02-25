@@ -120,13 +120,13 @@ describe('Profile Actions', () => {
 
       prismaMock.user.findUnique.mockResolvedValue({
         id: 2,
-        name:   null,
+        name: null,
         email: '',
         password: '',
         secret: null,
         role: 'user',
         terms: 'accept',
-        sortBoardsBy: 'created_desc', 
+        sortBoardsBy: 'created_desc',
         sortNotesBy: 'created_desc',
         failedAttempts: null,
         lockUntil: null,
@@ -618,7 +618,7 @@ describe('Profile Actions', () => {
         success: true,
         message: 'Your device has been deleted you can refresh this page.',
       });
-    })
+    });
 
     it('should send email with code for deletion', async () => {
       mocks.sendMail.mockResolvedValue({ messageId: '123' });
@@ -629,7 +629,14 @@ describe('Profile Actions', () => {
         secret: 'secret',
         mfaCode: null,
         mfaCodeSentAt: null,
-      } as User)
+      } as User);
+      prismaMock.user.update.mockResolvedValue({
+        id: 1,
+        email: 'test@example.com',
+        secret: 'secret',
+        mfaCode: '123456',
+        mfaCodeSentAt: new Date(),
+      } as User);
 
       await sendOTP();
 
@@ -639,9 +646,8 @@ describe('Profile Actions', () => {
           mfaCode: '123456',
           mfaCodeSentAt: expect.any(Date),
         },
-      })
+      });
       expect(mocks.createAndVerifyTransporter).toBeCalled();
-
-    })
+    });
   });
 });

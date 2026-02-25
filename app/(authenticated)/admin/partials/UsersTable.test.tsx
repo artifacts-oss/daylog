@@ -47,33 +47,53 @@ describe('UsersTable', () => {
 
   it('handles role change', async () => {
     render(<UsersTable currentUserId={1} />);
-    await waitFor(() =>
-      expect(screen.getByText('User One')).toBeInTheDocument(),
-    );
+    await waitFor(() => {
+      expect(screen.getByText('User One')).toBeInTheDocument();
+      expect(screen.getByText('User Two')).toBeInTheDocument();
+    });
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Open menu' })[1]);
+    const menuButtons = screen.getAllByRole('button', { name: 'Open menu' });
+    // User Two is at index 1
+    fireEvent.pointerDown(menuButtons[1]);
+    fireEvent.click(menuButtons[1]);
+
+    const elevateMenuItem = await screen.findByRole('menuitem', {
+      name: 'Elevate to Admin',
+    });
+    fireEvent.pointerDown(elevateMenuItem);
+    fireEvent.click(elevateMenuItem);
 
     await waitFor(() => {
-      fireEvent.click(
-        screen.getByRole('menuitem', { name: 'Elevate to Admin' }),
-      );
       expect(mocks.setRole).toHaveBeenCalledWith(2, 'admin');
     });
   });
 
   it('handles user deletion', async () => {
     render(<UsersTable currentUserId={1} />);
-    await waitFor(() =>
-      expect(screen.getByText('User Two')).toBeInTheDocument(),
-    );
+    await waitFor(() => {
+      expect(screen.getByText('User One')).toBeInTheDocument();
+      expect(screen.getByText('User Two')).toBeInTheDocument();
+    });
 
-    fireEvent.click(screen.getAllByRole('button', { name: 'Open menu' })[1]);
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete User' }));
-    await waitFor(() =>
-      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument(),
-    );
+    const menuButtons = screen.getAllByRole('button', { name: 'Open menu' });
+    fireEvent.pointerDown(menuButtons[1]);
+    fireEvent.click(menuButtons[1]);
 
-    fireEvent.click(screen.getByText('Delete Account'));
-    await waitFor(() => expect(mocks.deleteUser).toHaveBeenCalledWith(2));
+    const deleteMenuItem = await screen.findByRole('menuitem', {
+      name: 'Delete User',
+    });
+    fireEvent.pointerDown(deleteMenuItem);
+    fireEvent.click(deleteMenuItem);
+
+    const alertMsg = await screen.findByText(/Are you sure/i);
+    expect(alertMsg).toBeInTheDocument();
+
+    const deleteButton = screen.getByRole('button', { name: 'Delete Account' });
+    fireEvent.pointerDown(deleteButton);
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(mocks.deleteUser).toHaveBeenCalledWith(2);
+    });
   });
 });

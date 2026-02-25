@@ -13,16 +13,20 @@ const mocks = vi.hoisted(() => {
   return {
     signupInit: vi.fn(() => state),
     useActionState: vi.fn(() => [state, mocks.signupInit, false]),
-    useState: vi.fn(() => [false, vi.fn()])
+    useState: vi.fn(() => [false, vi.fn()]),
   };
 });
 
 vi.mock('../lib/actions', () => ({ signupInit: mocks.signupInit }));
 
-vi.mock('react', async () => ({
-  useState: mocks.useState,
-  useActionState: mocks.useActionState,
-}));
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return {
+    ...actual,
+    useActionState: mocks.useActionState,
+    useState: mocks.useState,
+  };
+});
 
 describe('InitRegisterForm', () => {
   beforeEach(() => {
@@ -37,11 +41,13 @@ describe('InitRegisterForm', () => {
     ]);
 
     render(<InitRegisterForm />);
-    expect(screen.getByText('Create admin account')).toBeDefined();
-    expect(screen.getByPlaceholderText('Enter name')).toBeDefined();
-    expect(screen.getByPlaceholderText('Enter email')).toBeDefined();
-    expect(screen.getByPlaceholderText('Password')).toBeDefined();
-    expect(screen.getByText('Create admin account')).toBeDefined();
+    expect(screen.getByText('Admin registration')).toBeDefined();
+    expect(screen.getByLabelText('Name')).toBeDefined();
+    expect(screen.getByLabelText('Email address')).toBeDefined();
+    expect(screen.getByLabelText('Password')).toBeDefined();
+    expect(
+      screen.getByRole('button', { name: /create admin account/i }),
+    ).toBeDefined();
   });
 
   it('displays error messages when state has errors', () => {
@@ -63,8 +69,8 @@ describe('InitRegisterForm', () => {
     render(<InitRegisterForm />);
 
     expect(screen.getByText('Name is required')).toBeDefined();
-    expect(screen.getByText('Email is required')).toBeDefined();
-    expect(screen.getByText('Email is invalid')).toBeDefined();
+    expect(screen.getByText(/Email is required/i)).toBeDefined();
+    expect(screen.getByText(/Email is invalid/i)).toBeDefined();
     expect(screen.getByText('Password is required')).toBeDefined();
   });
 
@@ -111,7 +117,9 @@ describe('InitRegisterForm', () => {
       target: { value: 'SecurePassword123#' },
     });
 
-    fireEvent.click(screen.getByText('Create admin account'));
+    fireEvent.click(
+      screen.getByRole('button', { name: /create admin account/i }),
+    );
 
     expect(mockAction).toHaveBeenCalled();
   });
@@ -120,7 +128,7 @@ describe('InitRegisterForm', () => {
     mocks.useActionState.mockReturnValueOnce([state, vi.fn(), true]);
     render(<InitRegisterForm />);
 
-    const submitButton = screen.getByText('Create admin account');
+    const submitButton = screen.getByText('Creating account...');
     expect(submitButton).toBeDisabled();
   });
 });
