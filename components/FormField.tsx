@@ -46,7 +46,7 @@ export default function FormField({
       />
       {errors && (
         <p
-          className="text-[12px] text-destructive absolute bottom-0 left-0"
+          className="text-[12px] text-destructive relative bottom-0 left-0"
           role="alert"
         >
           {Array.isArray(errors)

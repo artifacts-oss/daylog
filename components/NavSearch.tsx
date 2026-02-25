@@ -101,11 +101,11 @@ export default function NavSearch() {
         <MagnifyingGlassIcon className="h-4 w-4" />
         <span className="font-medium">Search anything...</span>
         <div className="hidden md:flex items-center gap-1 ml-4 text-[10px] font-bold uppercase tracking-widest opacity-60">
-          <kbd className="px-1.5 py-0.5 bg-background border border-border rounded-md">
+          <kbd className="min-w-[2rem] h-5 inline-flex items-center justify-center px-1 bg-background border border-border rounded-md tracking-normal leading-none">
             Alt
           </kbd>
           <span>+</span>
-          <kbd className="px-1.5 py-0.5 bg-background border border-border rounded-md">
+          <kbd className="w-5 h-5 inline-flex items-center justify-center bg-background border border-border rounded-md tracking-normal leading-none">
             K
           </kbd>
         </div>
@@ -200,13 +200,13 @@ export default function NavSearch() {
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70 pt-4 border-t border-border mt-2">
               <div className="flex items-center gap-4">
                 <span className="flex items-center gap-1.5">
-                  <kbd className="px-1 py-0.5 bg-muted border border-border rounded text-[10px]">
+                  <kbd className="w-5 h-5 inline-flex items-center justify-center bg-muted border border-border rounded text-[10px] tracking-normal leading-none">
                     ↑↓
                   </kbd>
                   Navigate
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <kbd className="px-1 py-0.5 bg-muted border border-border rounded text-[10px]">
+                  <kbd className="min-w-[2.5rem] h-5 inline-flex items-center justify-center px-1 bg-muted border border-border rounded text-[10px] tracking-normal leading-none">
                     Enter
                   </kbd>
                   Open

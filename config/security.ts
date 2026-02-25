@@ -27,7 +27,7 @@ export const SECURITY_CONFIG = {
     },
     GENERAL: {
       WINDOW_MS: 15 * 60 * 1000, // 15 minutes
-      MAX_REQUESTS: 100,
+      MAX_REQUESTS: 1000,
     },
     UPLOAD: {
       WINDOW_MS: 60 * 1000, // 1 minute

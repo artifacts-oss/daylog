@@ -20,11 +20,8 @@ export const PasswordFormSchema = z.object({
     .trim(),
 });
 
-
 export const AdminPasswordFormSchema = z.object({
-  current: z
-    .string()
-    .nullable(),
+  current: z.string().nullable(),
   password: z.string().min(1, { message: 'New password is required.' }).trim(),
   confirm: z
     .string()
@@ -78,6 +75,8 @@ export type BackupFormState =
         userId?: string[];
       };
       message?: string;
+      success?: boolean;
+      data?: string | { userId: number };
     }
   | undefined;
 

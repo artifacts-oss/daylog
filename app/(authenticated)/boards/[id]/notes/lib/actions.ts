@@ -14,7 +14,7 @@ import { revalidatePath } from 'next/cache';
 
 export async function createNote(
   data: Prisma.NoteCreateInput,
-  boardId: number
+  boardId: number,
 ): Promise<number | null> {
   const { user } = await getCurrentSession();
 
@@ -39,11 +39,11 @@ export async function updateNote(note: Note): Promise<Note | null> {
     return null;
   }
 
-  const { id, ...updateNote } = note;
+  const { id, boards, boardsId, ...updateData } = note as any;
   const updatedNote = await prisma.note.update({
-    where: { id, boards: { id: note.boardsId!, userId: user?.id } },
+    where: { id, boards: { userId: user?.id } },
     data: {
-      ...updateNote,
+      ...updateData,
     },
   });
 
@@ -72,7 +72,7 @@ export async function getNotesCount(boardId?: number | null): Promise<number> {
     where:
       boardId === null
         ? { boards: { userId: user?.id } }
-        : { boardsId: boardId, boards: { userId: user?.id } },
+        : { boards: { id: boardId, userId: user?.id } },
   });
   return count;
 }
@@ -80,7 +80,7 @@ export async function getNotesCount(boardId?: number | null): Promise<number> {
 export async function getNotes(
   sort: string,
   perPage = 10,
-  boardId?: number | null
+  boardId?: number | null,
 ): Promise<NoteWithBoards[] | null> {
   const { user } = await getCurrentSession();
 
@@ -93,7 +93,7 @@ export async function getNotes(
     where:
       boardId === null
         ? { boards: { userId: user?.id } }
-        : { boardsId: boardId, boards: { userId: user?.id } },
+        : { boards: { id: boardId, userId: user?.id } },
     include: { boards: true },
     take: perPage,
     orderBy: [sorting],
@@ -126,7 +126,7 @@ export async function getNote(noteId: number): Promise<Note | null> {
 export async function saveImage(
   noteId: number,
   imageUrl: string,
-  existentFileName?: string | null
+  existentFileName?: string | null,
 ): Promise<string | null> {
   try {
     const { user } = await getCurrentSession();
@@ -137,7 +137,7 @@ export async function saveImage(
 
     if (!isBase64(imageUrl) && !isUrl(imageUrl)) {
       throw new Error(
-        'Invalid image format. Must be a valid URL or Base64 string.'
+        'Invalid image format. Must be a valid URL or Base64 string.',
       );
     }
 
@@ -161,7 +161,7 @@ export async function saveImage(
 
 export async function deleteImage(
   noteId: number,
-  filePath?: string | null
+  filePath?: string | null,
 ): Promise<void> {
   try {
     const { user } = await getCurrentSession();
@@ -184,7 +184,7 @@ export async function deleteImage(
 
 export async function savePicture(
   noteId: number,
-  imageUrl: string
+  imageUrl: string,
 ): Promise<string | null> {
   try {
     const { user } = await getCurrentSession();
@@ -195,7 +195,7 @@ export async function savePicture(
 
     if (!isBase64(imageUrl) && !isUrl(imageUrl)) {
       throw new Error(
-        'Invalid image format. Must be a valid URL or Base64 string.'
+        'Invalid image format. Must be a valid URL or Base64 string.',
       );
     }
 
@@ -226,7 +226,7 @@ export async function savePicture(
 
 export async function deletePicture(
   noteId: number,
-  pictureId: number
+  pictureId: number,
 ): Promise<void> {
   try {
     const { user } = await getCurrentSession();

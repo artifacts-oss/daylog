@@ -15,8 +15,7 @@ export default function NoteFavoriteButton({ note }: NoteFavoriteButtonType) {
   const router = useRouter();
 
   const handleFavoriteClick = async () => {
-    note.favorite = !note.favorite;
-    await updateNote(note);
+    await updateNote({ ...note, favorite: !note.favorite });
     router.refresh();
   };
 

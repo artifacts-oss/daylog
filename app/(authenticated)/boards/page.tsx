@@ -63,11 +63,11 @@ export default async function Boards({
                 <PlusIcon className="h-5 w-5" />
                 <span>New Board</span>
                 <div className="hidden lg:flex items-center gap-1 ml-2 opacity-50 text-[10px] font-bold uppercase tracking-widest">
-                  <kbd className="px-1.5 py-0.5 bg-background/20 rounded">
+                  <kbd className="min-w-[2rem] h-5 inline-flex items-center justify-center px-1 bg-background/20 rounded tracking-normal leading-none">
                     Alt
                   </kbd>
                   <span>+</span>
-                  <kbd className="px-1.5 py-0.5 bg-background/20 rounded">
+                  <kbd className="w-5 h-5 inline-flex items-center justify-center bg-background/20 rounded tracking-normal leading-none">
                     N
                   </kbd>
                 </div>

@@ -111,7 +111,8 @@ export default function OTPLoginForm({ userId }: { userId: number }) {
             </Button>
 
             <p className="text-center text-xs text-muted-foreground">
-              Wait a few moments if the code hasn&apos;t appeared yet.
+              Use your authenticator app to generate a code <br /> and enter it
+              above.
             </p>
           </form>
         </CardContent>

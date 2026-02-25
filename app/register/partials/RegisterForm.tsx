@@ -19,15 +19,16 @@ export default function RegisterForm() {
   const [state, action, pending] = useActionState(signup, undefined);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden">
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-[10%] right-[-5%] w-[35%] h-[35%] bg-primary/5 rounded-full blur-[100px] animate-slow-pulse" />
-        <div
-          className="absolute bottom-[20%] left-[-10%] w-[45%] h-[45%] bg-primary/5 rounded-full blur-[130px] animate-slow-pulse"
-          style={{ animationDelay: '1s' }}
-        />
-      </div>
-
+    <div
+      className="relative min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden"
+      style={{
+        background: `
+          radial-gradient(circle at 90% 10%, hsl(var(--color-primary) / 0.03) 0%, transparent 40%),
+          radial-gradient(circle at 10% 90%, hsl(var(--color-primary) / 0.02) 0%, transparent 40%),
+          var(--color-background)
+        `,
+      }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -141,7 +142,7 @@ export default function RegisterForm() {
                     />
                     <Label
                       htmlFor="terms"
-                      className="text-xs font-medium text-muted-foreground leading-none"
+                      className="text-xs m-0 font-medium text-muted-foreground leading-none"
                     >
                       I agree to the{' '}
                       <Link

@@ -20,7 +20,16 @@ export default function InitRegisterForm() {
   const [isShowPassword, setIsShowPassword] = useState(false);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div
+      className="min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden"
+      style={{
+        background: `
+          radial-gradient(circle at 90% 10%, hsl(var(--color-primary) / 0.03) 0%, transparent 40%),
+          radial-gradient(circle at 10% 90%, hsl(var(--color-primary) / 0.02) 0%, transparent 40%),
+          var(--color-background)
+        `,
+      }}
+    >
       <div className="w-full max-w-sm space-y-4">
         <div className="text-center">
           <Image

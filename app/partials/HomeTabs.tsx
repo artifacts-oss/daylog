@@ -129,7 +129,7 @@ export default function HomeTabs({
               Recent Notes
             </h2>
             <p className="text-sm text-muted-foreground">
-              Pick up where you left off
+              {showFav ? 'Your favorite notes' : 'Pick up where you left off'}
             </p>
           </div>
         </div>

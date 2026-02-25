@@ -63,6 +63,8 @@ export default function NoteModalForm({
 
     setSubmiting(false);
     setOpen(false);
+    setImageFile(undefined);
+    setImageUrl('');
     reset();
   };
 
@@ -99,6 +101,14 @@ export default function NoteModalForm({
       window.history.replaceState({}, '', url.toString());
     }
   }, [externalOpen]);
+
+  useEffect(() => {
+    if (note) {
+      reset(note);
+    } else {
+      reset({ title: '', content: '' } as any);
+    }
+  }, [note, reset]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

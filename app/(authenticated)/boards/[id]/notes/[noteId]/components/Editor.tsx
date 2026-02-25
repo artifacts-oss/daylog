@@ -64,8 +64,7 @@ export default function Editor({ note }: NoteEditorType) {
   const updateNoteHandler = useCallback(
     async (content: string) => {
       if (!note) return;
-      note.content = content;
-      if (note) await updateNote(note);
+      await updateNote({ ...note, content });
     },
     [note],
   );
@@ -276,7 +275,7 @@ export default function Editor({ note }: NoteEditorType) {
                 rehypePlugins: [[rehypeSanitize]],
               }}
               style={{ borderRadius: 0, border: 'none' }}
-              className="!border-0 !rounded-none !bg-transparent"
+              className="!border-0 !rounded-none !bg-background"
             />
           </div>
         </div>

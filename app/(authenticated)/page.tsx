@@ -27,7 +27,7 @@ export default async function Home({
   // Fetch data on the server
   const boardsCount = await getBoardsCount();
   const allBoards = await getBoards('created_desc', 20);
-  const notes = await getNotes('created_desc', 8);
+  const notes = await getNotes('created_desc', 20);
 
   const filteredBoards =
     allBoards
@@ -36,6 +36,9 @@ export default async function Home({
         if (isShowFav) return 0;
         return +b.favorite - +a.favorite;
       }) || [];
+
+  const filteredNotes =
+    notes?.filter((note) => (isShowFav ? note.favorite : true)) || [];
 
   const breadcrumbs = [{ name: 'Home', href: '/' }];
 
@@ -57,7 +60,7 @@ export default async function Home({
       <PageBody>
         <HomeTabs
           boards={filteredBoards}
-          notes={notes || []}
+          notes={filteredNotes}
           showFav={isShowFav}
         />
       </PageBody>
