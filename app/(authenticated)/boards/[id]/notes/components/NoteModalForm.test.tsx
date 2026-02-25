@@ -1,10 +1,10 @@
 import { Note } from '@/prisma/generated/client';
 import {
-    cleanup,
-    fireEvent,
-    render,
-    screen,
-    waitFor,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
 } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NoteModalForm from './NoteModalForm';
@@ -43,12 +43,19 @@ describe('NoteModalForm', () => {
   });
 
   it('renders create note form', () => {
-    render(<NoteModalForm boardId={1} modalId="testModal" mode="create" />);
+    render(
+      <NoteModalForm
+        boardId={1}
+        modalId="testModal"
+        mode="create"
+        open={true}
+      />,
+    );
 
     expect(screen.getByText('Create note')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Your note title')).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText('Type any simple content')
+      screen.getByPlaceholderText('Type any simple content'),
     ).toBeInTheDocument();
   });
 
@@ -65,7 +72,8 @@ describe('NoteModalForm', () => {
         modalId="testModal"
         mode="update"
         note={note as Note}
-      />
+        open={true}
+      />,
     );
 
     expect(screen.getByText('Update note')).toBeInTheDocument();
@@ -76,7 +84,14 @@ describe('NoteModalForm', () => {
   it('submits create note form', async () => {
     mocks.createNote.mockResolvedValue(1);
 
-    render(<NoteModalForm boardId={1} modalId="testModal" mode="create" />);
+    render(
+      <NoteModalForm
+        boardId={1}
+        modalId="testModal"
+        mode="create"
+        open={true}
+      />,
+    );
 
     fireEvent.change(screen.getByPlaceholderText('Your note title'), {
       target: { value: 'New Note' },
@@ -93,7 +108,7 @@ describe('NoteModalForm', () => {
           title: 'New Note',
           content: 'New Content',
         },
-        1
+        1,
       );
     });
   });
@@ -112,7 +127,8 @@ describe('NoteModalForm', () => {
         modalId="testModal"
         mode="update"
         note={note as Note}
-      />
+        open={true}
+      />,
     );
 
     fireEvent.change(screen.getByPlaceholderText('Your note title'), {
@@ -151,13 +167,14 @@ describe('NoteModalForm', () => {
         modalId="testModal"
         mode="update"
         note={note as Note}
-      />
+        open={true}
+      />,
     );
 
     const file = new File(['dummy content'], 'example.png', {
       type: 'image/png',
     });
-    fireEvent.change(screen.getByLabelText('Select image from your device (optional)'), {
+    fireEvent.change(screen.getByLabelText(/Change Image/i), {
       target: { files: [file] },
     });
 
@@ -167,7 +184,7 @@ describe('NoteModalForm', () => {
       expect(mocks.saveImage).toHaveBeenCalledWith(
         1,
         'resizedDataUrl',
-        'test.jpg'
+        'test.jpg',
       );
     });
   });
@@ -186,10 +203,11 @@ describe('NoteModalForm', () => {
         modalId="testModal"
         mode="update"
         note={note as Note}
-      />
+        open={true}
+      />,
     );
 
-    fireEvent.click(screen.getByText('Remove image'));
+    fireEvent.click(screen.getByText('Remove Current'));
     fireEvent.click(screen.getByText('Update'));
 
     await waitFor(() => {

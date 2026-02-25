@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { deleteUser, getUsers, setAdmin as setRole } from '../lib/actions';
+import { deleteUser, getUsers, setRole } from '../lib/actions';
 import {
   Table,
   TableBody,

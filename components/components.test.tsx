@@ -86,7 +86,8 @@ describe('Component Tests', () => {
       />,
     );
     expect(container).toBeInTheDocument();
-    expect(container.querySelectorAll('.breadcrumb-item').length).toBe(2);
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
   // TODO: implement image in the new ui
@@ -184,7 +185,7 @@ describe('Component Tests', () => {
       <NavBar user={{ id: 1, role: 'admin' } as User} />,
     );
     expect(container).toBeInTheDocument();
-    expect(screen.getByTestId('admin-nav')).toBeInTheDocument();
+    expect(screen.getByText('Admin')).toBeInTheDocument();
   });
 
   it('not shows admin nav for non-admin users', () => {
@@ -192,7 +193,7 @@ describe('Component Tests', () => {
       <NavBar user={{ id: 1, role: 'user' } as User} />,
     );
     expect(container).toBeInTheDocument();
-    expect(screen.queryByTestId('admin-nav')).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
   });
 
   it('renders Loader component', () => {

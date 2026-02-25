@@ -15,6 +15,7 @@ import {
   ExclamationTriangleIcon,
   InformationCircleIcon,
 } from '@heroicons/react/24/outline';
+import { redirect } from 'next/navigation';
 
 export default async function Profile({
   params,
@@ -23,7 +24,7 @@ export default async function Profile({
 }) {
   const { user } = await getCurrentSession();
   if (user === null) {
-    return null;
+    return redirect('/login');
   }
   const { userId } = await params;
   const profile = await getProfile(parseInt(userId));

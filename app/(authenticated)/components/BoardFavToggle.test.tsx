@@ -24,44 +24,42 @@ describe('BoardFavSwitch', () => {
 
   it('renders both buttons', () => {
     render(<BoardFavSwitch />);
+    expect(screen.getByRole('button', { name: /recent/i })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /show recent/i })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /favorites/i })
+      screen.getByRole('button', { name: /favorites/i }),
     ).toBeInTheDocument();
   });
 
   it('activates "Show recent" button by default', () => {
     render(<BoardFavSwitch />);
-    const showAllBtn = screen.getByRole('button', { name: /show recent/i });
+    const showAllBtn = screen.getByRole('button', { name: /recent/i });
     const favBtn = screen.getByRole('button', { name: /favorites/i });
-    expect(showAllBtn.className).toContain('active');
-    expect(favBtn.className).not.toContain('active');
+    expect(showAllBtn.className).toContain('text-primary');
+    expect(favBtn.className).not.toContain('text-primary');
   });
 
   it('activates "Favorites" button when showFavParam is true', () => {
     render(<BoardFavSwitch showFavParam={true} />);
-    const showAllBtn = screen.getByRole('button', { name: /show recent/i });
+    const showAllBtn = screen.getByRole('button', { name: /recent/i });
     const favBtn = screen.getByRole('button', { name: /favorites/i });
-    expect(favBtn.className).toContain('active');
-    expect(showAllBtn.className).not.toContain('active');
+    expect(favBtn.className).toContain('text-primary');
+    expect(showAllBtn.className).not.toContain('text-primary');
   });
 
   it('toggles active button on click', () => {
     render(<BoardFavSwitch />);
-    const showAllBtn = screen.getByRole('button', { name: /show recent/i });
+    const showAllBtn = screen.getByRole('button', { name: /recent/i });
     const favBtn = screen.getByRole('button', { name: /favorites/i });
 
     // Click "Favorites"
     fireEvent.click(favBtn);
-    expect(favBtn.className).toContain('active');
-    expect(showAllBtn.className).not.toContain('active');
+    expect(favBtn.className).toContain('text-primary');
+    expect(showAllBtn.className).not.toContain('text-primary');
 
-    // Click "Show recent"
+    // Click "Recent"
     fireEvent.click(showAllBtn);
-    expect(showAllBtn.className).toContain('active');
-    expect(favBtn.className).not.toContain('active');
+    expect(showAllBtn.className).toContain('text-primary');
+    expect(favBtn.className).not.toContain('text-primary');
   });
 
   it('updates URL search params and calls router methods on toggle', () => {

@@ -5,15 +5,14 @@ import { prisma } from '@/prisma/client';
 import { User } from '@/prisma/generated/client';
 import { SettingsFormState } from './definitions';
 
-
 export async function getUsers(): Promise<User[] | null> {
   const users = await prisma.user.findMany();
   return users;
 }
 
-export async function setAdmin(
+export async function setRole(
   userId: number,
-  role: string
+  role: string,
 ): Promise<User | null> {
   const { user } = await getCurrentSession();
 
@@ -37,7 +36,7 @@ export async function setAdmin(
 
   const targetUser = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, role: true }
+    select: { id: true, role: true },
   });
 
   if (!targetUser) {
@@ -90,7 +89,7 @@ export async function getSettings() {
 
 export async function saveSettings(
   state: SettingsFormState,
-  formData: FormData
+  formData: FormData,
 ) {
   const { user } = await getCurrentSession();
 
@@ -149,11 +148,11 @@ export async function deleteUser(userId: number) {
     throw new Error('Cannot delete your own account');
   }
 
-  const targetUser = await prisma.user.findUnique({ 
+  const targetUser = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, role: true }
+    select: { id: true, role: true },
   });
-  
+
   if (!targetUser) {
     throw new Error('User not found');
   }
@@ -161,9 +160,9 @@ export async function deleteUser(userId: number) {
   // Prevent deletion of other admins unless there are multiple admins
   if (targetUser.role === 'admin') {
     const adminCount = await prisma.user.count({
-      where: { role: 'admin' }
+      where: { role: 'admin' },
     });
-    
+
     if (adminCount <= 1) {
       throw new Error('Cannot delete the last admin user');
     }

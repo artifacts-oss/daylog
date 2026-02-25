@@ -1,14 +1,12 @@
-import '@/utils/test/commonMocks';
-
 import { cleanup, render, screen } from '@testing-library/react';
-import { redirect } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Profile from './page';
 
 const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
   getProfile: vi.fn(),
-  loadSettings: vi.fn(),
+  getSettings: vi.fn(),
+  redirect: vi.fn(),
 }));
 
 vi.mock('@/app/login/lib/actions', () => ({
@@ -17,7 +15,14 @@ vi.mock('@/app/login/lib/actions', () => ({
 
 vi.mock('./lib/actions', () => ({
   getProfile: mocks.getProfile,
-  loadSettings: mocks.loadSettings,
+}));
+
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
+  getSettings: mocks.getSettings,
+}));
+
+vi.mock('next/navigation', () => ({
+  redirect: mocks.redirect,
 }));
 
 vi.mock('./partials/DangerZone');
@@ -32,6 +37,7 @@ describe('Profile Page', () => {
   const mockParams = { userId: '1' };
 
   beforeEach(() => {
+    vi.clearAllMocks();
     cleanup();
   });
 
@@ -40,7 +46,7 @@ describe('Profile Page', () => {
 
     await Profile({ params: Promise.resolve(mockParams) });
 
-    expect(redirect).toHaveBeenCalledWith('/login');
+    expect(mocks.redirect).toHaveBeenCalledWith('/login');
   });
 
   it('should render "No profile page found" if profile is null', async () => {
@@ -58,7 +64,7 @@ describe('Profile Page', () => {
 
     mocks.getCurrentSession.mockResolvedValue({ user: { id: 1 } });
     mocks.getProfile.mockResolvedValue(mockProfile);
-    mocks.loadSettings.mockResolvedValue(mockSettings);
+    mocks.getSettings.mockResolvedValue(mockSettings);
 
     render(await Profile({ params: Promise.resolve(mockParams) }));
 
@@ -71,7 +77,7 @@ describe('Profile Page', () => {
 
     mocks.getCurrentSession.mockResolvedValue({ user: { id: 1 } });
     mocks.getProfile.mockResolvedValue(mockProfile);
-    mocks.loadSettings.mockResolvedValue(mockSettings);
+    mocks.getSettings.mockResolvedValue(mockSettings);
 
     render(await Profile({ params: Promise.resolve(mockParams) }));
 
@@ -86,12 +92,12 @@ describe('Profile Page', () => {
       user: { id: 1, role: 'admin' },
     });
     mocks.getProfile.mockResolvedValue(mockProfile);
-    mocks.loadSettings.mockResolvedValue(mockSettings);
+    mocks.getSettings.mockResolvedValue(mockSettings);
 
     render(await Profile({ params: Promise.resolve(mockParams) }));
 
     expect(
-      screen.getByText('You are impersonating this profile as an admin.')
+      screen.getByText('You are impersonating this profile as an admin.'),
     ).toBeDefined();
   });
 });

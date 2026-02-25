@@ -10,23 +10,24 @@ import UsersTable from './UsersTable';
 
 const mocks = vi.hoisted(() => ({
   getUsers: vi.fn(),
-  setAdmin: vi.fn(),
+  setRole: vi.fn(),
   deleteUser: vi.fn(),
 }));
 
 vi.mock('../lib/actions', () => ({
   getUsers: mocks.getUsers,
-  setAdmin: mocks.setAdmin,
+  setRole: mocks.setRole,
   deleteUser: mocks.deleteUser,
 }));
 
 const mockUsers = [
-  { id: 1, name: 'User One', email: 'userone@example.com', role: 'user' },
-  { id: 2, name: 'User Two', email: 'usertwo@example.com', role: 'admin' },
+  { id: 1, name: 'User One', email: 'userone@example.com', role: 'admin' },
+  { id: 2, name: 'User Two', email: 'usertwo@example.com', role: 'user' },
 ];
 
 describe('UsersTable', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     cleanup();
     mocks.getUsers.mockResolvedValue(mockUsers);
   });
@@ -47,24 +48,29 @@ describe('UsersTable', () => {
   it('handles role change', async () => {
     render(<UsersTable currentUserId={1} />);
     await waitFor(() =>
-      expect(screen.getByText('User One')).toBeInTheDocument()
+      expect(screen.getByText('User One')).toBeInTheDocument(),
     );
 
-    fireEvent.click(screen.getByText('Elevate to Admin'));
-    await waitFor(() =>
-      expect(mocks.setAdmin).toHaveBeenCalledWith(1, 'admin')
-    );
+    fireEvent.click(screen.getAllByRole('button', { name: 'Open menu' })[1]);
+
+    await waitFor(() => {
+      fireEvent.click(
+        screen.getByRole('menuitem', { name: 'Elevate to Admin' }),
+      );
+      expect(mocks.setRole).toHaveBeenCalledWith(2, 'admin');
+    });
   });
 
   it('handles user deletion', async () => {
     render(<UsersTable currentUserId={1} />);
     await waitFor(() =>
-      expect(screen.getByText('User Two')).toBeInTheDocument()
+      expect(screen.getByText('User Two')).toBeInTheDocument(),
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Delete User' }));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Open menu' })[1]);
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Delete User' }));
     await waitFor(() =>
-      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument()
+      expect(screen.getByText(/Are you sure/i)).toBeInTheDocument(),
     );
 
     fireEvent.click(screen.getByText('Delete Account'));

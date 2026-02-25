@@ -6,7 +6,7 @@ import {
   getSettings,
   getUsers,
   saveSettings,
-  setAdmin,
+  setRole,
 } from './actions';
 
 const formSettings = ['mfa', 'allowReg', 'allowUnsplash', 'enableS3'];
@@ -47,11 +47,11 @@ describe('actions', () => {
       mocks.getCurrentSession.mockResolvedValue(mockSession);
       prismaMock.user.update.mockResolvedValue(mockUser as User);
 
-await expect(setAdmin(999, 'admin')).rejects.toThrow('User not found');
+      await expect(setRole(999, 'admin')).rejects.toThrow('User not found');
 
-    expect(prismaMock.user.findUnique).toHaveBeenCalled();
-    expect(prismaMock.user.update).not.toHaveBeenCalled();
-  });
+      expect(prismaMock.user.findUnique).toHaveBeenCalled();
+      expect(prismaMock.user.update).not.toHaveBeenCalled();
+    });
   });
 
   describe('loadSettings', () => {
@@ -91,7 +91,7 @@ await expect(setAdmin(999, 'admin')).rejects.toThrow('User not found');
       });
 
       prismaMock.setting.findMany.mockResolvedValue(
-        formSettings.map((key) => ({ key, value: 'true' }))
+        formSettings.map((key) => ({ key, value: 'true' })),
       );
 
       mocks.getCurrentSession.mockResolvedValue(mockSession);
@@ -127,7 +127,9 @@ await expect(setAdmin(999, 'admin')).rejects.toThrow('User not found');
       const mockUser: Partial<User> = { id: 1, name: 'John Doe' };
       prismaMock.user.findUnique.mockResolvedValue(mockUser as User);
 
-await expect(deleteUser(1)).rejects.toThrow('Cannot delete your own account');
+      await expect(deleteUser(1)).rejects.toThrow(
+        'Cannot delete your own account',
+      );
 
       expect(prismaMock.user.delete).not.toHaveBeenCalled();
     });

@@ -53,7 +53,7 @@ describe('OTPLoginForm', () => {
     expect(screen.getByText('Login using OTP')).toBeInTheDocument();
     expect(screen.getByText('Your OTP is required.')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Validate OTP' })
+      screen.getByRole('button', { name: /Verify securely/i }),
     ).toBeInTheDocument();
   });
 
@@ -100,8 +100,7 @@ describe('OTPLoginForm', () => {
 
     render(<OTPLoginForm userId={1} />);
 
-    const submitButton = screen.getByRole('button', { name: 'Validate OTP' });
+    const submitButton = screen.getByRole('button', { name: /Verifying/i });
     expect(submitButton).toBeDisabled();
-    expect(submitButton).toHaveClass('btn-loading disabled');
   });
 });

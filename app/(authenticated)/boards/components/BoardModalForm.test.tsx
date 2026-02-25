@@ -1,10 +1,10 @@
 import { Board } from '@/prisma/generated/client';
 import {
-    cleanup,
-    fireEvent,
-    render,
-    screen,
-    waitFor,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
 } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import BoardModalForm from './BoardModalForm';
@@ -43,12 +43,12 @@ describe('BoardModalForm', () => {
   });
 
   it('renders create board form', () => {
-    render(<BoardModalForm modalId="testModal" mode="create" />);
+    render(<BoardModalForm modalId="testModal" mode="create" open={true} />);
 
     expect(screen.getByText('Create board')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Your board title')).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText('Type any description')
+      screen.getByPlaceholderText('Type any description'),
     ).toBeInTheDocument();
   });
 
@@ -64,7 +64,8 @@ describe('BoardModalForm', () => {
         modalId="testModal"
         mode="update"
         board={board as Board}
-      />
+        open={true}
+      />,
     );
 
     expect(screen.getByText('Update board')).toBeInTheDocument();
@@ -75,7 +76,7 @@ describe('BoardModalForm', () => {
   it('submits create board form', async () => {
     mocks.createBoard.mockResolvedValue(1);
 
-    render(<BoardModalForm modalId="testModal" mode="create" />);
+    render(<BoardModalForm modalId="testModal" mode="create" open={true} />);
 
     fireEvent.change(screen.getByPlaceholderText('Your board title'), {
       target: { value: 'New Board' },
@@ -108,7 +109,8 @@ describe('BoardModalForm', () => {
         modalId="testModal"
         mode="update"
         board={board as Board}
-      />
+        open={true}
+      />,
     );
 
     fireEvent.change(screen.getByPlaceholderText('Your board title'), {
@@ -146,18 +148,16 @@ describe('BoardModalForm', () => {
         modalId="testModal"
         mode="update"
         board={board as Board}
-      />
+        open={true}
+      />,
     );
 
     const file = new File(['dummy content'], 'example.png', {
       type: 'image/png',
     });
-    fireEvent.change(
-      screen.getByLabelText('Select image from your device (optional)'),
-      {
-        target: { files: [file] },
-      }
-    );
+    fireEvent.change(screen.getByLabelText(/Change Image/i), {
+      target: { files: [file] },
+    });
 
     fireEvent.click(screen.getByText('Update'));
 
@@ -165,7 +165,7 @@ describe('BoardModalForm', () => {
       expect(mocks.saveImage).toHaveBeenCalledWith(
         1,
         'resizedDataUrl',
-        'test.jpg'
+        'test.jpg',
       );
     });
   });
@@ -183,10 +183,11 @@ describe('BoardModalForm', () => {
         modalId="testModal"
         mode="update"
         board={board as Board}
-      />
+        open={true}
+      />,
     );
 
-    fireEvent.click(screen.getByText('Remove image'));
+    fireEvent.click(screen.getByText('Remove Current'));
     fireEvent.click(screen.getByText('Update'));
 
     await waitFor(() => {

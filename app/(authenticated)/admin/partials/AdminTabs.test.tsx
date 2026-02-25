@@ -1,40 +1,77 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import AdminTabs from './AdminTabs';
 
-const mocks = vi.hoisted(() => ({
-  useState: vi.fn(),
+// Mock components that are used inside AdminTabs
+vi.mock('./UserModal', () => ({
+  default: () => <div data-testid="user-modal">UserModal</div>,
 }));
 
-vi.mock('react', async () => {
-  const actual = await vi.importActual('react');
-  return {
-    ...actual,
-    useState: mocks.useState,
-  };
-});
+vi.mock('./UsersTable', () => ({
+  default: ({ currentUserId }: { currentUserId: number }) => (
+    <div data-testid="users-table">UsersTable for {currentUserId}</div>
+  ),
+}));
+
+vi.mock('./PreferencesTab', () => ({
+  default: ({ initialSettings }: any) => (
+    <div data-testid="preferences-tab">
+      PreferencesTab {initialSettings?.mfa ? 'MFA enabled' : 'MFA disabled'}
+    </div>
+  ),
+}));
 
 describe('AdminTabs', () => {
+  const mockUser = { id: 1, name: 'Admin User' };
+  const mockSettings = {
+    mfa: true,
+    allowReg: true,
+    allowUnsplash: false,
+    enableS3: false,
+  };
+
   beforeEach(() => {
     cleanup();
   });
 
-  it('renders tabs when isClient is true', () => {
-    mocks.useState.mockReturnValueOnce([true, vi.fn()]);
+  it('renders correctly with initial users tab', () => {
+    render(<AdminTabs currentUser={mockUser} initialSettings={mockSettings} />);
 
-    render(<AdminTabs />);
-
-    expect(screen.getByText('Users')).toBeInTheDocument();
-    expect(screen.getByText('Preferences')).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', {
+        name: /Users/i,
+      }),
+    ).toHaveLength(1);
+    expect(
+      screen.getAllByRole('button', {
+        name: /Preferences/i,
+      }),
+    ).toHaveLength(1);
+    expect(screen.getByTestId('users-table')).toHaveTextContent(
+      'UsersTable for 1',
+    );
+    expect(screen.getByTestId('user-modal')).toBeInTheDocument();
   });
 
-  it('renders placeholder when isClient is false', () => {
-    mocks.useState.mockReturnValueOnce([false, vi.fn()]);
+  it('switches to preferences tab when clicked', async () => {
+    render(<AdminTabs currentUser={mockUser} initialSettings={mockSettings} />);
 
-    render(<AdminTabs />);
+    const preferencesTabTrigger = screen.getByRole('button', {
+      name: /Preferences/i,
+    });
+    fireEvent.click(preferencesTabTrigger);
 
-    expect(screen.getByTestId('admin-tabs-placeholder')).toBeInTheDocument();
-    expect(screen.queryByText('Users')).toBeNull();
-    expect(screen.queryByText('Preferences')).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByTestId('preferences-tab')).toHaveTextContent(
+        'MFA enabled',
+      );
+      expect(screen.queryByTestId('users-table')).not.toBeInTheDocument();
+    });
   });
 });

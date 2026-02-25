@@ -112,7 +112,10 @@ export default function NavSearch() {
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-2xl top-[20%] translate-y-0 pt-6">
+        <DialogContent
+          className="max-w-2xl top-[20%] translate-y-0 pt-6"
+          aria-describedby={undefined}
+        >
           <DialogHeader>
             <DialogTitle>Search</DialogTitle>
           </DialogHeader>

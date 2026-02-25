@@ -40,7 +40,14 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('@uiw/react-md-editor', () => {
-  const MDEditor = ({ value, onChange, ...props }: { value: string; onChange?: (value: string) => void }) => {
+  const MDEditor = ({
+    value,
+    onChange,
+    ...props
+  }: {
+    value: string;
+    onChange?: (value: string) => void;
+  }) => {
     return (
       <textarea
         data-testid="mocked-md-editor"
@@ -75,6 +82,7 @@ describe('Editor', () => {
   } as Picture;
 
   beforeEach(() => {
+    localStorage.clear();
     cleanup();
     vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
   });
@@ -108,7 +116,7 @@ describe('Editor', () => {
       target: { value: 'Updated content' },
     });
 
-    expect(screen.getByTitle('Saving changes...')).toBeInTheDocument();
+    expect(screen.getByText('Saving')).toBeInTheDocument();
   });
 
   it('renders the Editor component', async () => {
@@ -137,7 +145,7 @@ describe('Editor', () => {
       expect(mocks.updateNote).toHaveBeenCalledWith({
         ...mockNote,
         content: 'Second update',
-      }); 
+      });
     });
   });
 
