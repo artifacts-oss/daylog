@@ -39,9 +39,11 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: Record<string, unknown>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { fill, priority, sizes, ...rest } = props;
-    return <img {...rest} />;
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img alt="" {...(rest as Record<string, unknown>)} />;
   },
 }));
 

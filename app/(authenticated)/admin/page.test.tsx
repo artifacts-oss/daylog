@@ -21,7 +21,7 @@ vi.mock('next/navigation', () => ({
 }));
 
 vi.mock('./partials/AdminTabs', () => ({
-  default: vi.fn(({ currentUser }: any) => (
+  default: vi.fn(({ currentUser }: { currentUser: { id: number } }) => (
     <div data-testid="admin-tabs">AdminTabs for user {currentUser?.id}</div>
   )),
 }));
@@ -39,7 +39,7 @@ describe('Admin Page', () => {
 
     try {
       await Admin();
-    } catch (e) {
+    } catch {
       // In Next.js redirect() throws an error that is caught by the framework
     }
 
@@ -53,7 +53,7 @@ describe('Admin Page', () => {
 
     try {
       await Admin();
-    } catch (e) {}
+    } catch {}
 
     expect(mocks.redirect).toHaveBeenCalledWith('/');
   });

@@ -52,9 +52,9 @@ vi.mock('next-themes', () => ({
 
 vi.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: Record<string, unknown>) => {
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
-    return <img {...props} />;
+    return <img alt="" {...(props as Record<string, unknown>)} />;
   },
 }));
 
@@ -65,33 +65,36 @@ vi.mock('@/utils/image', () => ({
 
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({
-      children,
-      initial,
-      animate,
-      exit,
-      transition,
-      layout,
-      ...rest
-    }: any) => <div {...rest}>{children}</div>,
-    tr: ({
-      children,
-      initial,
-      animate,
-      exit,
-      transition,
-      layout,
-      ...rest
-    }: any) => <tr {...rest}>{children}</tr>,
+    div: ({ children, ...restProps }: Record<string, unknown>) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { initial, animate, exit, transition, layout, ...rest } = restProps;
+      return (
+        <div {...(rest as Record<string, unknown>)}>
+          {children as React.ReactNode}
+        </div>
+      );
+    },
+    tr: ({ children, ...restProps }: Record<string, unknown>) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { initial, animate, exit, transition, layout, ...rest } = restProps;
+      return (
+        <tr {...(rest as Record<string, unknown>)}>
+          {children as React.ReactNode}
+        </tr>
+      );
+    },
   },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
+  AnimatePresence: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
 }));
 
 vi.mock('@uiw/react-md-editor', () => {
   const MDEditor = ({
     value,
     onChange,
-    className: _className,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    className,
     ...props
   }: {
     value: string;

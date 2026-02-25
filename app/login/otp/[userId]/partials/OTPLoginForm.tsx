@@ -111,7 +111,7 @@ export default function OTPLoginForm({ userId }: { userId: number }) {
             </Button>
 
             <p className="text-center text-xs text-muted-foreground">
-              Wait a few moments if the code hasn't appeared yet.
+              Wait a few moments if the code hasn&apos;t appeared yet.
             </p>
           </form>
         </CardContent>

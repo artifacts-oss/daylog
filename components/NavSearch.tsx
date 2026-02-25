@@ -147,7 +147,7 @@ export default function NavSearch() {
               ) : query ? (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
                   <span className="text-sm">
-                    No results found for "{query}"
+                    No results found for &quot;{query}&quot;
                   </span>
                 </div>
               ) : (

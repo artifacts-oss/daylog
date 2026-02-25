@@ -51,7 +51,9 @@ vi.mock('./components/NoteSortSelector', () => ({
 }));
 
 vi.mock('./components/NoteCard', () => ({
-  default: vi.fn(({ note }: { note: any }) => <div>Note {note.id}</div>),
+  default: vi.fn(({ note }: { note: { id: number } }) => (
+    <div>Note {note.id}</div>
+  )),
 }));
 
 describe('Notes Page', () => {
@@ -83,7 +85,11 @@ describe('Notes Page', () => {
     });
     mocks.getNotes.mockResolvedValue([{ id: 1 }]);
     mocks.getNotesCount.mockResolvedValue(1);
-    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board', updatedAt: new Date() });
+    mocks.getBoard.mockResolvedValue({
+      id: 1,
+      title: 'Test Board',
+      updatedAt: new Date(),
+    });
 
     render(await Notes(defaultParams));
 
@@ -96,7 +102,11 @@ describe('Notes Page', () => {
     });
     mocks.getNotes.mockResolvedValue([]);
     mocks.getNotesCount.mockResolvedValue(0);
-    mocks.getBoard.mockResolvedValue({ id: 1, title: 'Test Board', updatedAt: new Date() });
+    mocks.getBoard.mockResolvedValue({
+      id: 1,
+      title: 'Test Board',
+      updatedAt: new Date(),
+    });
 
     render(await Notes(defaultParams));
 

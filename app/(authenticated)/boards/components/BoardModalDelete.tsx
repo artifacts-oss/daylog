@@ -2,10 +2,7 @@
 
 import { deleteBoard } from '@/app/(authenticated)/boards/lib/actions';
 import { Board } from '@/prisma/generated/client';
-import {
-  ExclamationTriangleIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
@@ -15,7 +12,6 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';

@@ -1,10 +1,6 @@
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { Board } from '@/prisma/generated/client';
+import { NoteWithBoards } from '../(authenticated)/boards/[id]/notes/lib/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import HomeTabs from './HomeTabs';
 
@@ -77,7 +73,12 @@ describe('HomeTabs', () => {
   });
 
   it('renders boards and notes provided as props', () => {
-    render(<HomeTabs boards={mockBoards as any} notes={mockNotes as any} />);
+    render(
+      <HomeTabs
+        boards={mockBoards as Board[]}
+        notes={mockNotes as unknown as NoteWithBoards[]}
+      />,
+    );
     expect(screen.getByText('Board 1')).toBeDefined();
     expect(screen.getByText('Board 2')).toBeDefined();
     expect(screen.getByText('Note 1')).toBeDefined();
@@ -90,7 +91,7 @@ describe('HomeTabs', () => {
   });
 
   it('renders message when no notes are available', () => {
-    render(<HomeTabs boards={mockBoards as any} notes={[]} />);
+    render(<HomeTabs boards={mockBoards as Board[]} notes={[]} />);
     expect(screen.getByText('Board 1')).toBeDefined();
     expect(screen.getByText('No notes found')).toBeDefined();
   });

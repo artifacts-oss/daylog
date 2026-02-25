@@ -1,4 +1,3 @@
-import { stringToColor } from '@/utils/color';
 import { truncateWord } from '@/utils/text';
 import { cleanup, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

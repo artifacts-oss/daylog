@@ -34,20 +34,20 @@ import { signout } from '@/app/(authenticated)/lib/actions';
 import NavThemeToggle from './NavThemeToggle';
 import { cn } from '@/lib/utils';
 
+import { User } from '@/prisma/generated/client';
+
 interface NavSidebarProps {
-  user: any;
+  user: User;
 }
 
 export default function NavSidebar({ user }: NavSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebar-collapsed');
     if (saved !== null) {
       setIsCollapsed(saved === 'true');
     }
-    setMounted(true);
   }, []);
 
   const toggleSidebar = () => {

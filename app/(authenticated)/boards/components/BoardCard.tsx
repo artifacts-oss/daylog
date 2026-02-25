@@ -3,13 +3,11 @@ import { getBoard } from '@/app/(authenticated)/boards/lib/actions';
 import { stringToColor } from '@/utils/color';
 import { getImageUrlOrFile } from '@/utils/image';
 import { truncateWord } from '@/utils/text';
-import Image from 'next/image';
 import Link from 'next/link';
 import TimeDiff from '@/components/TimeDiff';
 import BoardFavoriteButton from './BoardFavoriteButton';
 import BoardModalDelete from './BoardModalDelete';
 import BoardModalForm from './BoardModalForm';
-import { cn } from '@/lib/utils';
 
 export type BoardCardType = {
   boardId: number;

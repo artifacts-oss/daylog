@@ -1,7 +1,7 @@
 'use client';
 
 import { Note } from '@/prisma/generated/client';
-import { getImageUrlOrFile, resizeImage } from '@/utils/image';
+import { resizeImage } from '@/utils/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';

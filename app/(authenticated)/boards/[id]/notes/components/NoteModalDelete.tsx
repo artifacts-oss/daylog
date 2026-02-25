@@ -1,10 +1,7 @@
 'use client';
 
 import { Note } from '@/prisma/generated/client';
-import {
-  ExclamationTriangleIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { deleteNote } from '../lib/actions';
@@ -16,7 +13,6 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { AlertOctagon } from 'lucide-react';

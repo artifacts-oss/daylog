@@ -8,10 +8,9 @@ import { removeMarkdownTags, truncateWord } from '@/utils/text';
 import { FaceSmileIcon, PlusIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import Link from 'next/link';
-import { NoteWithBoards } from '../boards/[id]/notes/lib/types';
-import { motion, AnimatePresence } from 'framer-motion';
+import { NoteWithBoards } from '../(authenticated)/boards/[id]/notes/lib/types';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 
 interface HomeTabsProps {
   boards: Board[];

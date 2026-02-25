@@ -10,7 +10,7 @@ import { UsersIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { SettingsType } from '../lib/actions';
 
 interface AdminTabsProps {
-  currentUser: any;
+  currentUser: { id: number };
   initialSettings: SettingsType | null;
 }
 

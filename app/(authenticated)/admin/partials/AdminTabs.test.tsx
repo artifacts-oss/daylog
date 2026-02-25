@@ -6,6 +6,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { SettingsType } from '../lib/actions';
 import AdminTabs from './AdminTabs';
 
 // Mock components that are used inside AdminTabs
@@ -20,7 +21,7 @@ vi.mock('./UsersTable', () => ({
 }));
 
 vi.mock('./PreferencesTab', () => ({
-  default: ({ initialSettings }: any) => (
+  default: ({ initialSettings }: { initialSettings: SettingsType | null }) => (
     <div data-testid="preferences-tab">
       PreferencesTab {initialSettings?.mfa ? 'MFA enabled' : 'MFA disabled'}
     </div>

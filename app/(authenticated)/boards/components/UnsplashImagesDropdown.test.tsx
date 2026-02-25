@@ -6,9 +6,9 @@ import UnsplashImagesDropdown from './UnsplashImagesDropdown';
 // Mock next/image
 vi.mock('next/image', () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: (props: Record<string, unknown>) => {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img {...props} />;
+    return <img alt="" {...(props as Record<string, unknown>)} />;
   },
 }));
 

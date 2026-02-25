@@ -1,9 +1,6 @@
 'use client';
 
-import {
-  ExclamationTriangleIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import { useActionState, useState } from 'react';
 import { deleteAccount } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -236,7 +236,7 @@ export default function ImageSection({
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground/70 py-8">
                   <PhotoIcon className="h-10 w-10 mb-2 opacity-20" />
                   <p className="text-sm font-medium">
-                    No results found for "{keyword}"
+                    No results found for &quot;{keyword}&quot;
                   </p>
                 </div>
               ) : (

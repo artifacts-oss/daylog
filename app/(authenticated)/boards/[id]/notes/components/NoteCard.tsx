@@ -2,7 +2,7 @@
 
 import TimeDiff from '@/components/TimeDiff';
 import { getImageUrlOrFile } from '@/utils/image';
-import { removeMarkdownTags, truncateWord } from '@/utils/text';
+import { removeMarkdownTags } from '@/utils/text';
 import Image from 'next/image';
 import Link from 'next/link';
 import NoteFavoriteButton from './NoteFavoriteButton';
@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 
 interface NoteCardProps {
   note: NoteWithBoards;
-  settings?: any;
+  settings?: { allowUnsplash?: boolean };
 }
 
 export default function NoteCard({ note, settings }: NoteCardProps) {

@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
 interface NavBarProps {
-  user: any;
+  user: User;
   isCollapsed?: boolean;
 }
 
