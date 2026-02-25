@@ -7,6 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
   getBoardsCount: vi.fn(),
+  getLatestBoardImage: vi.fn(),
   getBoards: vi.fn(),
   getNotes: vi.fn(),
 }));
@@ -17,6 +18,7 @@ vi.mock('@/app/login/lib/actions', () => ({
 
 vi.mock('@/app/(authenticated)/lib/actions', () => ({
   getBoardsCount: mocks.getBoardsCount,
+  getLatestBoardImage: mocks.getLatestBoardImage,
 }));
 
 vi.mock('@/app/(authenticated)/boards/lib/actions', () => ({
@@ -66,6 +68,7 @@ describe('Home Page', () => {
     mocks.getBoards.mockResolvedValue([]);
     mocks.getNotes.mockResolvedValue([]);
     mocks.getBoardsCount.mockResolvedValue(0);
+    mocks.getLatestBoardImage.mockResolvedValue(null);
   });
 
   it('returns null if user is not authenticated', async () => {
@@ -113,5 +116,17 @@ describe('Home Page', () => {
 
     expect(screen.getByText('HomeTabs')).toBeInTheDocument();
     expect(screen.getByText('showFav: true')).toBeInTheDocument();
+  });
+
+  it('passes the latest board image to PageHeader', async () => {
+    mocks.getCurrentSession.mockResolvedValue(defaultUser);
+    mocks.getLatestBoardImage.mockResolvedValue('http://test.com/latest.png');
+
+    const { container } = render(
+      await Home({ searchParams: Promise.resolve({}) }),
+    );
+
+    // Check if the image style is rendered in PageHeader
+    expect(container.innerHTML).toContain('http://test.com/latest.png');
   });
 });

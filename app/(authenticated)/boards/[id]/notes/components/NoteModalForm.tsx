@@ -106,7 +106,7 @@ export default function NoteModalForm({
     if (note) {
       reset(note);
     } else {
-      reset({ title: '', content: '' } as any);
+      reset({ title: '', content: '' } as Note);
     }
   }, [note, reset]);
 

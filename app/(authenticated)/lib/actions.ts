@@ -109,3 +109,16 @@ export async function getBoardsCount() {
   const count = await prisma.board.count({ where: { userId: user.id } });
   return count;
 }
+
+export async function getLatestBoardImage(): Promise<string | null> {
+  const { user } = await getCurrentSession();
+  if (!user) {
+    return null;
+  }
+  const board = await prisma.board.findFirst({
+    where: { userId: user.id, imageUrl: { not: null } },
+    orderBy: { updatedAt: 'desc' },
+    select: { imageUrl: true },
+  });
+  return board?.imageUrl || null;
+}

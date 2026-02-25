@@ -39,7 +39,8 @@ export async function updateNote(note: Note): Promise<Note | null> {
     return null;
   }
 
-  const { id, boards, boardsId, ...updateData } = note as any;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, boards, boardsId, ...updateData } = note as NoteWithBoards;
   const updatedNote = await prisma.note.update({
     where: { id, boards: { userId: user?.id } },
     data: {
@@ -47,7 +48,7 @@ export async function updateNote(note: Note): Promise<Note | null> {
     },
   });
 
-  revalidatePath(`/boards/${note.boardsId}/notes`);
+  revalidatePath(`/boards/${boardsId}/notes`);
 
   return updatedNote;
 }

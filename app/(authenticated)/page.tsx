@@ -3,12 +3,16 @@ import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
 import BoardFavSwitch from '@/app/(authenticated)/components/BoardFavToggle';
-import { getBoardsCount } from '@/app/(authenticated)/lib/actions';
+import {
+  getBoardsCount,
+  getLatestBoardImage,
+} from '@/app/(authenticated)/lib/actions';
 import { getCurrentSession } from '@/app/login/lib/actions';
 import HomeTabs from '@/app/partials/HomeTabs';
 import { getBoards } from '@/app/(authenticated)/boards/lib/actions';
 import { getNotes } from '@/app/(authenticated)/boards/[id]/notes/lib/actions';
 import { Board } from '@/prisma/generated/client';
+import { getImageUrlOrFile } from '@/utils/image';
 
 export default async function Home({
   searchParams,
@@ -26,6 +30,7 @@ export default async function Home({
 
   // Fetch data on the server
   const boardsCount = await getBoardsCount();
+  const latestBoardImage = await getLatestBoardImage();
   const allBoards = await getBoards('created_desc', 20);
   const notes = await getNotes('created_desc', 20);
 
@@ -47,6 +52,7 @@ export default async function Home({
       <PageHeader
         title={`Welcome back, ${user.name}`}
         breadcrumbs={breadcrumbs}
+        imageUrl={getImageUrlOrFile(latestBoardImage ?? '')}
         description={`You have ${boardsCount} active board${
           boardsCount === 1 ? '' : 's'
         }. Here is your ${isShowFav ? 'favorite' : 'recent'} activity.`}

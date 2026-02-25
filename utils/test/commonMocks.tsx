@@ -17,9 +17,14 @@ vi.mock('@/components/Page', () => ({
 
 vi.mock('@/components/PageHeader', () => ({
   default: vi.fn(
-    ({ title, children }: PropsWithChildren<{ title: string }>) => (
+    ({
+      title,
+      children,
+      imageUrl,
+    }: PropsWithChildren<{ title: string; imageUrl?: string }>) => (
       <div>
         {title}
+        {imageUrl && <img src={imageUrl} alt="" />}
         {children}
       </div>
     ),
