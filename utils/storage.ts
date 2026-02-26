@@ -23,15 +23,16 @@ export function generateFileFromBase64(base64String: string): {
   ext: string;
   contentLength: number;
 } {
-  const matches =
-    base64String.match(/^data:(image\/\w+);base64,(.+)$/) ||
-    base64String.match(/^data:(\w+\/[\w-+\d.]+);base64,(.+)$/); // For general files
-  if (!matches) {
+  const base64Index = base64String.indexOf(';base64,');
+  if (base64Index === -1 || !base64String.startsWith('data:')) {
     throw new Error('Invalid Base64 format');
   }
 
-  const ext = matches[1].split('/')[1]; // Extract file extension
-  const buffer = Buffer.from(matches[2], 'base64'); // Convert to buffer
+  const mimeType = base64String.slice(5, base64Index);
+  const data = base64String.slice(base64Index + 8);
+
+  const ext = mimeType.split('/')[1]; // Extract file extension
+  const buffer = Buffer.from(data, 'base64'); // Convert to buffer
   const fileName = generateRandomFilename(ext);
   const contentLength = buffer.length;
   return { fileName, buffer, ext, contentLength };

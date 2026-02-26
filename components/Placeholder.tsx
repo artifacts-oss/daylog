@@ -1,3 +1,6 @@
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+
 type PlaceholderProps = {
   simple?: boolean;
   background?: boolean;
@@ -10,23 +13,24 @@ export default function Placeholder({
   className = '',
 }: PlaceholderProps) {
   return background ? (
-    <div className={`card placeholder-glow ${className}`}>
-      <div className="ratio ratio-21x9 card-img-top placeholder"></div>
+    <div className={cn('rounded-lg overflow-hidden', className)}>
+      <Skeleton className="aspect-[21/9] w-full" />
     </div>
   ) : (
-    <div className={`card placeholder-glow ${className}`}>
-      <div className="ratio ratio-21x9 card-img-top placeholder"></div>
-      <div className="card-body pt-3 mt-1">
+    <div className={cn('rounded-lg border overflow-hidden', className)}>
+      <Skeleton className="aspect-[21/9] w-full" />
+      <div className="p-4 space-y-3">
         {simple ? (
-          <div className="placeholder col-9"></div>
+          <Skeleton className="h-4 w-3/4" />
         ) : (
           <>
-            <div className="placeholder col-9 mb-3"></div>
-            <div className="placeholder placeholder-sm col-10 my-2"></div>
-            <div className="w-100 mb-1"></div>
-            <div className="placeholder placeholder-xs col-3 mt-4"></div>
-            <div className="placeholder placeholder-xs col-4 offset-5 mt-4 py-2"></div>
-            <div className="mt-2"></div>
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-full" />
+            <Skeleton className="h-3 w-5/6" />
+            <div className="flex justify-between pt-4">
+              <Skeleton className="h-3 w-16" />
+              <Skeleton className="h-3 w-24" />
+            </div>
           </>
         )}
       </div>

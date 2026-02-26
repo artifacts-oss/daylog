@@ -4,6 +4,11 @@ import OTPLogin from './page';
 
 const mocks = vi.hoisted(() => ({
   getUserMFA: vi.fn(),
+  useParams: vi.fn(() => ({ userId: '1' })),
+}));
+
+vi.mock('next/navigation', () => ({
+  useParams: mocks.useParams,
 }));
 
 vi.mock('../../lib/actions', () => ({
@@ -16,19 +21,16 @@ vi.mock('./partials/OTPLoginForm', () => ({
 describe('Home', () => {
   it('renders the OTPLoginForm when MFA is enabled', async () => {
     mocks.getUserMFA.mockResolvedValue(true);
-    const params = Promise.resolve({ userId: '1' });
-
-    render(await OTPLogin({ params }));
+    render(<OTPLogin />);
 
     expect(await screen.findByText('OTPLoginForm')).toBeInTheDocument();
   });
 
-  it('renders "Not allowed." when MFA is not enabled', async () => {
+  it('renders "Access denied" when MFA is not enabled', async () => {
     mocks.getUserMFA.mockResolvedValue(false);
-    const params = Promise.resolve({ userId: '1' });
 
-    render(await OTPLogin({ params }));
+    render(<OTPLogin />);
 
-    expect(await screen.findByText('Not allowed.')).toBeInTheDocument();
+    expect(await screen.findByText(/Access denied/i)).toBeInTheDocument();
   });
 });

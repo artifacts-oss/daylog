@@ -1,11 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { vi } from 'vitest';
 
-vi.mock('next/navigation', () => ({
-  redirect: vi.fn(),
-  useRouter: vi.fn(),
-}));
-
 vi.mock('@/components/NavHeader', () => ({
   default: vi.fn(() => <div>NavHeader</div>),
 }));
@@ -21,12 +16,19 @@ vi.mock('@/components/Page', () => ({
 }));
 
 vi.mock('@/components/PageHeader', () => ({
-  default: vi.fn(({ title, children }: PropsWithChildren<{ title: string }>) => (
-    <div>
-      {title}
-      {children}
-    </div>
-  )),
+  default: vi.fn(
+    ({
+      title,
+      children,
+      imageUrl,
+    }: PropsWithChildren<{ title: string; imageUrl?: string }>) => (
+      <div>
+        {title}
+        {imageUrl && <img src={imageUrl} alt="" />}
+        {children}
+      </div>
+    ),
+  ),
 }));
 
 vi.mock('@/components/PageBody', () => ({

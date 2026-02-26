@@ -1,3 +1,6 @@
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 type FormFieldProps = {
   label: string;
@@ -23,31 +26,34 @@ export default function FormField({
   className = '',
 }: FormFieldProps) {
   return (
-    <div className="mb-3">
-      <label className="form-label" htmlFor={name}>
+    <div className="space-y-2 relative pb-5">
+      <Label htmlFor={name}>
         {label}
-      </label>
-      <input
+        {required && <span className="text-destructive ml-1">*</span>}
+      </Label>
+      <Input
         id={name}
         name={name}
         type={type}
         defaultValue={defaultValue}
-        className={`form-control ${errors ? 'is-invalid' : ''} ${className}`}
+        className={cn(
+          errors && 'border-destructive focus-visible:ring-destructive',
+          className,
+        )}
         placeholder={placeholder}
         required={required}
         autoComplete={autoComplete}
       />
       {errors && (
-        <div className="invalid-feedback d-block" role="alert">
-          {Array.isArray(errors) ? (
-            errors.map((error, i) => (
-              <div key={i}>{error}</div>
-            ))
-          ) : (
-            errors
-          )}
-        </div>
+        <p
+          className="text-[12px] text-destructive relative bottom-0 left-0"
+          role="alert"
+        >
+          {Array.isArray(errors)
+            ? errors.map((error, i) => <span key={i}>{error}</span>)
+            : errors}
+        </p>
       )}
     </div>
   );
-} 
+}

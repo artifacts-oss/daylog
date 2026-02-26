@@ -1,10 +1,4 @@
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import RegisterForm from './RegisterForm';
 
@@ -17,7 +11,13 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('../lib/actions', () => ({ signup: mocks.signup }));
 
-vi.mock('react', () => ({ useActionState: mocks.useActionState }));
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return {
+    ...actual,
+    useActionState: mocks.useActionState,
+  };
+});
 
 describe('RegisterForm', () => {
   beforeEach(() => {
@@ -28,36 +28,35 @@ describe('RegisterForm', () => {
     render(<RegisterForm />);
 
     expect(
-      screen.getByText('Account registration', { selector: 'h2' })
+      screen.getByText('Create account', { selector: 'h3' }),
     ).toBeDefined();
     expect(screen.getByLabelText('Name')).toBeDefined();
     expect(screen.getByLabelText('Email address')).toBeDefined();
     expect(screen.getByLabelText('Password')).toBeDefined();
-    expect(screen.getByLabelText('Agree the terms and policy.')).toBeDefined();
-    expect(screen.getByText('Already have account?')).toBeDefined();
+    expect(screen.getByLabelText(/I agree to the/i)).toBeDefined();
+    expect(screen.getByText('Already have an account?')).toBeDefined();
   });
 
   it('shows error message when account creation fails', () => {
     render(<RegisterForm />);
-    fireEvent.submit(
-      screen.getByRole('button', { name: /create new account/i })
-    );
+    fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(screen.getByText('Account not created')).toBeDefined();
     expect(screen.getByText('Error creating account')).toBeDefined();
   });
 
   it('shows success message when account is created', () => {
-    state.success = true;
+    mocks.useActionState.mockReturnValueOnce([
+      { message: '', success: true },
+      vi.fn(),
+      false,
+    ]);
 
     render(<RegisterForm />);
-    fireEvent.submit(
-      screen.getByRole('button', { name: /create new account/i })
-    );
 
     expect(screen.getByText('Account created')).toBeDefined();
     expect(
-      screen.getByText('Your account has been created successfuly')
+      screen.getByText(/Your account has been created successfully/i),
     ).toBeDefined();
     expect(screen.getByText('Go to login')).toBeDefined();
   });
@@ -68,9 +67,9 @@ describe('RegisterForm', () => {
     render(<RegisterForm />);
 
     const submitButton = screen.getByRole('button', {
-      name: /create new account/i,
+      name: /Creating account.../i,
     });
 
-    await waitFor(() => expect(submitButton).toBeDisabled());
+    expect(submitButton).toBeDisabled();
   });
 });

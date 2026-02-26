@@ -2,18 +2,22 @@
 
 import { User } from '@/prisma/generated/client';
 import {
-  IconChalkboard,
-  IconCircleMinus,
-  IconHome,
-  IconUser,
-  IconUserShield
-} from '@tabler/icons-react';
+  HomeIcon,
+  Squares2X2Icon,
+  UserIcon,
+  ShieldCheckIcon,
+} from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signout } from '@/app/lib/actions';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
-export default function NavBar({ user }: { user: User }) {
+interface NavBarProps {
+  user: User;
+  isCollapsed?: boolean;
+}
+
+export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
   const path = usePathname();
   const adminPattern = /^\/admin\/?$/;
   const homePattern = /^\/$/;
@@ -21,100 +25,90 @@ export default function NavBar({ user }: { user: User }) {
   const boardPattern = /^\/boards(\/[a-zA-Z0-9_-]+)?\/?$/;
   const notePattern = /^\/boards\/[a-zA-Z0-9_-]+\/notes(\/[a-zA-Z0-9_-]+)?\/?$/;
 
+  const navItems = [
+    {
+      name: 'Home',
+      href: '/',
+      icon: HomeIcon,
+      active: homePattern.test(path),
+    },
+    {
+      name: 'Boards',
+      href: '/boards',
+      icon: Squares2X2Icon,
+      active: boardPattern.test(path) || notePattern.test(path),
+    },
+    {
+      name: 'Profile',
+      href: `/profile/${user?.id}`,
+      icon: UserIcon,
+      active: profilePattern.test(path),
+    },
+  ];
+
+  if (user?.role === 'admin') {
+    navItems.push({
+      name: 'Admin',
+      href: '/admin',
+      icon: ShieldCheckIcon,
+      active: adminPattern.test(path),
+    });
+  }
   return (
-    <div className="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul className="navbar-nav pt-lg-3 px-lg-3 gap-2">
-        <motion.li
-          animate={{ 
-            scale: homePattern.test(path) ? [1, 1.05, 1] : 1
-          }}
-          transition={{ 
-            scale: { duration: 0.3, ease: "easeInOut" }
-          }}
-          className={`nav-item rounded-pill overflow-hidden ${homePattern.test(path) ? 'text-bg-primary' : ''}`}
+    <nav
+      className={cn(
+        'flex flex-col gap-2 px-3 transition-all duration-300',
+        isCollapsed ? 'items-center' : 'px-4',
+      )}
+    >
+      {navItems.map((item) => (
+        <motion.div
+          key={item.name}
+          layout
+          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          className="w-full"
         >
           <Link
-            className={`nav-link ${homePattern.test(path) ? 'text-bg-primary' : ''}`}
-            href="/"
+            href={item.href}
             prefetch={true}
+            className={cn(
+              'group relative flex items-center rounded-xl transition-all duration-300',
+              isCollapsed ? 'justify-center h-12 w-12' : 'gap-3 px-3 py-2.5',
+              item.active
+                ? 'text-primary-foreground'
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+            )}
           >
-            <span className={`nav-link-icon d-md-none d-lg-inline-block ${homePattern.test(path) ? 'text-bg-primary' : ''}`}>
-              <IconHome />
-            </span>
-            <span className="nav-link-title">Home</span>
+            {item.active && (
+              <motion.div
+                layoutId="active-pill"
+                className="absolute inset-0 bg-primary rounded-xl shadow-lg shadow-primary/20"
+                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              />
+            )}
+            <item.icon
+              className={cn(
+                'h-5 w-5 relative z-10 transition-transform duration-300',
+                !item.active && 'group-hover:scale-110',
+              )}
+            />
+
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.span
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  className="relative z-10 font-bold text-sm tracking-tight whitespace-nowrap"
+                >
+                  {item.name}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </Link>
-        </motion.li>  
-        <motion.li
-          animate={{ 
-            scale: (boardPattern.test(path) || notePattern.test(path)) ? [1, 1.05, 1] : 1
-          }}
-          transition={{ 
-            scale: { duration: 0.3, ease: "easeInOut" }
-          }}
-          className={`nav-item rounded-pill overflow-hidden ${boardPattern.test(path) || notePattern.test(path) ? 'text-bg-primary' : ''}`}
-        >
-          <Link
-            className={`nav-link ${boardPattern.test(path) || notePattern.test(path) ? 'text-bg-primary' : ''}`}
-            href="/boards"
-            prefetch={true}
-          >
-            <span className={`nav-link-icon d-md-none d-lg-inline-block ${boardPattern.test(path) || notePattern.test(path) ? 'text-bg-primary' : ''}`}>
-              <IconChalkboard />
-            </span>
-            <span className="nav-link-title">Boards</span>
-          </Link>
-        </motion.li>
-        <motion.li
-          animate={{ 
-            scale: profilePattern.test(path) ? [1, 1.05, 1] : 1
-          }}
-          transition={{ 
-            scale: { duration: 0.3, ease: "easeInOut" }
-          }}
-          className={`nav-item rounded-pill overflow-hidden ${profilePattern.test(path) ? 'text-bg-primary' : ''}`}
-        >
-          <Link
-            className={`nav-link ${profilePattern.test(path) ? 'text-bg-primary' : ''}`}
-            href={`/profile/${user?.id}`}
-            prefetch={true}
-          >
-            <span className={`nav-link-icon d-md-none d-lg-inline-block ${profilePattern.test(path) ? 'text-bg-primary' : ''}`}>
-              <IconUser />
-            </span>
-            <span className="nav-link-title">Profile</span>
-          </Link>
-        </motion.li>
-        {user?.role === 'admin' && (
-          <motion.li
-            animate={{ 
-              scale: adminPattern.test(path) ? [1, 1.05, 1] : 1
-            }}
-            transition={{ 
-              scale: { duration: 0.3, ease: "easeInOut" }
-            }}
-            className={`nav-item rounded-pill overflow-hidden ${adminPattern.test(path) ? 'text-bg-primary' : ''}`} data-testid="admin-nav"
-          >
-            <Link
-              className={`nav-link ${adminPattern.test(path) ? 'text-bg-primary' : ''}`}
-              href="/admin"
-              prefetch={true}
-            >
-              <span className={`nav-link-icon d-md-none d-lg-inline-block ${adminPattern.test(path) ? 'text-bg-primary' : ''}`}>
-                <IconUserShield />
-              </span>
-              <span className="nav-link-title">Admin</span>
-            </Link>
-          </motion.li>
-        )}
-        <motion.li className='nav-item rounded-pill overflow-hidden mt-lg-auto mb-4'>
-          <a className="nav-link text-danger" role='button' onClick={() => signout()}>
-            <span className='nav-link-icon d-md-none d-lg-inline-block'>
-              <IconCircleMinus />
-            </span>
-            <span className="nav-link-title">Logout</span>
-          </a>
-        </motion.li>
-      </ul>
-    </div>
+        </motion.div>
+      ))}
+    </nav>
   );
 }

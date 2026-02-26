@@ -4,7 +4,7 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=artifacts-oss_daylog&metric=alert_status&token=454f2e190f81f0af13315e8abff724843c1e5665)](https://sonarcloud.io/summary/new_code?id=artifacts-oss_daylog)
 
-✨ A board based note taking and markdown editor web app.
+✨ A board based simple text and markdown notes web application.
 
 ### Stable version
 
@@ -13,6 +13,7 @@ If you want to use the stable version of daylog, you can find it [here](https://
 ### Features
 
 - **Self-Hosting:** daylog is a pure Next.js application, allowing you to host it on your own server or preferred hosting service.
+- **Multi-user:** daylog is multi-user, allowing you to create multiple accounts and manage your own data.
 - **Boards:** daylog is board-based, giving you the flexibility to organize notes by context, projects, or as folders.
 - **Notes:** Your notes can be simple text or formatted using Markdown.
 - **Editor:** daylog includes a Markdown editor with essential formatting options, perfect for beginners.
@@ -170,8 +171,10 @@ Check the `.env` file to see the available environment variables.
 
 - [NextJS](https://nextjs.org/)
 - [Prisma ORM](https://www.prisma.io/)
-- [Bootstrap](https://getbootstrap.com/)
-- [Tabler UI](https://tabler.io/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Radix UI](https://www.radix-ui.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [Lucide Icons](https://lucide.dev/)
 - [Marked](https://github.com/markedjs/marked)
 - [Zod](https://github.com/colinhacks/zod)
 - [Nodemailer](https://github.com/nodemailer/nodemailer)

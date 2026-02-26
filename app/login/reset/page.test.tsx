@@ -9,7 +9,13 @@ const mocks = vi.hoisted(() => ({
   useActionState: vi.fn(() => [state, vi.fn(), false]),
 }));
 
-vi.mock('react', () => ({ useActionState: mocks.useActionState }));
+vi.mock('react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('react')>();
+  return {
+    ...actual,
+    useActionState: mocks.useActionState,
+  };
+});
 
 vi.mock('./lib/actions.ts', () => ({
   reset: mocks.reset,
@@ -25,21 +31,19 @@ describe('Page', () => {
     expect(screen.getByText('Forgot password')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'Enter your email address and we will send you instructions to reset your password.'
-      )
+        /Enter your email address and we will send you instructions/i,
+      ),
     ).toBeInTheDocument();
   });
 
   it('shows success message when state.success is true', () => {
-    const mockState = { message: 'Reseted successfuly', success: true };
+    const mockState = { message: '', success: true };
     mocks.useActionState.mockReturnValueOnce([mockState, vi.fn(), false]);
 
     render(<Page />);
-    expect(screen.getByText('Account reseted')).toBeInTheDocument();
+    expect(screen.getByText('Account reset')).toBeInTheDocument();
     expect(
-      screen.getByText(
-        'Your account has been reset successfully. Please check your email inbox and follow the instructions.'
-      )
+      screen.getByText(/Your account has been reset successfully/i),
     ).toBeInTheDocument();
   });
 
@@ -65,16 +69,15 @@ describe('Page', () => {
   });
 
   it('disables submit button when pending is true', () => {
-    mocks.useActionState.mockReturnValue([
+    mocks.useActionState.mockReturnValueOnce([
       { message: '', success: false },
       vi.fn(),
       true,
     ]);
 
     render(<Page />);
-    expect(
-      screen.getByRole('button', { name: /Send me a new password/i })
-    ).toBeDisabled();
+    const submitButton = screen.getByRole('button', { name: /Sending.../i });
+    expect(submitButton).toBeDisabled();
   });
 
   it('submits the form', () => {

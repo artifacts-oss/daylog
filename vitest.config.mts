@@ -9,7 +9,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     reporters: [
-      'default', // Terminal output
+      'default', // Terminal output,
       ['vitest-sonar-reporter', { outputFile: 'sonar-report.xml' }],
     ],
     coverage: {

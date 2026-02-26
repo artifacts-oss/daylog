@@ -1,36 +1,30 @@
-import getVersion from '@/app/lib/version';
+import getVersion from '@/app/(authenticated)/lib/version';
 import PageFooterSponsor from './PageFooterSponsor';
 
 export default function PageFooter() {
   const showSponsor =
-    !process.env.SHOW_SPONSOR_FOOTER || process.env.SHOW_SPONSOR_FOOTER === 'true';
+    !process.env.SHOW_SPONSOR_FOOTER ||
+    process.env.SHOW_SPONSOR_FOOTER === 'true';
   return showSponsor ? (
     <PageFooterSponsor />
   ) : (
-    <footer className="footer footer-transparent d-print-none">
-      <div className="container-xl">
-        <div className="row text-center align-items-center flex-row-reverse">
-          <div className="col-12 col-lg-auto mt-3 mt-lg-0">
-            <ul className="list-inline list-inline-dots mb-0">
-              <li className="list-inline-item">
-                <a
-                  href="https://github.com/artifacts-oss/daylog"
-                  className="link-secondary"
-                >
-                  daylog
-                </a>
-              </li>
-              <li className="list-inline-item">
-                <a
-                  href="https://github.com/artifacts-oss/daylog/releases"
-                  className="link-secondary"
-                  rel="noopener"
-                >
-                  v{getVersion()}
-                </a>
-              </li>
-            </ul>
-          </div>
+    <footer className="border-t border-border bg-background py-6">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+        <div className="flex items-center justify-center gap-6 text-[12px] font-[500] uppercase text-muted-foreground/70">
+          <a
+            href="https://github.com/artifacts-oss/daylog"
+            className="hover:text-foreground transition-colors"
+          >
+            daylog
+          </a>
+          <span>·</span>
+          <a
+            href="https://github.com/artifacts-oss/daylog/releases"
+            className="hover:text-foreground transition-colors"
+            rel="noopener"
+          >
+            v{getVersion()}
+          </a>
         </div>
       </div>
     </footer>

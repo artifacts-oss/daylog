@@ -15,8 +15,7 @@ import PageFooterSponsor from './PageFooterSponsor';
 import PageHeader from './PageHeader';
 import Placeholder from './Placeholder';
 import TimeDiff from './TimeDiff';
-import NavMobileMenu from './MobileNavMenu';
-import NavMenu from './NavMenu';
+import NavSidebar from './NavSidebar';
 
 vi.mock('input-otp', () => ({
   __esModule: true,
@@ -71,7 +70,7 @@ describe('Component Tests', () => {
 
   it('renders PageHeader component', () => {
     const { container } = render(
-      <PageHeader title="Test Title" breadcrumbs={[]} />
+      <PageHeader title="Test Title" breadcrumbs={[]} />,
     );
     expect(container).toBeInTheDocument();
   });
@@ -84,10 +83,11 @@ describe('Component Tests', () => {
           { name: 'Home', href: '/' },
           { name: 'Dashboard', href: '/dashboard' },
         ]}
-      />
+      />,
     );
     expect(container).toBeInTheDocument();
-    expect(container.querySelectorAll('.breadcrumb-item').length).toBe(2);
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
   // TODO: implement image in the new ui
@@ -145,7 +145,7 @@ describe('Component Tests', () => {
   });
 
   it('renders OTPInputWrapper component', () => {
-    const { container } = render(<OTPInputWrapper onChange={() => { }} />);
+    const { container } = render(<OTPInputWrapper onChange={() => {}} />);
     expect(container).toBeInTheDocument();
   });
 
@@ -160,38 +160,40 @@ describe('Component Tests', () => {
         <div className={`slot ${isActive ? 'active' : ''}`}>{char}q</div>
       ),
     }));
-    const { container } = render(<OTPInputWrapper onChange={() => { }} />);
+    const { container } = render(<OTPInputWrapper onChange={() => {}} />);
     expect(container).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
   });
 
   it('renders NavHeader component', async () => {
-    const navHeader = await NavHeader();
+    const navHeader = await NavHeader({
+      user: { id: 1, name: 'Test User', role: 'user' } as User,
+    });
     const { container } = render(navHeader);
     expect(container).toBeInTheDocument();
   });
 
   it('renders NavBar component', () => {
     const { container } = render(
-      <NavBar user={{ id: 1, role: 'user' } as User} />
+      <NavBar user={{ id: 1, role: 'user' } as User} />,
     );
     expect(container).toBeInTheDocument();
   });
 
   it('renders NavBar component with admin role', () => {
     const { container } = render(
-      <NavBar user={{ id: 1, role: 'admin' } as User} />
+      <NavBar user={{ id: 1, role: 'admin' } as User} />,
     );
     expect(container).toBeInTheDocument();
-    expect(screen.getByTestId('admin-nav')).toBeInTheDocument();
+    expect(screen.getByText('Admin')).toBeInTheDocument();
   });
 
   it('not shows admin nav for non-admin users', () => {
     const { container } = render(
-      <NavBar user={{ id: 1, role: 'user' } as User} />
+      <NavBar user={{ id: 1, role: 'user' } as User} />,
     );
     expect(container).toBeInTheDocument();
-    expect(screen.queryByTestId('admin-nav')).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
   });
 
   it('renders Loader component', () => {
@@ -204,25 +206,15 @@ describe('Component Tests', () => {
     expect(container).toBeInTheDocument();
   });
 
-  it('renders NavMenu component', () => {
-    const { container } = render(<NavMenu />);
+  it('renders NavSidebar component', () => {
+    const { container } = render(
+      <NavSidebar user={{ id: 1, role: 'user' } as User} />,
+    );
     expect(container).toBeInTheDocument();
   });
 
-  it('renders NavMobileMenu component', () => {
-    const { container } = render(<NavMobileMenu user={{ id: 1, role: 'user' } as User} />);
+  it('renders Loader component', () => {
+    const { container } = render(<Loader caption="Loading..." />);
     expect(container).toBeInTheDocument();
-  });
-
-  it('shows add-note button when on notes page', () => {
-    mockUsePathname.mockReturnValue('/boards/1/notes');
-    render(<NavMobileMenu user={{ id: 1, role: 'user' } as User} />);
-    expect(screen.getByTestId('add-note')).toBeInTheDocument();
-  });
-
-  it('shows add-board button when not on notes page', () => {
-    mockUsePathname.mockReturnValue('/boards');
-    render(<NavMobileMenu user={{ id: 1, role: 'user' } as User} />);
-    expect(screen.getByTestId('add-board')).toBeInTheDocument();
   });
 });

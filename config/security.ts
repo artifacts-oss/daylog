@@ -9,7 +9,7 @@ export const SECURITY_CONFIG = {
     REQUIRE_SPECIAL_CHARS: true,
     MAX_LENGTH: 128,
   },
-  
+
   // Session configuration
   SESSION: {
     EXPIRY_DAYS: 7,
@@ -18,7 +18,7 @@ export const SECURITY_CONFIG = {
     COOKIE_HTTP_ONLY: true,
     COOKIE_SAME_SITE: 'strict' as const,
   },
-  
+
   // Rate limiting
   RATE_LIMIT: {
     AUTH: {
@@ -27,50 +27,45 @@ export const SECURITY_CONFIG = {
     },
     GENERAL: {
       WINDOW_MS: 15 * 60 * 1000, // 15 minutes
-      MAX_REQUESTS: 100,
+      MAX_REQUESTS: 1000,
     },
     UPLOAD: {
       WINDOW_MS: 60 * 1000, // 1 minute
       MAX_REQUESTS: 10,
     },
   },
-  
+
   // MFA configuration
   MFA: {
     TIME_STEP: 30, // seconds
     WINDOW: 1, // allow 1 window before and after
     DIGITS: 6,
   },
-  
+
   // Account lockout
   LOCKOUT: {
     MAX_FAILED_ATTEMPTS: 5,
     LOCK_DURATION_MS: 15 * 60 * 1000, // 15 minutes
   },
-  
+
   // CSRF protection
   CSRF: {
     TOKEN_NAME: 'csrf-token',
     HEADER_NAME: 'x-csrf-token',
     COOKIE_EXPIRY_HOURS: 24,
   },
-  
+
   // File upload security
   FILE_UPLOAD: {
-    MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB
-    ALLOWED_MIME_TYPES: [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-    ],
+    MAX_FILE_SIZE: 64 * 1024 * 1024, // 64MB
+    ALLOWED_MIME_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'image/webp'],
     ALLOWED_EXTENSIONS: ['.jpg', '.jpeg', '.png', '.gif', '.webp'],
   },
-  
+
   // CORS configuration
   CORS: {
     ALLOWED_ORIGINS: [
-      process.env.NODE_ENV === 'production' 
+      process.env.NODE_ENV === 'production'
         ? process.env.ALLOWED_ORIGIN || process.env.NEXT_PUBLIC_APP_URL
         : 'http://localhost:3000',
     ].filter(Boolean),
@@ -89,7 +84,7 @@ export const SECURITY_CONFIG = {
     ],
     ALLOW_CREDENTIALS: true,
   },
-  
+
   // Security headers
   HEADERS: {
     'X-Content-Type-Options': 'nosniff',
@@ -97,8 +92,9 @@ export const SECURITY_CONFIG = {
     'X-XSS-Protection': '1; mode=block',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    'Strict-Transport-Security': process.env.NODE_ENV === 'production' 
-      ? 'max-age=31536000; includeSubDomains; preload' 
-      : undefined,
+    'Strict-Transport-Security':
+      process.env.NODE_ENV === 'production'
+        ? 'max-age=31536000; includeSubDomains; preload'
+        : undefined,
   },
 };

@@ -1,218 +1,237 @@
 'use client';
 
-import Loader from '@/components/Loader';
 import TimeDiff from '@/components/TimeDiff';
 import { Board } from '@/prisma/generated/client';
 import { stringToColor } from '@/utils/color';
 import { getImageUrlOrFile } from '@/utils/image';
 import { removeMarkdownTags, truncateWord } from '@/utils/text';
-import { IconMoodSurprised, IconPlus } from '@tabler/icons-react';
+import { FaceSmileIcon, PlusIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
-import { getNotes } from '../boards/[id]/notes/lib/actions';
-import { getBoards } from '../boards/lib/actions';
-import { NoteWithBoards } from '../boards/[id]/notes/lib/types';
+import { NoteWithBoards } from '../(authenticated)/boards/[id]/notes/lib/types';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+
+interface HomeTabsProps {
+  boards: Board[];
+  notes: NoteWithBoards[];
+  showFav?: boolean;
+}
+
+const containerVars = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+};
+
+const itemVars = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0 },
+};
 
 export default function HomeTabs({
-  showFav: showFav = false,
-}: {
-  showFav?: boolean;
-}) {
-  const [loading, setLoading] = useState(true);
-  const [loadingNotes, setLoadingNotes] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-  const [notes, setNotes] = useState<NoteWithBoards[] | null>([]);
-  const [boards, setBoards] = useState<Board[] | null>([]);
-
-  function setBackgroundImage(str: string): string {
-    const color = stringToColor(str);
-    return color;
-  }
-
-  const getBoardNotes = async () => {
-    setLoadingNotes(true);
-    const result = await getNotes(
-      'created_desc',
-      8
-    );
-    setNotes(result);
-    setLoadingNotes(false);
-  };
-
-  useEffect(() => {
-    const loadBoards = async () => {
-      const result = await getBoards(
-        'created_desc'
-      );
-      setLoading(false);
-      if (result != null && result.length > 0) {
-        let recentBoards = result;
-        if (!showFav) {
-          recentBoards = result.sort((a, b) => {
-            return +b.favorite - +a.favorite;
-          });
-        } else {
-          recentBoards = result.filter((board) => board.favorite);
-        }
-        setBoards(recentBoards);
-        if (recentBoards.length > 0)
-          getBoardNotes();
-      } else {
-        setBoards([]);
-        setNotes([]);
-      }
-    };
-
-    // Reset state on component mount
-    setBoards([]);
-    setNotes([]);
-    setLoading(true);
-
-    loadBoards();
-    setIsClient(true);
-  }, [showFav]);
-
+  boards,
+  notes,
+  showFav = false,
+}: HomeTabsProps) {
   return (
-    <>
-      <div className='d-flex justify-content-between'>
-        <h2 className="h2">Your Boards</h2>
-        <a className='btn btn-ghost btn-primary' href={'/boards'}>View all</a>
-      </div>
-      {loading ? (
-        <div className="text-center mt-5">
-          <Loader caption="Loading boards..." />
+    <div className="space-y-12 py-4">
+      {/* Boards Section */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Your Boards
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {showFav
+                ? 'Personal favorites for quick access'
+                : 'Recently updated collections'}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            asChild
+            className="rounded-full px-4"
+          >
+            <Link href="/boards">Explore All</Link>
+          </Button>
         </div>
-      ) : (
-        <motion.ul
-          initial={{ x: 20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ ease: "easeIn", duration: 0.50 }}
-          className="nav nav-pills flex-nowrap overflow-auto gap-4"
-          id="boardTabs"
-          role="tablist"
-          style={{ whiteSpace: 'nowrap' }}
-        >
-          {isClient &&
-            boards?.map((board) => (
-              <li
-                className={'nav-item rounded-4 shadow'}
-                key={board.id}
-                style={
-                  board.imageUrl
-                    ? {
-                      minHeight: '80px',
-                      minWidth: '180px',
-                      objectFit: 'cover',
-                      backgroundSize: '220px',
-                      backgroundPosition: 'center',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundImage: `linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(20, 20, 20, 0.3)), url(${getImageUrlOrFile(
-                        `${encodeURI(board.imageUrl)}`
-                      )})`,
-                    }
-                    : {
-                      minHeight: '80px',
-                      minWidth: '180px',
-                      backgroundColor: setBackgroundImage(board.title),
-                    }
-                }
-              >
-                <Link
-                  className={`nav-link justify-content-start align-items-end fs-3 fw-bold h-100 text-light`}
-                  style={{ minWidth: '180px', textShadow: '1px 1px 3px black' }}
-                  href={`/boards/${board.id}/notes`}
-                >
-                  {truncateWord(board.title)}
-                </Link>
-              </li>
-            ))}
-          <li className="nav-item rounded-4 border-secondary overflow-hidden" style={{
-            minHeight: '80px', minWidth: '180px', borderStyle: 'dashed', borderWidth: '2px'
-          }}>
-            <Link href={'/boards?openNew=true'} className="nav-link d-flex flex-column align-items-center justify-content-center w-full h-full">
-              <IconPlus />
-              New board
-            </Link>
-          </li>
-        </motion.ul>)}
-      <h2 className="h2 mt-4">Recent Notes</h2>
-      {loadingNotes ? (
-        <div className="text-center mt-5">
-          <Loader caption="Loading notes..." />
-        </div>
-      ) : notes && notes.length > 0 ? (
+
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ ease: "easeOut", duration: 0.50 }}
-          className="row">
-          {notes.map(
-            (note) =>
-              note.boardsId && (
-                <div className="col-6 col-md-4 col-lg-3 mb-2 mb-md-3" key={note.id}>
-                  <div className="card overflow-hidden" style={{ minHeight: '200px', maxHeight: '200px' }}>
+          variants={containerVars}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+        >
+          {boards.map((board) => (
+            <motion.div key={board.id} variants={itemVars}>
+              <Link
+                href={`/boards/${board.id}/notes`}
+                className="group relative flex flex-col aspect-[2.5/1] rounded-2xl overflow-hidden border bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              >
+                <div
+                  className="absolute inset-0 opacity-80 group-hover:opacity-100 transition-opacity"
+                  style={
+                    board.imageUrl
+                      ? {
+                          backgroundImage: `linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent), url(${getImageUrlOrFile(
+                            `${encodeURI(board.imageUrl)}`,
+                          )})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center',
+                        }
+                      : {
+                          backgroundColor: stringToColor(board.title),
+                        }
+                  }
+                />
+                <div className="relative mt-auto p-4">
+                  <span className="font-bold text-white text-sm md:text-base leading-tight drop-shadow-md">
+                    {truncateWord(board.title, 30)}
+                  </span>
+                </div>
+                {board.favorite && (
+                  <div className="absolute top-3 right-3 h-2 w-2 rounded-full bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]" />
+                )}
+              </Link>
+            </motion.div>
+          ))}
+
+          <motion.div variants={itemVars}>
+            <Link
+              href="/boards?openNew=true"
+              className="flex flex-col items-center justify-center aspect-[2.5/1] rounded-2xl border-2 border-dashed border-muted transition-all duration-300 hover:border-primary hover:bg-primary/5 group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
+                  <PlusIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+                </div>
+                <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">
+                  Create Board
+                </span>
+              </div>
+            </Link>
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* Notes Section */}
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Recent Notes
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {showFav ? 'Your favorite notes' : 'Pick up where you left off'}
+            </p>
+          </div>
+        </div>
+
+        {notes && notes.length > 0 ? (
+          <motion.div
+            variants={containerVars}
+            initial="hidden"
+            animate="show"
+            className="masonry-container space-y-4"
+          >
+            {notes.map((note) => (
+              <motion.div
+                key={note.id}
+                variants={itemVars}
+                className="masonry-item"
+              >
+                <div className="group relative rounded-2xl border bg-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden flex flex-col h-full">
+                  {/* Clickable Background Layer */}
+                  <Link
+                    href={`/boards/${note.boardsId}/notes/${note.id}`}
+                    className="absolute inset-0 z-0"
+                  />
+
+                  <div className="relative z-10 flex flex-col h-full pointer-events-none">
                     {note.imageUrl && (
-                      <Link
-                        href={`/boards/${note.boardsId}/notes/${note.id}`}
-                        className="ratio ratio-21x9"
-                      >
+                      <div className="relative aspect-video overflow-hidden">
                         <Image
-                          width={320}
-                          height={180}
-                          className="w-100 img-fluid"
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
                           src={getImageUrlOrFile(note.imageUrl)}
-                          style={{
-                            objectFit: 'cover',
-                            objectPosition: 'center',
-                          }}
-                          alt={truncateWord(note.title, 20)}
-                          priority={false}
+                          alt={note.title}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                         />
-                      </Link>
-                    )}
-                    <div className="card-body d-flex flex-column justify-content-between">
-                      <div className='d-flex flex-column'>
-                        <Link
-                          href={`/boards/${note.boardsId}/notes/${note.id}`}
-                          className="fw-bold line-clamp-1"
-                        >
-                          {note.title}
-                        </Link>
-                        {!note.imageUrl && <p className='text-secondary line-clamp-4'>
-                          {removeMarkdownTags(note.content || '')}
-                        </p>}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </div>
-                      <div className="d-flex align-items-center justify-content-between text-muted">
-                        <TimeDiff updatedAt={note?.updatedAt} />
-                        <Link href={`/boards/${note.boardsId}/notes`}>
-                          <div className='badge' style={{ backgroundColor: stringToColor(note.boards?.title || ''), color: '#fff', fontWeight: 'bold', textShadow: '1px 1px 3px black' }}>
-                            {truncateWord(note.boards?.title || '', 10)}
-                          </div>
-                        </Link>
+                    )}
+
+                    <div className="p-5 flex-1 flex flex-col space-y-3">
+                      <h3 className="font-bold text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2">
+                        {note.title}
+                      </h3>
+
+                      {!note.imageUrl && (
+                        <p className="text-sm text-muted-foreground line-clamp-4 leading-relaxed">
+                          {removeMarkdownTags(note.content || '')}
+                        </p>
+                      )}
+
+                      <div className="mt-auto pt-4 flex items-center justify-between border-t border-muted">
+                        <div className="flex items-center gap-2 pointer-events-auto relative z-20">
+                          <Link href={`/boards/${note.boardsId}/notes`}>
+                            <span
+                              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-80"
+                              style={{
+                                backgroundColor: stringToColor(
+                                  note.boards?.title || '',
+                                ),
+                                boxShadow: `0 2px 8px ${stringToColor(note.boards?.title || '')}40`,
+                              }}
+                            >
+                              {truncateWord(note.boards?.title || '', 12)}
+                            </span>
+                          </Link>
+                        </div>
+                        <span className="text-[11px] font-medium text-muted-foreground">
+                          <TimeDiff updatedAt={note?.updatedAt} />
+                        </span>
                       </div>
                     </div>
                   </div>
                 </div>
-              )
-          )}
-        </motion.div>
-      ) : (
-        EmptyNotes(showFav)
-      )}
-    </>
+              </motion.div>
+            ))}
+          </motion.div>
+        ) : (
+          <EmptyNotes showFav={showFav} />
+        )}
+      </section>
+    </div>
   );
 }
 
-function EmptyNotes(showFav: boolean) {
+function EmptyNotes({ showFav }: { showFav: boolean }) {
   return (
-    <div className="text-center mt-5">
-      <IconMoodSurprised />
-      <div className="text-secondary">You don&apos;t have {showFav ? 'favorite' : null} notes yet...</div>
-      <Link href='/boards'>
-        Go to your boards and create one.
-      </Link>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center py-20 px-4 text-center bg-muted/30 rounded-3xl border-2 border-dashed border-muted"
+    >
+      <div className="p-4 rounded-full bg-background mb-4 shadow-sm">
+        <FaceSmileIcon className="h-10 w-10 text-muted-foreground" />
+      </div>
+      <h3 className="text-xl font-bold mb-2">No notes found</h3>
+      <p className="text-muted-foreground max-w-sm mx-auto mb-6">
+        {showFav
+          ? "You haven't marked any notes as favorites yet. Star your important notes to see them here."
+          : 'Your workspace is quiet. Start capturing your thoughts by creating a new note in one of your boards.'}
+      </p>
+      <Button asChild className="rounded-full px-8">
+        <Link href="/boards">Get Started</Link>
+      </Button>
+    </motion.div>
   );
 }

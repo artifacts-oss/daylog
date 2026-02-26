@@ -62,7 +62,7 @@ vi.mock('next/headers', () => ({
   cookies: mocks.cookies,
 }));
 
-vi.mock('@/app/admin/lib/actions', () => ({
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
   getSettings: mocks.getSettings,
 }));
 
@@ -141,7 +141,7 @@ describe('Storage Utils', () => {
 describe('Color Utils', () => {
   it('converts string to color', () => {
     const color = stringToColor('test');
-    expect(color).toMatch(/hsl\(\d+, 100%, 80%\)/);
+    expect(color).toMatch(/hsl\(\d+, 45%, 45%\)/);
   });
 });
 

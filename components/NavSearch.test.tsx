@@ -1,4 +1,10 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NavSearch from './NavSearch';
 
@@ -9,19 +15,19 @@ const mocks = vi.hoisted(() => ({
       { type: 'note', title: 'Test Note', url: '/note/1' },
       { type: 'board', title: 'Test Board', url: '/board/1' },
     ];
-  })
-}))
+  }),
+}));
 
 // Mock icons
-vi.mock('./icons', () => ({
-  ChalkboardIcon: () => <span data-testid="chalkboard-icon" />,
-  NoteIcon: () => <span data-testid="note-icon" />,
+vi.mock('@heroicons/react/24/outline', () => ({
+  Squares2X2Icon: () => <span data-testid="chalkboard-icon" />,
+  DocumentTextIcon: () => <span data-testid="note-icon" />,
   PuzzledIcon: () => <span data-testid="puzzled-icon" />,
-  SearchIcon: () => <span data-testid="search-icon" />,
+  MagnifyingGlassIcon: () => <span data-testid="search-icon" />,
 }));
 
 // Mock search action
-vi.mock('@/app/lib/actions', () => ({
+vi.mock('@/app/(authenticated)/lib/actions', () => ({
   search: mocks.search,
 }));
 
@@ -33,70 +39,73 @@ describe('NavSearch', () => {
 
   it('show searching text when search is loading', async () => {
     mocks.search.mockImplementationOnce(() => {
-      setTimeout(() => { }, 1000);
-      return new Promise(() => { });
-    })
+      setTimeout(() => {}, 1000);
+      return new Promise(() => {});
+    });
     render(<NavSearch />);
-    const input = screen.getByPlaceholderText(/Press \[Backspace\] to return to search input/i);
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
     fireEvent.change(input, { target: { value: 'test' } });
     // skip 1s debounce time
     vi.advanceTimersByTime(1000);
     await waitFor(() => {
       expect(screen.getByText(/Searching.../i)).toBeInTheDocument();
     });
-
-  })
+  });
 
   it('renders search button and modal', () => {
     render(<NavSearch />);
-    expect(screen.getByText(/Search/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Search/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Search/i })).toHaveAttribute('data-bs-toggle', 'modal');
-    expect(screen.getByRole('button', { name: /Search/i })).toHaveAttribute('data-bs-target', '#searchModal');
-    expect(screen.getByPlaceholderText(/Press \[Backspace\] to return to search input/i)).toBeInTheDocument();
+    expect(screen.getByText(/Search anything/i)).toBeInTheDocument();
   });
 
   it('shows empty results message when no results', async () => {
     render(<NavSearch />);
     // Open modal by simulating click
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
     vi.advanceTimersByTime(350);
     // Input is empty, so should show empty results
-    expect(await screen.findByText(/Empty results/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Quickly find boards/i)).toBeInTheDocument();
   });
 
   it('shows search results when input is typed', async () => {
     render(<NavSearch />);
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
-    const input = screen.getByPlaceholderText(/Press \[Backspace\] to return to search input/i);
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
     fireEvent.change(input, { target: { value: 'test' } });
     vi.advanceTimersByTime(350);
-    await waitFor(() => {
-      expect(screen.getByText('Test Note')).toBeInTheDocument();
-      expect(screen.getByText('Test Board')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Test Note')).toBeInTheDocument();
+    expect(await screen.findByText('Test Board')).toBeInTheDocument();
 
     expect(screen.getByTestId('note-icon')).toBeInTheDocument();
     expect(screen.getByTestId('chalkboard-icon')).toBeInTheDocument();
   });
 
-  it('shows navigation instructions in modal footer', () => {
+  it('shows navigation instructions in modal footer', async () => {
     render(<NavSearch />);
-    expect(screen.getByText(/to navigate results/i)).toBeInTheDocument();
-    expect(screen.getByText(/Arrow Up/i)).toBeInTheDocument();
-    expect(screen.getByText(/Arrow Down/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
+    fireEvent.change(input, { target: { value: 'test' } });
+    vi.advanceTimersByTime(350);
+    expect(await screen.findByText(/Navigate/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Open/i)).toBeInTheDocument();
   });
 
   it('navigates results with keyboard', async () => {
     render(<NavSearch />);
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
-    const input = screen.getByPlaceholderText(/Press \[Backspace\] to return to search input/i);
+    fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
+    const input = await screen.findByPlaceholderText(
+      /Search boards and notes/i,
+    );
     fireEvent.change(input, { target: { value: 'test' } });
     vi.advanceTimersByTime(350);
-    await waitFor(() => {
-      expect(screen.getByText('Test Note')).toBeInTheDocument();
-      expect(screen.getByText('Test Board')).toBeInTheDocument();
-    });
+    expect(await screen.findByText('Test Note')).toBeInTheDocument();
+    expect(await screen.findByText('Test Board')).toBeInTheDocument();
 
     // Simulate arrow down key
     fireEvent.keyDown(input, { key: 'ArrowDown' });
@@ -118,5 +127,5 @@ describe('NavSearch', () => {
     fireEvent.keyDown(input, { key: 'ArrowDown' });
     const secondResult = screen.getByText('Test Board');
     expect(document.activeElement).toBe(secondResult.closest('a'));
-  })
+  });
 });

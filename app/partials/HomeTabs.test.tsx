@@ -1,17 +1,13 @@
-import {
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
+import { Board } from '@/prisma/generated/client';
+import { NoteWithBoards } from '../(authenticated)/boards/[id]/notes/lib/types';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import HomeTabs from './HomeTabs';
 
 const mocks = vi.hoisted(() => ({
   getBoards: vi.fn(),
   getNotes: vi.fn((boardId) =>
-    mockNotes.filter((note) => note.boardsId === boardId)
+    mockNotes.filter((note) => note.boardsId === boardId),
   ),
   getCurrentSession: vi.fn(),
 }));
@@ -76,52 +72,27 @@ describe('HomeTabs', () => {
     });
   });
 
-  it('renders loading state initially', () => {
-    render(<HomeTabs />);
-    expect(screen.getByText('Loading boards...')).toBeDefined();
+  it('renders boards and notes provided as props', () => {
+    render(
+      <HomeTabs
+        boards={mockBoards as Board[]}
+        notes={mockNotes as unknown as NoteWithBoards[]}
+      />,
+    );
+    expect(screen.getByText('Board 1')).toBeDefined();
+    expect(screen.getByText('Board 2')).toBeDefined();
+    expect(screen.getByText('Note 1')).toBeDefined();
+    expect(screen.getByText('Note 2')).toBeDefined();
   });
 
-  it('renders boards after loading', async () => {
-    render(<HomeTabs />);
-    await waitFor(() => expect(mocks.getBoards).toHaveBeenCalled());
-    await waitFor(() => {
-      expect(screen.getByText('Board 1')).toBeDefined();
-      expect(screen.getByText('Board 2')).toBeDefined();
-    });
+  it('renders only create board when no boards are available', () => {
+    render(<HomeTabs boards={[]} notes={[]} />);
+    expect(screen.getByText('Create Board')).toBeDefined();
   });
 
-  it('renders recent notes', async () => {
-    render(<HomeTabs />);
-    await waitFor(() => expect(mocks.getBoards).toHaveBeenCalledWith('created_desc'));
-    await waitFor(() =>
-      expect(mocks.getNotes).toHaveBeenCalledWith('created_desc', 8)
-    );
-    await waitFor(() => {
-      expect(screen.getByText('Note 1')).toBeDefined();
-      expect(screen.getByText('Note 2')).toBeDefined();
-    });
-  });
-
-  it('renders only new board when no boards are available', async () => {
-    mocks.getBoards.mockResolvedValue([]);
-    render(<HomeTabs />);
-    await waitFor(() => expect(mocks.getBoards).toHaveBeenCalled());
-    expect(screen.getByText("New board")).toBeDefined();
-  });
-
-  it('renders message when no notes are available', async () => {
-    mocks.getNotes.mockResolvedValue([]);
-    render(<HomeTabs />);
-    await waitFor(() => expect(mocks.getBoards).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(screen.queryByText('Loading boards...')).not.toBeInTheDocument()
-    );
-    fireEvent.click(screen.getByText('Board 1'));
-    await waitFor(() =>
-      expect(mocks.getNotes).toHaveBeenCalledWith('created_desc', 8)
-    );
-    await waitFor(() =>
-      expect(screen.getAllByText("You don't have notes yet...")).toBeDefined()
-    );
+  it('renders message when no notes are available', () => {
+    render(<HomeTabs boards={mockBoards as Board[]} notes={[]} />);
+    expect(screen.getByText('Board 1')).toBeDefined();
+    expect(screen.getByText('No notes found')).toBeDefined();
   });
 });

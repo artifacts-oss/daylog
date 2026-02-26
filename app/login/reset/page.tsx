@@ -1,101 +1,114 @@
 'use client';
 
-import { IconMail } from '@tabler/icons-react';
+import { EnvelopeIcon } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useActionState } from 'react';
 import { reset } from './lib/actions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  ExclamationTriangleIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 
 export default function Page() {
   const [state, action, pending] = useActionState(reset, undefined);
 
   return (
-    <div className="page page-center">
-      <div className="container container-tight py-4">
-        <div className="text-center mb-4">
-          <a href="." className="navbar-brand navbar-brand-autodark">
-            <Image
-              src="/daylog.svg"
-              width="0"
-              height="0"
-              alt="daylog"
-              priority={true}
-              className="navbar-brand-image"
-              style={{ width: 'auto', height: '48px' }}
-            />
-          </a>
+    <div
+      className="min-h-screen flex items-center justify-center bg-background px-4 overflow-hidden"
+      style={{
+        background: `
+          radial-gradient(circle at 10% 10%, hsl(var(--color-primary) / 0.03) 0%, transparent 40%),
+          radial-gradient(circle at 90% 90%, hsl(var(--color-primary) / 0.02) 0%, transparent 40%),
+          var(--color-background)
+        `,
+      }}
+    >
+      <div className="w-full max-w-sm space-y-4">
+        <div className="text-center">
+          <Image
+            src="/daylog.svg"
+            width="0"
+            height="0"
+            alt="daylog"
+            priority={true}
+            className="mx-auto logo-invert"
+            style={{ width: 'auto', height: '48px' }}
+          />
         </div>
+
         {state?.success && (
-          <div className="alert alert-success alert-dismissible" role="alert">
-            <h3 className="mb-1">Account reseted</h3>
-            <p>
+          <Alert className="border-green-500/20 bg-green-500/5 text-green-500">
+            <CheckCircleIcon className="h-4 w-4" />
+            <AlertTitle>Account reset</AlertTitle>
+            <AlertDescription>
               Your account has been reset successfully. Please check your email
               inbox and follow the instructions.
-            </p>
-            <div className="btn-list">
-              <a href="/login" className="btn btn-success">
-                Go to login
-              </a>
-            </div>
-            <a
-              className="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="close"
-            ></a>
-          </div>
+            </AlertDescription>
+            <Button variant="outline" className="mt-2" asChild>
+              <Link href="/login">Go to login</Link>
+            </Button>
+          </Alert>
         )}
-        {state?.message && (
-          <div className="alert alert-danger alert-dismissible" role="alert">
-            <h3 className="mb-1">Could not reset</h3>
-            <p>{state.message}</p>
-            <a
-              className="btn-close"
-              data-bs-dismiss="alert"
-              aria-label="close"
-            ></a>
-          </div>
+
+        {state?.message && !state?.success && (
+          <Alert variant="destructive">
+            <ExclamationTriangleIcon className="h-4 w-4" />
+            <AlertTitle>Could not reset</AlertTitle>
+            <AlertDescription>{state.message}</AlertDescription>
+          </Alert>
         )}
-        <form
-          className="card card-md"
-          action={action}
-          autoComplete="off"
-          noValidate={true}
-        >
-          <div className="card-body">
-            <h2 className="h2 text-center mb-4">Forgot password</h2>
-            <p className="text-secondary mb-4">
+
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle>Forgot password</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
               Enter your email address and we will send you instructions to
               reset your password.
             </p>
-            <div className="mb-3">
-              <label className="form-label">Email address</label>
-              <input
-                type="email"
-                name="email"
-                className={`form-control ${
-                  state?.errors?.email && 'is-invalid'
-                }`}
-                placeholder="Enter email"
-              />
-              {state?.errors?.email && (
-                <div className="invalid-feedback">{state?.errors?.email}</div>
-              )}
-            </div>
-            <div className="form-footer">
-              <button
-                disabled={pending}
-                type="submit"
-                className={`btn btn-primary w-100 ${
-                  pending ? 'btn-loading disabled' : null
-                }`}
-              >
-                <IconMail /> Send me a new password
-              </button>
-            </div>
-          </div>
-        </form>
-        <div className="text-center text-secondary mt-3">
-          Never mind, <a href="/login">take me back</a> to the sign in screen.
-        </div>
+            <form
+              action={action}
+              autoComplete="off"
+              noValidate
+              className="space-y-2"
+            >
+              <div className="space-y-2 relative pb-5">
+                <Label htmlFor="email">Email address</Label>
+                <Input
+                  type="email"
+                  name="email"
+                  id="email"
+                  placeholder="Enter email"
+                  className={state?.errors?.email ? 'border-destructive' : ''}
+                />
+                {state?.errors?.email && (
+                  <p className="text-[12px] text-destructive absolute bottom-0 left-0">
+                    {state?.errors?.email}
+                  </p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={pending}>
+                <EnvelopeIcon className="h-4 w-4 mr-2" />
+                {pending ? 'Sending...' : 'Send me a new password'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Never mind,{' '}
+          <Link href="/login" className="text-foreground hover:underline">
+            take me back
+          </Link>{' '}
+          to the sign in screen.
+        </p>
       </div>
     </div>
   );

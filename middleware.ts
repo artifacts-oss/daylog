@@ -5,6 +5,24 @@ import { SECURITY_CONFIG } from '@/config/security';
 
 const PUBLIC_FILE = /^(?!\/\.(?!well-known\/)).*\.(.*)$/;
 
+const PUBLIC_PATHS = [
+  '/login',
+  '/login/reset',
+  '/register',
+  '/register/init',
+  '/register/terms',
+];
+
+function isPublicPath(pathname: string): boolean {
+  if (PUBLIC_PATHS.includes(pathname)) {
+    return true;
+  }
+  if (pathname.startsWith('/login/otp/')) {
+    return true;
+  }
+  return false;
+}
+
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
   
@@ -85,7 +103,31 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
     return NextResponse.next();
   }
 
-// Validate if admin user exists (for initial registration flow)
+  // Check authentication for protected routes
+  if (!isPublicPath(pathname)) {
+    const token = request.cookies.get('session')?.value;
+    const sessionResponse = await fetch(
+      `${request.nextUrl.origin}/api/v1/auth/session?token=${token || ''}`,
+      {
+        cache: 'no-store',
+      }
+    );
+    
+    let isLoggedIn = false;
+    if (sessionResponse.ok) {
+      const sessionData = await sessionResponse.json();
+      isLoggedIn = sessionData.user !== null;
+    }
+    
+    if (!isLoggedIn) {
+      return NextResponse.redirect(
+        new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, request.url)
+      );
+    }
+  }
+
+  // Validate if admin user exists (for initial registration flow)
+  // Only check if not on register/init page
   if (pathname !== '/register/init') {
     const adminResponse = await fetch(
       `${request.nextUrl.origin}/api/v1/auth/admin`,
@@ -118,48 +160,34 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
     }
   }
 
+  // Redirect logged-in users away from login page
   if (pathname === '/login') {
     const token = request.cookies.get('session')?.value;
+
+    if (!token || !token.trim() || token === 'undefined') {
+      return NextResponse.next();
+    }
+
     const sessionResponse = await fetch(
       `${request.nextUrl.origin}/api/v1/auth/session?token=${token}`,
       {
-        cache: 'force-cache',
+        cache: 'no-store',
       }
     );
     if (!sessionResponse.ok) {
       return NextResponse.next();
     }
-const sessionData = await sessionResponse.json();
+    const sessionData = await sessionResponse.json();
     const isLoggedIn = sessionData.user !== null;
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL('/', request.url));
+      const callbackUrl = request.nextUrl.searchParams.get('callbackUrl');
+      const redirectUrl = callbackUrl && callbackUrl.startsWith('/') ? callbackUrl : '/';
+      return NextResponse.redirect(new URL(redirectUrl, request.url));
     }
   }
 
-  // Handle home page - redirect if not logged in
-  if (pathname === '/') {
-    const token = request.cookies.get('session')?.value;
-    const sessionResponse = await fetch(
-      `${request.nextUrl.origin}/api/v1/auth/session?token=${token}`,
-      {
-        cache: 'force-cache',
-        // Revalidate user session cache every hour
-        next: { revalidate: 3600 },
-      }
-    );
-    if (!sessionResponse.ok) {
-      return NextResponse.next();
-    }
-const sessionData = await sessionResponse.json();
-    const isLoggedIn = sessionData.user !== null;
-    if (!isLoggedIn) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    return NextResponse.next();
-  }
-
-if (pathname === '/register') {
-    // Validate if user registration is allowed
+  // Handle registration page - check if registration is allowed
+  if (pathname === '/register') {
     const allowResponse = await fetch(
       `${request.nextUrl.origin}/api/v1/auth/register`
     );
@@ -169,7 +197,7 @@ if (pathname === '/register') {
     const allowData = await allowResponse.json();
     const allowRegistration = allowData.registration;
     if (!allowRegistration) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      return NextResponse.redirect(new URL(`/login?callbackUrl=${encodeURIComponent(pathname)}`, request.url));
     }
     return NextResponse.next();
   }

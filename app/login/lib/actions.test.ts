@@ -33,7 +33,7 @@ const mocks = vi.hoisted(() => ({
   }),
 }));
 
-vi.mock('@/app/admin/lib/actions', () => ({
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
   getSettings: mocks.getSettings,
 }));
 
@@ -223,7 +223,7 @@ describe('signin', () => {
     await signin({}, formData);
 
     expect(mocks.revalidatePath).toHaveBeenCalledWith('/login/otp/1');
-    expect(redirect).toHaveBeenCalledWith('/login/otp/1');
+    expect(redirect).toHaveBeenCalledWith('/login/otp/1?callbackUrl=%2F');
   });
 
   it('should redirect to / if signin is successful', async () => {

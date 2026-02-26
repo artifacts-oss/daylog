@@ -2,7 +2,7 @@
 
 import type { Session, User } from '@/prisma/generated/client';
 
-import { getSettings } from '@/app/admin/lib/actions';
+import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
 import { prisma } from '@/prisma/client';
 import { encodeBase32, encodeHex, verifyPassword } from '@/utils/crypto';
 import { randomDelay } from '@/utils/delay';
@@ -165,6 +165,7 @@ export async function signin(
   formData: FormData,
   request?: NextRequest,
 ) {
+  const callbackUrl = formData.get('callbackUrl')?.toString() || '/';
   const result = SigninFormSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
@@ -254,10 +255,10 @@ export async function signin(
 
   if (goMFA && userId !== null) {
     revalidatePath(`/login/otp/${userId}`);
-    redirect(`/login/otp/${userId}`);
+    redirect(`/login/otp/${userId}?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   } else {
     revalidatePath('/');
-    redirect('/');
+    redirect(callbackUrl);
   }
 }
 
@@ -356,7 +357,8 @@ export async function validateMFA(
   }
 
   revalidatePath('/');
-  redirect('/');
+  const callbackUrl = formData.get('callbackUrl')?.toString() || '/';
+  redirect(callbackUrl);
 }
 
 async function generateUserSession(record: {

@@ -1,6 +1,6 @@
 'use server';
 
-import { getSettings } from '@/app/admin/lib/actions';
+import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
 import { uploadFileS3 } from '@/app/api/v1/storage/lib/s3Storage';
 import { generateFileFromBase64, saveBase64File } from './storage';
 import { isBase64, isUrl } from './text';

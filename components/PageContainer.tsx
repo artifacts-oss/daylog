@@ -1,9 +1,9 @@
 import { PropsWithChildren } from 'react';
 import Template from './Template';
 
-export default async function PageContainer({ children }: PropsWithChildren) {
+export default function PageContainer({ children }: PropsWithChildren) {
   return (
-    <div className="page-wrapper">
+    <div className="flex-1 overflow-y-auto">
       <Template>{children}</Template>
     </div>
   );

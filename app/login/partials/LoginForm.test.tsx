@@ -55,7 +55,7 @@ describe('LoginForm', () => {
 
   it('renders the login form', () => {
     render(<LoginForm />);
-    expect(screen.getByText('Login to your account')).toBeInTheDocument();
+    expect(screen.getByText('Welcome back')).toBeInTheDocument();
   });
 
   it('displays an error message when state.message is present', () => {
@@ -83,13 +83,15 @@ describe('LoginForm', () => {
   it('disables the submit button when pending is true', () => {
     mocks.useActionState.mockReturnValue([mockState, vi.fn(), true]);
     render(<LoginForm />);
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
   });
 
   it('renders the registration link when allowReg is true', async () => {
     render(<LoginForm />);
     await waitFor(() => {
-      expect(screen.getByText("Don't have account yet?")).toBeInTheDocument();
+      expect(
+        screen.getByText("Don't have an account yet?"),
+      ).toBeInTheDocument();
       expect(screen.getByText('Sign up')).toBeInTheDocument();
     });
   });
@@ -100,16 +102,10 @@ describe('LoginForm', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText("Don't have account yet?")
+        screen.queryByText("Don't have an account yet?"),
       ).not.toBeInTheDocument();
       expect(screen.queryByText('Sign up')).not.toBeInTheDocument();
     });
-  });
-
-  it('removes modal backdrop on mount', () => {
-    document.body.innerHTML = '<div class="modal-backdrop"></div>';
-    render(<LoginForm />);
-    expect(document.getElementsByClassName('modal-backdrop').length).toBe(0);
   });
 
   it('submits the form with email and password', () => {

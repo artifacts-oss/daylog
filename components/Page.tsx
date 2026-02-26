@@ -1,5 +1,9 @@
 import { PropsWithChildren } from 'react';
 
-export default async function Page({ children }: PropsWithChildren) {
-  return <div className="page">{children}</div>;
+export default function Page({ children }: PropsWithChildren) {
+  return (
+    <div className="h-screen bg-background flex overflow-hidden">
+      {children}
+    </div>
+  );
 }
