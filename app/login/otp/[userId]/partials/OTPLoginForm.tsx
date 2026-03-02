@@ -32,9 +32,7 @@ export default function OTPLoginForm({ userId }: { userId: number }) {
             exit={{ opacity: 0, height: 0, y: -10 }}
           >
             <Alert
-              variant={
-                state.message.includes('locked') ? 'destructive' : 'destructive'
-              }
+              variant={'destructive'}
               className="glass-card border-destructive/50"
             >
               <ExclamationTriangleIcon className="h-4 w-4" />

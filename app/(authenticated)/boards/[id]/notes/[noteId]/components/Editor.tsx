@@ -394,6 +394,14 @@ const PicturePreview = ({
     <div className="relative aspect-square rounded-[12px] overflow-hidden cursor-pointer group border border-border bg-background shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-border transition-all duration-300">
       <div
         className="absolute top-1.5 right-1.5 z-10 bg-background border border-border text-muted-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-accent hover:text-foreground"
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onDelete();
+          }
+        }}
         onClick={(e) => {
           e.stopPropagation();
           onDelete();
@@ -405,6 +413,13 @@ const PicturePreview = ({
       <div
         data-testid={`picture-preview-${pictureId ?? 'default'}`}
         role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onClick();
+          }
+        }}
         onClick={onClick}
         className="w-full h-full p-1"
       >

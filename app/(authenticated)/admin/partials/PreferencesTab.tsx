@@ -48,6 +48,15 @@ function Switch({
         </div>
         <div
           className="relative inline-flex items-center cursor-pointer group"
+          role="switch"
+          aria-checked={checked}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onChange(!checked);
+            }
+          }}
           onClick={() => onChange(!checked)}
         >
           <input
