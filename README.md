@@ -28,6 +28,30 @@ If you want to use the stable version of daylog, you can find it [here](https://
 
 ![daylog_preview](resources/preview.webp)
 
+### Production Installation (Docker Compose)
+
+1. **Download docker-compose.yml file:**
+
+```bash
+wget https://github.com/artifacts-oss/daylog/releases/latest/download/docker-compose.yml
+```
+
+1. **Setup .env file:**
+
+Download the .env.example file and rename it to .env.
+
+```bash
+wget https://github.com/artifacts-oss/daylog/releases/latest/download/default.env.example -O .env
+```
+
+You can keep the default values or you can change them.
+
+1. **Run docker compose:**
+
+```bash
+docker compose up -d --build
+```
+
 ### Production Installation (Docker Hub)
 
 To install and run daylog in a production environment using docker, follow these steps:
@@ -38,7 +62,7 @@ To install and run daylog in a production environment using docker, follow these
 docker network create daylog-net
 ```
 
-2. **Run a postgres container:**
+1. **Run a postgres container:**
 
 ```bash
 docker run -d \
@@ -51,7 +75,7 @@ docker run -d \
 postgres:16
 ```
 
-3. **Run daylog container:**
+1. **Run daylog container:**
 
 ```bash
 docker run -d \
@@ -65,30 +89,6 @@ docker run -d \
  davidartifacts/daylog:latest
 ```
 
-### Production Installation (Docker Compose)
-
-1. **Download docker-compose.yml file:**
-
-```bash
-wget https://github.com/artifacts-oss/daylog/releases/latest/download/docker-compose.yml
-```
-
-2. **Setup .env file:**
-
-Download the .env.example file and rename it to .env.
-
-```bash
-wget https://github.com/artifacts-oss/daylog/releases/latest/download/default.env.example -O .env
-```
-
-You can keep the default values or you can change them.
-
-3. **Run docker compose:**
-
-```bash
-docker compose up -d --build
-```
-
 ### Production Installation (npm)
 
 To install and run daylog in a production environment, follow these steps:
@@ -100,35 +100,35 @@ git clone https://github.com/artifacts-oss/daylog.git
 cd daylog
 ```
 
-2. **Install dependencies:**
+1. **Install dependencies:**
 
 ```bash
 npm install
 ```
 
-3. **Set up environment variables:**
+1. **Set up environment variables:**
    Copy `.env.example` and setup your own variables. **Important:** by default daylog uses PostgreSQL, you can change your conection string to any other database engine supported by Prisma ORM. You can follow their [guide](https://www.prisma.io/docs/orm/reference/connection-urls) to achieve this step.
 
-4. **Initialize the Prisma database:**
+2. **Initialize the Prisma database:**
 
 ```bash
 npx prisma migrate deploy
 npx prisma generate
 ```
 
-6. **Build the application:**
+1. **Build the application:**
 
 ```bash
 npm run build
 ```
 
-7. **Start the application:**
+1. **Start the application:**
 
 ```bash
 npm start
 ```
 
-8. **(optional) Configure a process manager:**
+1. **(optional) Configure a process manager:**
    Use a process manager like PM2 to keep your application running:
 
 ```bash
@@ -138,10 +138,10 @@ pm2 save
 pm2 startup
 ```
 
-9. **Set up a reverse proxy:**
+1. **Set up a reverse proxy:**
    Configure a reverse proxy using Nginx or another web server to forward requests to your Node.js application.
 
-10. **Secure your application:**
+2. **Secure your application:**
     Ensure your application is served over HTTPS and configure appropriate security headers.
 
 Your daylog application should now be running in a production environment.
@@ -200,7 +200,7 @@ To set up a local development environment for daylog, you can follow the same st
 npx prisma deploy
 ```
 
-4. **Run the development server:**
+1. **Run the development server:**
 
 ```bash
 npm run dev
