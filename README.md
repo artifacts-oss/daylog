@@ -36,7 +36,7 @@ If you want to use the stable version of daylog, you can find it [here](https://
 wget https://github.com/artifacts-oss/daylog/releases/latest/download/docker-compose.yml
 ```
 
-1. **Setup .env file:**
+2. **Setup .env file:**
 
 Download the .env.example file and rename it to .env.
 
@@ -46,7 +46,7 @@ wget https://github.com/artifacts-oss/daylog/releases/latest/download/default.en
 
 You can keep the default values or you can change them.
 
-1. **Run docker compose:**
+3. **Run docker compose:**
 
 ```bash
 docker compose up -d --build
@@ -62,7 +62,7 @@ To install and run daylog in a production environment using docker, follow these
 docker network create daylog-net
 ```
 
-1. **Run a postgres container:**
+2. **Run a postgres container:**
 
 ```bash
 docker run -d \
@@ -75,7 +75,7 @@ docker run -d \
 postgres:16
 ```
 
-1. **Run daylog container:**
+3. **Run daylog container:**
 
 ```bash
 docker run -d \
@@ -100,35 +100,35 @@ git clone https://github.com/artifacts-oss/daylog.git
 cd daylog
 ```
 
-1. **Install dependencies:**
+2. **Install dependencies:**
 
 ```bash
 npm install
 ```
 
-1. **Set up environment variables:**
+3. **Set up environment variables:**
    Copy `.env.example` and setup your own variables. **Important:** by default daylog uses PostgreSQL, you can change your conection string to any other database engine supported by Prisma ORM. You can follow their [guide](https://www.prisma.io/docs/orm/reference/connection-urls) to achieve this step.
 
-2. **Initialize the Prisma database:**
+4. **Initialize the Prisma database:**
 
 ```bash
 npx prisma migrate deploy
 npx prisma generate
 ```
 
-1. **Build the application:**
+5. **Build the application:**
 
 ```bash
 npm run build
 ```
 
-1. **Start the application:**
+6. **Start the application:**
 
 ```bash
 npm start
 ```
 
-1. **(optional) Configure a process manager:**
+7. **(optional) Configure a process manager:**
    Use a process manager like PM2 to keep your application running:
 
 ```bash
@@ -138,10 +138,10 @@ pm2 save
 pm2 startup
 ```
 
-1. **Set up a reverse proxy:**
+8. **Set up a reverse proxy:**
    Configure a reverse proxy using Nginx or another web server to forward requests to your Node.js application.
 
-2. **Secure your application:**
+9. **Secure your application:**
     Ensure your application is served over HTTPS and configure appropriate security headers.
 
 Your daylog application should now be running in a production environment.
