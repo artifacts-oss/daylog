@@ -25,6 +25,9 @@ function isPublicPath(pathname: string): boolean {
 
 export async function middleware(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
+
+  // Use internal URL for server-side fetches to avoid SSL errors behind a reverse proxy
+  const internalUrl = process.env.INTERNAL_APP_URL ?? request.nextUrl.origin;
   
   // Apply rate limiting to all requests
   const ip = getClientIP(request);
@@ -107,7 +110,7 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
   if (!isPublicPath(pathname)) {
     const token = request.cookies.get('session')?.value;
     const sessionResponse = await fetch(
-      `${request.nextUrl.origin}/api/v1/auth/session?token=${token || ''}`,
+      `${internalUrl}/api/v1/auth/session?token=${token || ''}`,
       {
         cache: 'no-store',
       }
@@ -130,7 +133,7 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
   // Only check if not on register/init page
   if (pathname !== '/register/init') {
     const adminResponse = await fetch(
-      `${request.nextUrl.origin}/api/v1/auth/admin`,
+      `${internalUrl}/api/v1/auth/admin`,
       {
         cache: 'force-cache',
       }
@@ -145,7 +148,7 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
     }
   } else {
     const adminResponse = await fetch(
-      `${request.nextUrl.origin}/api/v1/auth/admin`,
+      `${internalUrl}/api/v1/auth/admin`,
       {
         cache: 'force-cache',
       }
@@ -169,7 +172,7 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
     }
 
     const sessionResponse = await fetch(
-      `${request.nextUrl.origin}/api/v1/auth/session?token=${token}`,
+      `${internalUrl}/api/v1/auth/session?token=${token}`,
       {
         cache: 'no-store',
       }
@@ -189,7 +192,7 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
   // Handle registration page - check if registration is allowed
   if (pathname === '/register') {
     const allowResponse = await fetch(
-      `${request.nextUrl.origin}/api/v1/auth/register`
+      `${internalUrl}/api/v1/auth/register`
     );
     if (!allowResponse.ok) {
       return NextResponse.next();
