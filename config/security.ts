@@ -66,7 +66,7 @@ export const SECURITY_CONFIG = {
   CORS: {
     ALLOWED_ORIGINS: [
       process.env.NODE_ENV === 'production'
-        ? process.env.ALLOWED_ORIGIN || process.env.NEXT_PUBLIC_APP_URL
+        ? process.env.NEXT_PUBLIC_APP_URL
         : 'http://localhost:3000',
     ].filter(Boolean),
     ALLOWED_METHODS: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
