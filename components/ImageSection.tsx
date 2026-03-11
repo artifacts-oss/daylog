@@ -11,7 +11,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import { cn } from '@/lib/utils';
 
@@ -43,6 +43,7 @@ export default function ImageSection({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [isUnsplashMode, setIsUnsplashMode] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Unsplash States
   const [images, setImages] = useState<UnsplashImage[]>([]);
@@ -53,6 +54,12 @@ export default function ImageSection({
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(
     null,
   );
+
+  useEffect(() => {
+    if (isDeleting && !currentImageUrl && !previewUrl) {
+      setIsDeleting(false);
+    }
+  }, [currentImageUrl, previewUrl, isDeleting]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,6 +136,19 @@ export default function ImageSection({
     }
   };
 
+      const handleDeleteImage = async () => {
+    if (!onDeleteImage) return;
+    setIsDeleting(true);
+    try {
+      await onDeleteImage();
+      setPreviewUrl(null);
+      setSelectedFileName(null);
+    } catch (error) {
+      console.error('Delete image error:', error);
+      setIsDeleting(false);
+    }
+  };
+
   const displayUrl =
     previewUrl || (currentImageUrl ? getImageUrlOrFile(currentImageUrl) : null);
 
@@ -159,11 +179,35 @@ export default function ImageSection({
                 type="button"
                 variant="ghost"
                 size="sm"
+                disabled={isDeleting}
                 className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10 text-[11px] font-bold uppercase tracking-wider"
-                onClick={onDeleteImage}
+                onClick={handleDeleteImage}
               >
-                <TrashIcon className="h-3.5 w-3.5 mr-1" />
-                Remove Current
+                {isDeleting ? (
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-3.5 w-3.5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                ) : (
+                  <TrashIcon className="h-3.5 w-3.5 mr-1" />
+                )}
+                {isDeleting ? 'Removing...' : 'Remove Current'}
               </Button>
             )}
         </div>
@@ -177,7 +221,11 @@ export default function ImageSection({
             : 'min-h-[240px] sm:min-h-[auto] sm:aspect-[21/9]',
         )}
       >
-        {isUnsplashMode ? (
+        {isDeleting ? (
+          <div className="flex h-full items-center justify-center py-12">
+            <Loader caption="Removing image..." />
+          </div>
+        ) : isUnsplashMode ? (
           <div className="absolute inset-0 p-4 flex flex-col gap-4 overflow-hidden">
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/70" />

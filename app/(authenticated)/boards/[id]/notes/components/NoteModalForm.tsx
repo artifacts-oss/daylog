@@ -185,6 +185,7 @@ export default function NoteModalForm({
               note?.id && note.imageUrl
                 ? async () => {
                     await deleteImage(note.id, note.imageUrl);
+                    router.refresh();
                   }
                 : undefined
             }

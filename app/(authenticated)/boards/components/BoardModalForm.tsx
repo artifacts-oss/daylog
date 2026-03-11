@@ -179,6 +179,7 @@ export default function BoardModalForm({
               board?.id && board.imageUrl
                 ? async () => {
                     await deleteImage(board.id, board.imageUrl);
+                    router.refresh();
                   }
                 : undefined
             }
