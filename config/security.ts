@@ -16,7 +16,7 @@ export const SECURITY_CONFIG = {
     RENEWAL_THRESHOLD_DAYS: 6.5,
     COOKIE_SECURE: process.env.NODE_ENV === 'production',
     COOKIE_HTTP_ONLY: true,
-    COOKIE_SAME_SITE: 'strict' as const,
+    COOKIE_SAME_SITE: 'lax' as const, // seted in lax to better experience in PWA daylog mode
   },
 
   // Rate limiting
