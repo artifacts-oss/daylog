@@ -14,6 +14,58 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+
+      - name: Update package version from release tag
+        run: |
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+
+          npm version "$RELEASE_VERSION" --no-git-tag-version
+          echo "✅ package.json version updated to $RELEASE_VERSION"
+
+      - name: Commit and push package version update
+        run: |
+          if git diff --quiet package.json package-lock.json; then
+            echo "No package version changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add package.json package-lock.json
+          git commit -m "chore(release): sync package version to ${{ github.event.release.tag_name }}"
+          git push origin HEAD:main
+
+      - name: Dump release version and commit
+        id: release_info
+        run: |
+          RELEASE_TAG="${{ github.event.release.tag_name }}"
+          RELEASE_COMMIT="${{ github.event.release.target_commitish }}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+
+          {
+            echo "release_tag=$RELEASE_TAG"
+            echo "release_commit=$RELEASE_COMMIT"
+            echo "package_version=$PACKAGE_VERSION"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Release Build Context"
+            echo "- Release tag: \`$RELEASE_TAG\`"
+            echo "- Target commitish: \`$RELEASE_COMMIT\`"
+            echo "- package.json version: \`$PACKAGE_VERSION\`"
+            echo "- Workflow SHA: \`${GITHUB_SHA}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          cat <<EOF > release-metadata.txt
+          release_tag=$RELEASE_TAG
+          release_commit=$RELEASE_COMMIT
+          package_version=$PACKAGE_VERSION
+          workflow_sha=$GITHUB_SHA
+          EOF
 
       - name: Login to Docker Hub
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef
@@ -53,3 +105,4 @@ jobs:
           files: |
             docker-compose.yml
             .env.example
+            release-metadata.txt
