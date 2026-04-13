@@ -13,6 +13,7 @@ import { getNotes, getNotesCount } from './lib/actions';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getImageUrlOrFile } from '@/utils/image';
+import ShareDialog from '@/components/ShareDialog';
 
 export default async function Notes({
   params,
@@ -66,6 +67,7 @@ export default async function Notes({
         breadcrumbs={breadcrumbs}
       >
         <div className="flex items-center gap-3">
+          <ShareDialog entityType="BOARD" entityId={boardId} />
           <NoteSortSelector sortingParam={currentSort} boardId={boardId} />
           <NoteModalForm
             boardId={boardId}

@@ -104,3 +104,29 @@ model ChangeComment {
   content   String
   createdAt DateTime   @default(now())
 }
+
+model Share {
+  id          String    @id @default(cuid())
+  entityType  String    // "BOARD" or "NOTE"
+  entityId    Int
+  password    String?   // Hashed password
+  expiresAt   DateTime?
+  oneTime     Boolean   @default(false)
+  viewCount   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  views       ShareView[]
+
+  @@index([entityId, entityType])
+}
+
+model ShareView {
+  id        Int      @id @default(autoincrement())
+  shareId   String
+  share     Share    @relation(fields: [shareId], references: [id], onDelete: Cascade)
+  viewerId  String   // Hashed IP + UA for unique tracking
+  createdAt DateTime @default(now())
+
+  @@index([shareId])
+  @@index([viewerId])
+}

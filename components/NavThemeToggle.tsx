@@ -20,6 +20,7 @@ const NavThemeToggle = () => {
       variant="ghost"
       size="icon"
       onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      className="rounded-full"
     >
       {theme === 'light' ? (
         <MoonIcon className="h-5 w-5" />
