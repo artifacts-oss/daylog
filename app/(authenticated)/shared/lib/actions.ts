@@ -2,11 +2,11 @@
 
 import { getCurrentSession } from '@/app/login/lib/actions';
 import { prisma } from '@/prisma/client';
-import { Share } from '@/prisma/generated/client';
 import { revalidatePath } from 'next/cache';
 import { hashPassword } from '@/utils/crypto';
 import { createHash } from 'crypto';
 import { headers } from 'next/headers';
+import { SharedContent } from './types';
 
 export async function createShare(data: {
   entityType: string;
@@ -41,10 +41,19 @@ export async function createShare(data: {
       expiresAt: data.expiresAt,
       oneTime: data.oneTime || false,
     },
+    select: {
+      id: true,
+      entityType: true,
+      entityId: true,
+      expiresAt: true,
+      oneTime: true,
+      createdAt: true,
+      updatedAt: true,
+    }
   });
 
   revalidatePath('/shared');
-  return share;
+  return { ...share, hasPassword: !!hashedPassword };
 }
 
 export async function deleteShare(id: string) {
@@ -83,7 +92,7 @@ export async function deleteShare(id: string) {
   revalidatePath('/shared');
 }
 
-export async function getSharesWithMetrics() {
+export async function getSharesWithMetrics(): Promise<SharedContent[]> {
   const { user } = await getCurrentSession();
   if (!user) return [];
 
@@ -107,7 +116,16 @@ export async function getSharesWithMetrics() {
         { entityType: 'BOARD', entityId: { in: boardIds } }
       ]
     },
-    include: {
+    select: {
+      id: true,
+      entityType: true,
+      entityId: true,
+      password: true, // We will map this to hasPassword
+      expiresAt: true,
+      oneTime: true,
+      viewCount: true,
+      createdAt: true,
+      updatedAt: true,
       views: true,
     },
     orderBy: { createdAt: 'desc' }
@@ -117,10 +135,10 @@ export async function getSharesWithMetrics() {
   const enrichedShares = await Promise.all(shares.map(async (share) => {
     let title = 'Unknown';
     if (share.entityType === 'NOTE') {
-       const note = await prisma.note.findUnique({ where: { id: share.entityId }});
+       const note = await prisma.note.findUnique({ where: { id: share.entityId }, select: { title: true }});
        title = note?.title || 'Note not found';
     } else {
-       const board = await prisma.board.findUnique({ where: { id: share.entityId }});
+       const board = await prisma.board.findUnique({ where: { id: share.entityId }, select: { title: true }});
        title = board?.title || 'Board not found';
     }
 
@@ -132,8 +150,12 @@ export async function getSharesWithMetrics() {
     const monthlyViews = share.views.filter(v => v.createdAt >= oneMonthAgo).length;
     const totalViews = share.views.length;
 
+    // Map sensitive data out
+    const { password, ...safeShare } = share;
+
     return {
-      ...share,
+      ...safeShare,
+      hasPassword: !!password,
       title,
       metrics: {
         weekly: weeklyViews,
@@ -152,8 +174,9 @@ export async function trackView(shareId: string) {
   const forwarded = h.get('x-forwarded-for');
   const ip = forwarded ? forwarded.split(',')[0] : '127.0.0.1';
 
+  const salt = process.env.TRACKING_SALT || 'daylog-salt-fallback';
   const viewerId = createHash('sha256')
-    .update(`${ip}-${userAgent}-daylog-salt`)
+    .update(`${ip}-${userAgent}-${salt}`)
     .digest('hex');
 
   const existing = await prisma.shareView.findFirst({

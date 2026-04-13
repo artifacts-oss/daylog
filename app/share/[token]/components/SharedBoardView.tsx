@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import NavThemeToggle from '@/components/NavThemeToggle';
@@ -12,14 +12,29 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
+interface SharedNote {
+  id: number;
+  title: string;
+  content: string | null;
+  imageUrl: string | null;
+  createdAt: string;
+}
+
 interface SharedBoardViewProps {
-  board: any;
+  board: {
+    title: string;
+    description: string | null;
+    imageUrl: string | null;
+    user: { name: string | null } | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    notes: (SharedNote & { pictures?: any[] })[];
+  };
   token: string;
 }
 
 export default function SharedBoardView({ board, token }: SharedBoardViewProps) {
   const { theme } = useTheme();
-  const [selectedNote, setSelectedNote] = useState<any | null>(null);
+  const [selectedNote, setSelectedNote] = useState<SharedNote | null>(null);
 
   const getSharedImageUrl = (originalPath: string | null) => {
     if (!originalPath) return '';
@@ -96,7 +111,7 @@ export default function SharedBoardView({ board, token }: SharedBoardViewProps) 
       {/* Masonry Content */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16">
         <div className="masonry-container gap-6">
-          {board.notes.map((note: any) => (
+          {board.notes.map((note) => (
             <div key={note.id} className="masonry-item mb-6 group cursor-pointer" onClick={() => setSelectedNote(note)}>
               <div className="relative flex flex-col rounded-[24px] border border-border bg-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden shadow-sm">
                 {note.imageUrl && (

@@ -6,7 +6,17 @@ import NavThemeToggle from '@/components/NavThemeToggle';
 import MDEditor from '@uiw/react-md-editor';
 
 interface SharedNoteViewProps {
-  note: any;
+  note: {
+    title: string;
+    content: string | null;
+    imageUrl: string | null;
+    createdAt: string;
+    boards: {
+      user: {
+        name: string | null;
+      } | null;
+    } | null;
+  };
   token: string;
 }
 

@@ -1,9 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { prismaMock } from '@/prisma/singleton';
 import { describe, expect, it, vi } from 'vitest';
 import { createShare, deleteShare, updateSharePassword, trackView } from './actions';
-import { hashPassword } from '@/utils/crypto';
 import { revalidatePath } from 'next/cache';
-import { headers } from 'next/headers';
 
 const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
@@ -52,9 +51,11 @@ describe('Share Actions', () => {
           entityId: 101,
           password: 'hashed-pw',
         }),
+        select: expect.any(Object),
       });
       expect(revalidatePath).toHaveBeenCalledWith('/shared');
       expect(result.id).toBe('share-1');
+      expect(result.hasPassword).toBe(true);
     });
 
     it('should fail if user is not logged in', async () => {
@@ -163,6 +164,34 @@ describe('Share Actions', () => {
 
       expect(prismaMock.shareView.create).not.toHaveBeenCalled();
       expect(prismaMock.share.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getSharesWithMetrics', () => {
+    it('should return sanitized shares with flags instead of passwords', async () => {
+      mocks.getCurrentSession.mockResolvedValue({ user: mockUser });
+      prismaMock.note.findMany.mockResolvedValue([{ id: 101 }] as any);
+      prismaMock.board.findMany.mockResolvedValue([]);
+      
+      const mockShare = {
+        id: 's1',
+        entityType: 'NOTE',
+        entityId: 101,
+        password: 'hashed-password',
+        views: [],
+        createdAt: new Date()
+      };
+      
+      prismaMock.share.findMany.mockResolvedValue([mockShare] as any);
+      prismaMock.note.findUnique.mockResolvedValue({ title: 'Test Note' } as any);
+
+      const { getSharesWithMetrics } = await import('./actions');
+      const results = await getSharesWithMetrics();
+
+      expect(results).toHaveLength(1);
+      expect(results[0].title).toBe('Test Note');
+      expect(results[0].hasPassword).toBe(true);
+      expect((results[0] as unknown as { password?: string }).password).toBeUndefined();
     });
   });
 });

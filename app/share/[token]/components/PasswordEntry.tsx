@@ -6,13 +6,37 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 
-export default function PasswordEntry({ token, error }: { token: string, error?: string | null }) {
+export default function PasswordEntry({
+  token,
+  error,
+}: {
+  token: string;
+  error?: string | null;
+}) {
   const router = useRouter();
   const [password, setPassword] = useState('');
+  const [isPending, setIsPending] = useState(false);
+  const [localError, setLocalError] = useState(error);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(`/share/${token}?pw=${encodeURIComponent(password)}`);
+    setIsPending(true);
+    setLocalError(null);
+
+    try {
+      const { verifySharePassword } = await import('../lib/actions');
+      const result = await verifySharePassword(token, password);
+
+      if (result.success) {
+        router.refresh(); // This will re-render the page and check the cookie
+      } else {
+        setLocalError(result.error);
+      }
+    } catch {
+      setLocalError('An error occurred. Please try again.');
+    } finally {
+      setIsPending(false);
+    }
   };
 
   return (
@@ -23,8 +47,12 @@ export default function PasswordEntry({ token, error }: { token: string, error?:
             <LockClosedIcon className="h-8 w-8 text-primary" />
           </div>
           <div className="space-y-1">
-            <h1 className="text-2xl font-black tracking-tight text-foreground">Protected Content</h1>
-            <p className="text-sm text-muted-foreground font-medium">This share is password protected</p>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">
+              Protected Content
+            </h1>
+            <p className="text-sm text-muted-foreground font-medium">
+              This share is password protected
+            </p>
           </div>
         </div>
 
@@ -37,19 +65,28 @@ export default function PasswordEntry({ token, error }: { token: string, error?:
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 rounded-xl border-border bg-background px-4 focus:ring-2 focus:ring-primary/20"
               autoFocus
+              disabled={isPending}
             />
-            {error && <p className="text-[12px] font-bold text-rose-600 dark:text-rose-400 px-1 tracking-tight">{error}</p>}
+            {localError && (
+              <p className="text-[12px] font-bold text-rose-600 dark:text-rose-400 px-1 tracking-tight">
+                {localError}
+              </p>
+            )}
           </div>
-          <Button type="submit" className="w-full h-12 rounded-xl font-bold tracking-tight bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg shadow-primary/20">
-            View Content
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="w-full h-12 rounded-xl font-bold tracking-tight bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+          >
+            {isPending ? 'Verifying...' : 'View Content'}
           </Button>
         </form>
       </div>
       <div className="mt-8 text-[10px] font-black tracking-[0.2em] flex items-center gap-2 opacity-40">
         <span className="uppercase">POWERED BY</span>
-        <a 
-          href="https://github.com/artifacts-oss/daylog" 
-          target="_blank" 
+        <a
+          href="https://github.com/artifacts-oss/daylog"
+          target="_blank"
           rel="noopener noreferrer"
           className="hover:text-primary transition-colors lowercase"
         >
