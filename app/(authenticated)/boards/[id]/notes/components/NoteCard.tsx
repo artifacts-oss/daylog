@@ -11,6 +11,9 @@ import NoteModalForm from './NoteModalForm';
 import { NoteWithBoards } from '../lib/types';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import ShareDialog from '@/components/ShareDialog';
+import { ShareIcon } from '@heroicons/react/24/outline';
+import { Button } from '@/components/ui/button';
 
 interface NoteCardProps {
   note: NoteWithBoards;
@@ -78,6 +81,15 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
               modalId={`edit-note-modal-${note.id}`}
               mode="update"
               isUnsplashAllowed={settings?.allowUnsplash}
+            />
+            <ShareDialog 
+              entityType="NOTE" 
+              entityId={note.id} 
+              trigger={
+                <Button variant="ghost" size="icon" className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/5 rounded-full transition-all">
+                  <ShareIcon className="h-4 w-4" />
+                </Button>
+              }
             />
             <NoteModalDelete note={note} />
             <NoteFavoriteButton note={note} />

@@ -285,6 +285,13 @@ body .wmde-markdown li {
   display: list-item !important;
 }
 
+body .wmde-markdown img {
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 @utility masonry-container {
   column-count: 1;
   column-gap: 8px;

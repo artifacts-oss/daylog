@@ -8,6 +8,9 @@ import TimeDiff from '@/components/TimeDiff';
 import BoardFavoriteButton from './BoardFavoriteButton';
 import BoardModalDelete from './BoardModalDelete';
 import BoardModalForm from './BoardModalForm';
+import ShareDialog from '@/components/ShareDialog';
+import { ShareIcon } from '@heroicons/react/24/outline';
+import { Button } from '@/components/ui/button';
 
 export type BoardCardType = {
   boardId: number;
@@ -71,6 +74,15 @@ export default async function BoardCard({ boardId }: BoardCardType) {
                 modalId={`edit-board-modal-${board.id}`}
                 mode="update"
                 isUnsplashAllowed={settings?.allowUnsplash}
+              />
+              <ShareDialog 
+                entityType="BOARD" 
+                entityId={board.id} 
+                trigger={
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-white hover:text-white hover:bg-white/10 transition-all">
+                    <ShareIcon className="h-4 w-4" />
+                  </Button>
+                }
               />
               <BoardModalDelete board={board} />
               <BoardFavoriteButton board={board} />

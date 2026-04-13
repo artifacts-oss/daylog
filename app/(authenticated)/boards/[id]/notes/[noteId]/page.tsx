@@ -7,6 +7,7 @@ import PageHeader from '@/components/PageHeader';
 import { getNote } from '../lib/actions';
 import Editor from './components/Editor';
 import { getImageUrlOrFile } from '@/utils/image';
+import ShareDialog from '@/components/ShareDialog';
 
 export default async function NotePage({
   params,
@@ -55,7 +56,9 @@ export default async function NotePage({
             : undefined
         }
         breadcrumbs={breadcrumbs}
-      />
+      >
+        <ShareDialog entityType="NOTE" entityId={note.id} />
+      </PageHeader>
       <PageBody>
         {note && (
           <Editor

@@ -17,7 +17,11 @@ function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) {
     return true;
   }
-  if (pathname.startsWith('/login/otp/')) {
+  if (
+    pathname.startsWith('/login/otp/') || 
+    pathname.startsWith('/share/') || 
+    pathname.startsWith('/api/v1/share/')
+  ) {
     return true;
   }
   return false;

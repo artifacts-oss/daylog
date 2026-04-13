@@ -6,6 +6,7 @@ import {
   Squares2X2Icon,
   UserIcon,
   ShieldCheckIcon,
+  ShareIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -18,7 +19,7 @@ interface NavBarProps {
 }
 
 export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
-  const path = usePathname();
+  const path = usePathname() || '/';
   const adminPattern = /^\/admin\/?$/;
   const homePattern = /^\/$/;
   const profilePattern = /^\/profile\/[a-zA-Z0-9_-]+\/?$/;
@@ -43,6 +44,12 @@ export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
       href: `/profile/${user?.id}`,
       icon: UserIcon,
       active: profilePattern.test(path),
+    },
+    {
+      name: 'Shared',
+      href: '/shared',
+      icon: ShareIcon,
+      active: path.startsWith('/shared'),
     },
   ];
 
