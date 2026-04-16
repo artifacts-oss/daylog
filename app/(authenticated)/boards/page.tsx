@@ -48,7 +48,7 @@ export default async function Boards({
         } so far. Manage and organize your ideas here.`}
         breadcrumbs={breadcrumbs}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 w-full">
           <BoardSortSelector sortingParam={currentSort} />
           <BoardModalForm
             mode="create"
@@ -58,10 +58,11 @@ export default async function Boards({
             trigger={
               <Button
                 id="new-board-button"
-                className="rounded-xl px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-primary-foreground"
+                className="flex-1 sm:flex-none sm:w-auto rounded-xl px-3 sm:px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-primary-foreground shrink-0"
               >
                 <PlusIcon className="h-5 w-5" />
-                <span>New Board</span>
+                <span className="hidden sm:inline">New Board</span>
+                <span className="sm:hidden">New</span>
                 <div className="hidden lg:flex items-center gap-1 ml-2 opacity-50 text-[10px] font-bold uppercase tracking-widest">
                   <kbd className="min-w-[2rem] h-5 inline-flex items-center justify-center px-1 bg-background/20 rounded tracking-normal leading-none">
                     Alt

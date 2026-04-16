@@ -47,14 +47,13 @@ export default function BoardSortSelector({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
           className={cn(
-            'rounded-xl px-4 gap-2 bg-background/50 backdrop-blur-sm border-primary/5 hover:border-primary/20 transition-all',
+            'h-12 w-12 sm:w-auto rounded-xl px-0 sm:px-4 gap-2 bg-background/50 backdrop-blur-sm border-border hover:bg-muted transition-all shrink-0 font-bold text-[10px] uppercase tracking-widest shadow-sm',
             isPending && 'animate-pulse',
           )}
         >
-          <ArrowsUpDownIcon className="h-4 w-4 text-muted-foreground" />
-          <span className="text-xs font-bold uppercase tracking-widest">
+          <ArrowsUpDownIcon className="h-4 w-4 text-foreground/70 shrink-0" />
+          <span className="hidden sm:inline">
             {currentLabel}
           </span>
         </Button>

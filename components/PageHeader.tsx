@@ -39,32 +39,32 @@ export default function PageHeader({
         </div>
       )}
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-10">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="flex flex-col md:flex-row md:items-end md:justify-between gap-6"
         >
-          <div className="flex-1 space-y-4">
+          <div className="flex-1 space-y-4 min-w-0">
             {props.breadcrumbs && (
               <Breadcrumb>
-                <BreadcrumbList className="text-[12px] font-[600] uppercase tracking-wider text-muted-foreground">
+                <BreadcrumbList className="flex-wrap text-[12px] font-[600] uppercase tracking-wider text-muted-foreground">
                   {props.breadcrumbs.map((item, index, arr) => (
                     <React.Fragment key={index}>
-                      <BreadcrumbItem>
+                      <BreadcrumbItem className="min-w-0">
                         {index < arr.length - 1 ? (
                           <BreadcrumbLink
                             asChild
-                            className="hover:text-foreground transition-colors"
+                            className="hover:text-foreground transition-colors overflow-hidden text-ellipsis"
                           >
                             <Link href={item.href}>
-                              {truncateWord(item.name, 30)}
+                              {truncateWord(item.name, 20)}
                             </Link>
                           </BreadcrumbLink>
                         ) : (
-                          <BreadcrumbPage className="text-foreground/80">
-                            {truncateWord(item.name, 30)}
+                          <BreadcrumbPage className="text-foreground/80 overflow-hidden text-ellipsis">
+                            {truncateWord(item.name, 20)}
                           </BreadcrumbPage>
                         )}
                       </BreadcrumbItem>
@@ -77,7 +77,7 @@ export default function PageHeader({
 
             <div className="space-y-2">
               <h1
-                className="text-[42px] font-[800] tracking-tight text-foreground leading-[0.95]"
+                className="text-3xl md:text-4xl lg:text-[42px] font-[800] tracking-tight text-foreground leading-[0.95] break-words"
                 title={props.title ?? ''}
               >
                 {props.title ? (
@@ -89,7 +89,7 @@ export default function PageHeader({
                 )}
               </h1>
               {props.description && (
-                <p className="text-[16px] text-foreground/80 max-w-2xl font-[450] leading-relaxed">
+                <p className="text-sm md:text-[16px] text-foreground/80 max-w-2xl font-[450] leading-relaxed">
                   {props.description}
                 </p>
               )}
@@ -101,7 +101,7 @@ export default function PageHeader({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.4 }}
-              className="flex items-center gap-3 bg-muted/50 p-1.5 rounded-[20px] border border-border backdrop-blur-sm"
+              className="flex items-center gap-1.5 sm:gap-3 bg-muted/50 p-1.5 rounded-[20px] border border-border backdrop-blur-sm self-start md:self-end w-full md:w-auto overflow-hidden"
             >
               {props.children}
             </motion.div>

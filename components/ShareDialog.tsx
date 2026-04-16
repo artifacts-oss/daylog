@@ -75,9 +75,9 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
     }}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="outline" size="sm" className="h-9 rounded-xl gap-2 font-bold text-[10px] uppercase tracking-widest border-border shadow-sm hover:bg-muted transition-all">
-            <ShareIcon className="h-3.5 w-3.5" />
-            Share
+          <Button variant="outline" className="h-12 w-12 sm:w-auto px-0 sm:px-4 rounded-xl gap-2 bg-background/50 backdrop-blur-sm border-border hover:bg-muted transition-all shrink-0 font-bold text-[10px] uppercase tracking-widest shadow-sm">
+            <ShareIcon className="h-4 w-4 text-foreground/70 shrink-0" />
+            <span className="hidden sm:block">Share</span>
           </Button>
         )}
       </DialogTrigger>
