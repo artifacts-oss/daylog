@@ -112,7 +112,19 @@ export default function SharedBoardView({ board, token }: SharedBoardViewProps) 
       <div className="max-w-7xl mx-auto px-6 md:px-12 pt-16">
         <div className="masonry-container gap-6">
           {board.notes.map((note) => (
-            <div key={note.id} className="masonry-item mb-6 group cursor-pointer" onClick={() => setSelectedNote(note)}>
+            <div 
+              key={note.id} 
+              className="masonry-item mb-6 group cursor-pointer" 
+              onClick={() => setSelectedNote(note)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  setSelectedNote(note);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+            >
               <div className="relative flex flex-col rounded-[24px] border border-border bg-card hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 overflow-hidden shadow-sm">
                 {note.imageUrl && (
                   <div className="relative aspect-video overflow-hidden">
