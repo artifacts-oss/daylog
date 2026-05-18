@@ -13,28 +13,30 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 type ProfileInfoType = {
   profile: User;
 };
 
 export default function ProfileInfo({ profile }: ProfileInfoType) {
+  const t = useTranslations('ProfileInfo');
   const [state, action, pending] = useActionState(updateProfile, undefined);
 
   return (
     <form action={action}>
       <Card>
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Update your account&apos;s profile information and email address.
+            {t('description')}
           </p>
         </CardHeader>
         <CardContent className="space-y-2">
           <input type="hidden" name="id" value={profile.id ?? 0} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <div className="space-y-2 relative pb-5">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('nameLabel')}</Label>
               <Input
                 id="name"
                 type="text"
@@ -44,7 +46,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
                     ? state.data.name
                     : (profile.name ?? '')
                 }
-                placeholder="Enter your nickname, name or fullname"
+                placeholder={t('namePlaceholder')}
               />
               {state?.errors?.name && (
                 <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
@@ -53,7 +55,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
               )}
             </div>
             <div className="space-y-2 relative pb-5">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email">{t('emailLabel')}</Label>
               <Input
                 id="email"
                 type="email"
@@ -63,7 +65,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
                     ? state.data.email
                     : (profile.email ?? '')
                 }
-                placeholder="Enter your email for password recovery"
+                placeholder={t('emailPlaceholder')}
               />
               {state?.errors?.email && (
                 <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
@@ -88,7 +90,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
           )}
           <Button type="submit" disabled={pending}>
             <CloudArrowDownIcon className="h-4 w-4 mr-2" />
-            {pending ? 'Saving...' : 'Save Changes'}
+            {pending ? t('saving') : t('saveChanges')}
           </Button>
         </CardContent>
       </Card>

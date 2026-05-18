@@ -1,3 +1,5 @@
+import '@/utils/test/commonMocks';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Profile from './page';
@@ -23,6 +25,30 @@ vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
 
 vi.mock('next/navigation', () => ({
   redirect: mocks.redirect,
+}));
+
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async (namespace: string) => {
+    if (namespace === 'Navigation') {
+      return (key: string) => {
+        if (key === 'home') return 'Home';
+        return key;
+      };
+    }
+
+    return (key: string) => {
+      if (key === 'notFound') return 'No profile page found';
+      if (key === 'title') return 'User data';
+      if (key === 'description') return 'Manage your profile and backup your data';
+      if (key === 'adminNoticeTitle') return 'Admin Notice';
+      if (key === 'adminNoticeDescription') return 'You are impersonating this profile as an admin.';
+      if (key === 'actionRequiredTitle') return 'Action Required';
+      if (key === 'actionRequiredDescription') {
+        return '2FA Authentication is not enabled for this profile. It is recommended to enable it for security reasons.';
+      }
+      return key;
+    };
+  }),
 }));
 
 vi.mock('./partials/DangerZone');

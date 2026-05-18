@@ -44,7 +44,7 @@ describe('MultiFAAuth', () => {
   it('renders the configuration message', () => {
     render(<MultiFAAuth profile={profileWithMFA} />);
     expect(
-      screen.getByText('Configure your Account 2FA Authentication'),
+      screen.getByText('Configure your account 2FA authentication'),
     ).toBeDefined();
   });
 

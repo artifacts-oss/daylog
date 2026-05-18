@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { NoteWithBoards } from '../(authenticated)/boards/[id]/notes/lib/types';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 interface HomeTabsProps {
   boards: Board[];
@@ -38,6 +39,8 @@ export default function HomeTabs({
   notes,
   showFav = false,
 }: HomeTabsProps) {
+  const t = useTranslations('HomeTabs');
+
   return (
     <div className="space-y-12 py-4">
       {/* Boards Section */}
@@ -45,12 +48,12 @@ export default function HomeTabs({
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-2xl font-bold tracking-tight text-foreground">
-              Your Boards
+              {t('boardsTitle')}
             </h2>
             <p className="text-sm text-muted-foreground">
               {showFav
-                ? 'Personal favorites for quick access'
-                : 'Recently updated collections'}
+                ? t('boardsSubtitleFavorite')
+                : t('boardsSubtitleRecent')}
             </p>
           </div>
           <Button
@@ -59,7 +62,7 @@ export default function HomeTabs({
             asChild
             className="rounded-full px-4"
           >
-            <Link href="/boards">Explore All</Link>
+            <Link href="/boards">{t('exploreAll')}</Link>
           </Button>
         </div>
 
@@ -114,7 +117,7 @@ export default function HomeTabs({
                   <PlusIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
                 </div>
                 <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">
-                  Create Board
+                  {t('createBoard')}
                 </span>
               </div>
             </Link>
@@ -127,10 +130,10 @@ export default function HomeTabs({
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h2 className="text-2xl font-bold tracking-tight text-foreground">
-              Recent Notes
+              {t('notesTitle')}
             </h2>
             <p className="text-sm text-muted-foreground">
-              {showFav ? 'Your favorite notes' : 'Pick up where you left off'}
+              {showFav ? t('notesSubtitleFavorite') : t('notesSubtitleRecent')}
             </p>
           </div>
         </div>
@@ -216,6 +219,8 @@ export default function HomeTabs({
 }
 
 function EmptyNotes({ showFav }: { showFav: boolean }) {
+  const t = useTranslations('HomeTabs');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -225,14 +230,14 @@ function EmptyNotes({ showFav }: { showFav: boolean }) {
       <div className="p-4 rounded-full bg-background mb-4 shadow-sm">
         <FaceSmileIcon className="h-10 w-10 text-muted-foreground" />
       </div>
-      <h3 className="text-xl font-bold mb-2">No notes found</h3>
+      <h3 className="text-xl font-bold mb-2">{t('emptyTitle')}</h3>
       <p className="text-muted-foreground max-w-sm mx-auto mb-6">
         {showFav
-          ? "You haven't marked any notes as favorites yet. Star your important notes to see them here."
-          : 'Your workspace is quiet. Start capturing your thoughts by creating a new note in one of your boards.'}
+          ? t('emptyDescriptionFavorite')
+          : t('emptyDescriptionRecent')}
       </p>
       <Button asChild className="rounded-full px-8">
-        <Link href="/boards">Get Started</Link>
+        <Link href="/boards">{t('getStarted')}</Link>
       </Button>
     </motion.div>
   );

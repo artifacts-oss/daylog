@@ -18,6 +18,9 @@ services:
       - data:/var/lib/postgresql/data
 
   app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: davidartifacts/daylog:${TAG_NAME}
     container_name: daylog-app
     ports:

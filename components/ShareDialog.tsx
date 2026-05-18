@@ -20,6 +20,7 @@ import {
   ClipboardIcon
 } from '@heroicons/react/24/outline';
 import { createShare } from '@/app/(authenticated)/shared/lib/actions';
+import { useTranslations } from 'next-intl';
 
 interface ShareDialogProps {
   entityType: 'NOTE' | 'BOARD';
@@ -28,6 +29,7 @@ interface ShareDialogProps {
 }
 
 export default function ShareDialog({ entityType, entityId, trigger }: ShareDialogProps) {
+  const t = useTranslations('ShareDialog');
   const [isOpen, setIsOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
@@ -63,6 +65,9 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
     }
   };
 
+  const entityLabel =
+    entityType === 'NOTE' ? t('entities.note') : t('entities.board');
+
   return (
     <Dialog open={isOpen} onOpenChange={(val) => {
         setIsOpen(val);
@@ -77,7 +82,7 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
         {trigger || (
           <Button variant="outline" className="h-12 w-12 sm:w-auto px-0 sm:px-4 rounded-xl gap-2 bg-background/50 backdrop-blur-sm border-border hover:bg-muted transition-all shrink-0 font-bold text-[10px] uppercase tracking-widest shadow-sm">
             <ShareIcon className="h-4 w-4 text-foreground/70 shrink-0" />
-            <span className="hidden sm:block">Share</span>
+            <span className="hidden sm:block">{t('trigger')}</span>
           </Button>
         )}
       </DialogTrigger>
@@ -85,10 +90,10 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
         <div className="px-8 pt-8 pb-4">
             <DialogHeader>
                 <DialogTitle className="text-2xl font-black tracking-tight">
-                    Share {entityType === 'NOTE' ? 'Note' : 'Board'}
+              {t('title', { entity: entityLabel })}
                 </DialogTitle>
                 <p className="text-muted-foreground font-medium text-sm pt-1">
-                    Configure your secure sharing link
+              {t('subtitle')}
                 </p>
             </DialogHeader>
         </div>
@@ -100,11 +105,11 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <LockClosedIcon className="h-3 w-3" />
-                    Password Protection (Optional)
+                    {t('passwordLabel')}
                   </Label>
                   <Input
                     type="password"
-                    placeholder="Leave empty for public"
+                    placeholder={t('passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="h-11 rounded-xl border-border bg-muted/30 focus:bg-background transition-all"
@@ -114,7 +119,7 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                     <ClockIcon className="h-3 w-3" />
-                    Expiration Date (Optional)
+                    {t('expirationLabel')}
                   </Label>
                   <Input
                     type="datetime-local"
@@ -130,8 +135,8 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                         <EyeIcon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold text-foreground tracking-tight">One-time view</p>
-                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Self-destructs after access</p>
+                      <p className="text-sm font-bold text-foreground tracking-tight">{t('oneTimeTitle')}</p>
+                      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">{t('oneTimeDescription')}</p>
                     </div>
                   </div>
                   <input
@@ -149,7 +154,7 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                   disabled={isLoading}
                   className="w-full h-12 rounded-xl font-bold tracking-tight bg-primary text-primary-foreground hover:bg-primary/90 transition-all border-none"
                 >
-                  {isLoading ? 'Generating...' : 'Create Secure Link'}
+                  {isLoading ? t('generating') : t('createLink')}
                 </Button>
               </div>
             </>
@@ -159,11 +164,11 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                   <div className="h-12 w-12 rounded-full bg-emerald-500 flex items-center justify-center text-white">
                       <CheckIcon className="h-6 w-6 stroke-[3]" />
                   </div>
-                  <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">Link Shared Successfully</p>
+                <p className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{t('successTitle')}</p>
                </div>
 
                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Public Access Link</Label>
+                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{t('publicLink')}</Label>
                   <div className="flex gap-2">
                     <Input
                         readOnly
@@ -178,7 +183,7 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
 
                <div className="space-y-4">
                  <p className="text-[11px] text-center text-muted-foreground font-medium">
-                    Anyone with this link can view the content based on your settings.
+                    {t('successDescription')}
                  </p>
                  
                  <div className="flex justify-center">
@@ -201,7 +206,7 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                  onClick={() => setIsOpen(false)} 
                  className="w-full h-11 rounded-xl font-bold tracking-tight text-muted-foreground hover:text-foreground hover:bg-muted"
                >
-                 Close Dialog
+                 {t('close')}
                </Button>
             </div>
           )}

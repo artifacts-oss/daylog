@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 import ImageSection from '@/components/ImageSection';
+import { useTranslations } from 'next-intl';
 
 type NoteModalFormType = {
   modalId: string;
@@ -39,6 +40,7 @@ export default function NoteModalForm({
   isUnsplashAllowed = false,
   trigger,
 }: NoteModalFormType) {
+  const t = useTranslations('NoteModal');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -126,14 +128,14 @@ export default function NoteModalForm({
             className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/5 rounded-full transition-all"
           >
             <PencilSquareIcon className="h-4 w-4" />
-            <span className="sr-only">Edit note</span>
+            <span className="sr-only">{t('edit')}</span>
           </Button>
         </DialogTrigger>
       ) : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-[24px] font-[700] tracking-tight text-foreground">
-            {mode === 'create' ? 'Create note' : 'Update note'}
+            {mode === 'create' ? t('createTitle') : t('updateTitle')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
@@ -146,11 +148,11 @@ export default function NoteModalForm({
           )}
           <div className="space-y-2 relative pb-5">
             <Label htmlFor="title">
-              Title <span className="text-accent-red">*</span>
+              {t('titleLabel')} <span className="text-accent-red">*</span>
             </Label>
             <Input
               id="title"
-              placeholder="Your note title"
+              placeholder={t('titlePlaceholder')}
               defaultValue={note?.title}
               {...register('title', { required: true })}
               className={
@@ -161,16 +163,16 @@ export default function NoteModalForm({
             />
             {errors.title && (
               <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
-                Title is required
+                {t('titleRequired')}
               </p>
             )}
           </div>
           <div className="space-y-2 relative pb-5">
-            <Label htmlFor="content">Content</Label>
+            <Label htmlFor="content">{t('contentLabel')}</Label>
             <Textarea
               id="content"
               rows={5}
-              placeholder="Type any simple content"
+              placeholder={t('contentPlaceholder')}
               defaultValue={note?.content ?? ''}
               {...register('content')}
             />
@@ -178,7 +180,7 @@ export default function NoteModalForm({
           <ImageSection
             currentImageUrl={note?.imageUrl}
             isUnsplashAllowed={isUnsplashAllowed}
-            altText={`Preview image of ${note?.title || 'new note'}`}
+            altText={t('imageAlt', { title: note?.title || t('createTitle') })}
             onImageFileChange={setImageFile}
             onImageUrlChange={setImageUrl}
             onDeleteImage={
@@ -196,14 +198,10 @@ export default function NoteModalForm({
               variant="outline"
               onClick={() => setOpen(false)}
             >
-              Close
+              {t('close')}
             </Button>
             <Button type="submit" disabled={submiting}>
-              {submiting
-                ? 'Saving...'
-                : mode === 'create'
-                  ? 'Create'
-                  : 'Update'}
+              {submiting ? t('saving') : mode === 'create' ? t('create') : t('update')}
             </Button>
           </DialogFooter>
         </form>

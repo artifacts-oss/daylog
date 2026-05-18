@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { describe, expect, it, vi } from 'vitest';
 import OTPLogin from './page';
 
@@ -21,7 +22,7 @@ vi.mock('./partials/OTPLoginForm', () => ({
 describe('Home', () => {
   it('renders the OTPLoginForm when MFA is enabled', async () => {
     mocks.getUserMFA.mockResolvedValue(true);
-    render(<OTPLogin />);
+    renderWithIntl(<OTPLogin />);
 
     expect(await screen.findByText('OTPLoginForm')).toBeInTheDocument();
   });
@@ -29,7 +30,7 @@ describe('Home', () => {
   it('renders "Access denied" when MFA is not enabled', async () => {
     mocks.getUserMFA.mockResolvedValue(false);
 
-    render(<OTPLogin />);
+    renderWithIntl(<OTPLogin />);
 
     expect(await screen.findByText(/Access denied/i)).toBeInTheDocument();
   });

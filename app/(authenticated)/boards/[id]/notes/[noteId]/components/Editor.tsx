@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import ChangeHistorySidebar from './ChangeHistorySidebar';
 import { History } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type NoteEditorType = {
   note: Note;
@@ -33,6 +34,7 @@ export default function Editor({
   currentUserId,
 }: NoteEditorType) {
   const router = useRouter();
+  const t = useTranslations('NoteEditor');
 
   // Use a ref to track the initial note content so we only initialise from
   // the server value once per note (not on every autosave revalidation).
@@ -221,20 +223,20 @@ export default function Editor({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h3 className="text-[20px] font-[800] text-foreground tracking-tight">
-                      Pictures
+                      {t('pictures')}
                     </h3>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 rounded-full hover:bg-accent transition-colors"
                       onClick={() => setIsSidebarOpen(false)}
+                      aria-label={t('closeSidebar')}
                     >
                       <XMarkIcon className="h-5 w-5 text-muted-foreground" />
                     </Button>
                   </div>
                   <p className="text-[14px] font-[500] text-muted-foreground leading-relaxed">
-                    Click to insert an image into the editor at your cursor
-                    position.
+                    {t('picturesHelp')}
                   </p>
                 </div>
 
@@ -250,6 +252,7 @@ export default function Editor({
                         await deleteImage(note.id, note.imageUrl);
                         router.refresh();
                       },
+                      deleteLabel: t('deletePicture'),
                     })}
                   {pictures.map((picture, key) => (
                     <PicturePreview
@@ -257,6 +260,7 @@ export default function Editor({
                       pictureId={picture.id}
                       onDelete={() => handleDeletePicture(picture.id)}
                       imageUrl={picture.imageUrl}
+                      deleteLabel={t('deletePicture')}
                       onClick={() => {
                         handlePlaceImage(getImageUrlOrFile(picture.imageUrl));
                       }}
@@ -267,7 +271,7 @@ export default function Editor({
                     <div className="col-span-2 flex flex-col items-center justify-center py-6 text-center border-2 border-dashed border-border rounded-[16px] bg-background">
                       <PhotoIcon className="h-8 w-8 text-muted-foreground/70 mb-2 opacity-50" />
                       <p className="text-[12px] font-[500] text-muted-foreground/70 uppercase tracking-wider">
-                        No pictures
+                        {t('noPictures')}
                       </p>
                     </div>
                   )}
@@ -286,7 +290,7 @@ export default function Editor({
                     className="w-full rounded-[12px] font-[700] text-primary-foreground shadow-sm transition-all"
                   >
                     <PhotoIcon className="h-5 w-5 mr-2" />
-                    Upload Picture
+                    {t('uploadPicture')}
                   </Button>
                 </div>
               </div>
@@ -315,7 +319,7 @@ export default function Editor({
               >
                 <PhotoIcon className="h-5 w-5 md:mr-2 text-muted-foreground" />
                 <span className="hidden md:inline">
-                  {isSidebarOpen ? 'Close Gallery' : 'Open Gallery'}
+                  {isSidebarOpen ? t('closeGallery') : t('openGallery')}
                 </span>
               </Button>
 
@@ -330,11 +334,11 @@ export default function Editor({
                     ? 'bg-accent text-accent-foreground'
                     : 'bg-background text-foreground hover:bg-accent'
                 }`}
-                title="Toggle change history"
+                title={t('toggleChangeHistory')}
               >
                 <History className="h-4 w-4 md:mr-2 text-muted-foreground" />
                 <span className="hidden md:inline">
-                  {showHistory ? 'Close History' : 'Open History'}
+                  {showHistory ? t('closeHistory') : t('openHistory')}
                 </span>
               </Button>
             </div>
@@ -350,7 +354,7 @@ export default function Editor({
                   >
                     <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
                     <span className="text-[10px] md:text-[12px] font-[500] text-muted-foreground uppercase tracking-wider hidden sm:inline">
-                      Saving
+                      {t('saving')}
                     </span>
                   </motion.div>
                 )}
@@ -384,11 +388,13 @@ const PicturePreview = ({
   imageUrl,
   onClick,
   onDelete,
+  deleteLabel,
 }: {
   pictureId?: number | null;
   imageUrl: string;
   onClick: () => void;
   onDelete: () => Promise<void>;
+  deleteLabel: string;
 }) => {
   return (
     <div className="relative aspect-square rounded-[12px] overflow-hidden cursor-pointer group border border-border bg-background shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-border transition-all duration-300">
@@ -406,7 +412,7 @@ const PicturePreview = ({
           e.stopPropagation();
           onDelete();
         }}
-        title="Delete picture"
+        title={deleteLabel}
       >
         <XMarkIcon className="h-3.5 w-3.5" />
       </div>

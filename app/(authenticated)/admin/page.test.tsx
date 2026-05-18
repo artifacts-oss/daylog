@@ -1,3 +1,5 @@
+import '@/utils/test/commonMocks';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Admin from './page';
@@ -24,6 +26,24 @@ vi.mock('./partials/AdminTabs', () => ({
   default: vi.fn(({ currentUser }: { currentUser: { id: number } }) => (
     <div data-testid="admin-tabs">AdminTabs for user {currentUser?.id}</div>
   )),
+}));
+
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async (namespace: string) => {
+    if (namespace === 'Navigation') {
+      return (key: string) => {
+        if (key === 'home') return 'Home';
+        if (key === 'admin') return 'Admin';
+        return key;
+      };
+    }
+
+    return (key: string) => {
+      if (key === 'title') return 'Configuration';
+      if (key === 'description') return 'Manage your users and preferences';
+      return key;
+    };
+  }),
 }));
 
 describe('Admin Page', () => {

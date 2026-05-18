@@ -13,6 +13,7 @@ import { getBoards } from '@/app/(authenticated)/boards/lib/actions';
 import { getNotes } from '@/app/(authenticated)/boards/[id]/notes/lib/actions';
 import { Board } from '@/prisma/generated/client';
 import { getImageUrlOrFile } from '@/utils/image';
+import { getTranslations } from 'next-intl/server';
 
 export default async function Home({
   searchParams,
@@ -45,17 +46,21 @@ export default async function Home({
   const filteredNotes =
     notes?.filter((note) => (isShowFav ? note.favorite : true)) || [];
 
-  const breadcrumbs = [{ name: 'Home', href: '/' }];
+  const t = await getTranslations('HomePage');
+  const breadcrumbs = [{ name: t('breadcrumb'), href: '/' }];
 
   return (
     <PageContainer>
       <PageHeader
-        title={`Welcome back, ${user.name}`}
+        title={t('title', { name: user.name ?? '' })}
         breadcrumbs={breadcrumbs}
         imageUrl={getImageUrlOrFile(latestBoardImage ?? '')}
-        description={`You have ${boardsCount} active board${
-          boardsCount === 1 ? '' : 's'
-        }. Here is your ${isShowFav ? 'favorite' : 'recent'} activity.`}
+        description={t('description', {
+          count: boardsCount,
+          activity: isShowFav
+            ? t('favoriteActivity')
+            : t('recentActivity'),
+        })}
       >
         {boardsCount > 0 && (
           <div className="flex justify-end w-full md:w-auto">

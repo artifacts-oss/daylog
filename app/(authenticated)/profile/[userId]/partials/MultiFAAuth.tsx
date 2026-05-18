@@ -26,19 +26,21 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Label } from '@/components/ui/label';
+import { useTranslations } from 'next-intl';
 
 type ProfileInfoType = {
   profile: User;
 };
 
 export default function MultiFAAuth({ profile }: ProfileInfoType) {
+  const t = useTranslations('MFA');
   return (
     <Card className="mt-4 rounded-[20px] bg-card shadow-none">
       <CardHeader>
-        <Label>Security Settings</Label>
-        <CardTitle>2FA Authentication</CardTitle>
+        <Label>{t('sectionLabel')}</Label>
+        <CardTitle>{t('title')}</CardTitle>
         <p className="text-sm text-muted-foreground font-medium">
-          Configure your Account 2FA Authentication
+          {t('description')}
         </p>
       </CardHeader>
       <CardContent>
@@ -55,6 +57,7 @@ export default function MultiFAAuth({ profile }: ProfileInfoType) {
 }
 
 const ModalDelete = ({ profile }: ProfileInfoType) => {
+  const t = useTranslations('MFA');
   const [otpSent, setOtpSent] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [sending, setSending] = useState<boolean>(false);
@@ -69,14 +72,14 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
         className="rounded-[12px] font-bold h-[44px] px-6 transition-all hover:scale-[1.02] active:scale-95 shadow-none"
       >
         <DevicePhoneMobileIcon className="h-4 w-4 mr-2" />
-        Disable 2FA
+        {t('disableButton')}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="p-10 max-w-[480px]">
           <DialogHeader className="mb-6">
-            <Label className="text-destructive">Security Verification</Label>
+            <Label className="text-destructive">{t('security')}</Label>
             <DialogTitle className="flex items-center gap-2">
-              Disable 2FA
+              {t('disableTitle')}
             </DialogTitle>
           </DialogHeader>
           <form action={action}>
@@ -85,12 +88,11 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
             {!state?.success ? (
               <div className="space-y-8">
                 <p className="text-sm text-muted-foreground leading-relaxed antialiased">
-                  To disable multifactor authentication, please type the code
-                  from your current authenticator app or request one via email.
+                  {t('disableDescription')}
                 </p>
 
                 <div className="space-y-4">
-                  <Label>Enter Verification Code</Label>
+                  <Label>{t('verificationCode')}</Label>
                   <div className="flex justify-center py-2 bg-secondary/5 rounded-[12px] border border-border/40">
                     <OTPInputWrapper onChange={(value) => setPassword(value)} />
                   </div>
@@ -115,12 +117,12 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
                     }}
                   >
                     {otpSent === 'sent'
-                      ? '✓ Code resent to email'
-                      : 'Send backup code to email'}
+                      ? `✓ ${t('backupSent')}`
+                      : t('sendBackup')}
                   </Button>
                   {otpSent === 'failed' && (
                     <p className="text-[11px] text-accent-red font-bold text-center">
-                      Failed to send code. Please try again later.
+                      {t('backupFailed')}
                     </p>
                   )}
                 </div>
@@ -128,7 +130,7 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
                 <div className="p-4 bg-[var(--color-accent-red)] rounded-[12px] border border-destructive/20">
                   <p className="text-[12px] text-destructive font-medium leading-normal flex gap-2">
                     <AlertOctagon className="h-4 w-4 flex-shrink-0" />
-                    Warning: Disabling 2FA will reduce your account security.
+                    {t('disableWarning')}
                   </p>
                 </div>
 
@@ -156,7 +158,7 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
                 onClick={() => setOpen(false)}
                 className="font-bold"
               >
-                {state?.success ? 'Go Back' : 'Keep 2FA Active'}
+                {state?.success ? t('goBack') : t('keepActive')}
               </Button>
               {!state?.success && (
                 <Button
@@ -165,7 +167,7 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
                   disabled={pending}
                   className="font-bold px-8 shadow-none"
                 >
-                  {pending ? 'Disabling...' : 'Confirm Disable'}
+                  {pending ? t('disabling') : t('confirmDisable')}
                 </Button>
               )}
             </DialogFooter>
@@ -177,6 +179,7 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
 };
 
 const ModalUpdate = ({ profile }: ProfileInfoType) => {
+  const t = useTranslations('MFA');
   const [url, setUrl] = useState<string>('');
   const [secret, setSecret] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -200,14 +203,14 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
         className="rounded-[12px] bg-primary font-bold h-[44px] px-6 transition-all hover:scale-[1.02] active:scale-95 shadow-none"
       >
         <DevicePhoneMobileIcon className="h-4 w-4 mr-2" />
-        Configure TOTP
+        {t('configureButton')}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="p-10 max-w-[480px]">
           <DialogHeader className="mb-6">
-            <Label>Step-by-step Setup</Label>
+            <Label>{t('setupLabel')}</Label>
             <DialogTitle className="flex items-center gap-2">
-              Setup Authenticator
+              {t('setupTitle')}
             </DialogTitle>
           </DialogHeader>
           <form action={action}>
@@ -217,7 +220,7 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
             {!state?.success ? (
               <div className="space-y-8">
                 <div className="space-y-4">
-                  <Label>1. Scan QR Code</Label>
+                  <Label>{t('step1')}</Label>
                   <div className="flex justify-center p-6 bg-white rounded-[20px] border border-border/40 shadow-sm">
                     {url !== '' ? (
                       <QRCodeSVG value={url} size={180} />
@@ -226,13 +229,12 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed px-1">
-                    Scan this code with Google Authenticator, Authy, or your
-                    preferred TOTP app.
+                    {t('step1Description')}
                   </p>
                 </div>
 
                 <div className="space-y-3">
-                  <Label>2. Manual Configuration</Label>
+                  <Label>{t('step2')}</Label>
                   <div className="flex gap-2">
                     <div className="relative flex-1">
                       <Input
@@ -259,13 +261,13 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
                       className="h-[48px] rounded-[12px] border-border/60 font-bold px-4 hover:bg-secondary/5"
                       onClick={() => navigator.clipboard.writeText(secret)}
                     >
-                      Copy
+                      {t('copy')}
                     </Button>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <Label>3. Verify Setup</Label>
+                  <Label>{t('step3')}</Label>
                   <div className="flex justify-center py-2 bg-secondary/5 rounded-[12px] border border-border/40">
                     <OTPInputWrapper onChange={(value) => setPassword(value)} />
                   </div>
@@ -300,7 +302,7 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
                 onClick={() => setOpen(false)}
                 className="font-bold"
               >
-                {state?.success ? 'Finish' : 'Cancel Setup'}
+                {state?.success ? t('finish') : t('cancelSetup')}
               </Button>
               {!state?.success && (
                 <Button
@@ -308,7 +310,7 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
                   disabled={pending}
                   className="font-bold px-8 shadow-none"
                 >
-                  {pending ? 'Saving...' : 'Confirm Setup'}
+                  {pending ? t('saving') : t('confirmSetup')}
                 </Button>
               )}
             </DialogFooter>

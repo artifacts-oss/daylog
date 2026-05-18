@@ -21,54 +21,49 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const sections = [
-  {
-    icon: BookOpen,
-    title: 'Introduction',
-    content:
-      'By registering for an account on our platform, you agree to comply with these terms and conditions. Please read them carefully before proceeding with your registration.',
-  },
-  {
-    icon: UserCheck,
-    title: 'Your Account',
-    content:
-      'You are responsible for maintaining the confidentiality of your account credentials. You agree to notify us immediately of any unauthorized use of your account.',
-  },
-  {
-    icon: ShieldCheck,
-    title: 'Acceptable Use',
-    content:
-      'You agree to use our platform for lawful purposes only. Prohibited activities include, but are not limited to: engaging in fraud, violating laws, or uploading harmful content.',
-  },
-  {
-    icon: Scale,
-    title: 'License and Property',
-    content:
-      'This platform is licensed under the Apache 2.0 License. You may use, modify, and share the platform in compliance with the terms of this license.',
-    link: 'https://www.apache.org/licenses/LICENSE-2.0',
-  },
-  {
-    icon: AlertOctagon,
-    title: 'Limitation of Liability',
-    content:
-      'To the maximum extent permitted by law, we are not liable for any damages resulting from your use of this platform, including data loss or service interruptions.',
-  },
-  {
-    icon: PowerOff,
-    title: 'Termination',
-    content:
-      'We reserve the right to terminate your account at our sole discretion if you violate these terms and conditions.',
-  },
-  {
-    icon: RefreshCw,
-    title: 'Changes to Terms',
-    content:
-      'We may update these terms from time to time. Any changes will be communicated to you and will take effect immediately upon posting.',
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export default function Page() {
+  const t = useTranslations('TermsPage');
+  const sections = [
+    {
+      icon: BookOpen,
+      title: t('sections.introductionTitle'),
+      content: t('sections.introductionContent'),
+    },
+    {
+      icon: UserCheck,
+      title: t('sections.accountTitle'),
+      content: t('sections.accountContent'),
+    },
+    {
+      icon: ShieldCheck,
+      title: t('sections.acceptableUseTitle'),
+      content: t('sections.acceptableUseContent'),
+    },
+    {
+      icon: Scale,
+      title: t('sections.licenseTitle'),
+      content: t('sections.licenseContent'),
+      link: 'https://www.apache.org/licenses/LICENSE-2.0',
+    },
+    {
+      icon: AlertOctagon,
+      title: t('sections.liabilityTitle'),
+      content: t('sections.liabilityContent'),
+    },
+    {
+      icon: PowerOff,
+      title: t('sections.terminationTitle'),
+      content: t('sections.terminationContent'),
+    },
+    {
+      icon: RefreshCw,
+      title: t('sections.changesTitle'),
+      content: t('sections.changesContent'),
+    },
+  ];
+
   return (
     <div className="relative min-h-screen bg-background px-4 py-12 overflow-x-hidden">
       {/* Background Decorative Elements */}
@@ -95,27 +90,27 @@ export default function Page() {
           >
             <Link href="/register">
               <ChevronLeft className="h-4 w-4" />
-              Back to Registration
+              {t('back')}
             </Link>
           </Button>
           <div className="text-xs font-medium text-muted-foreground uppercase tracking-widest antialiased">
-            Legal Agreement
+            {t('legalAgreement')}
           </div>
         </div>
 
         <div className="space-y-2">
           <h1 className="text-4xl font-extrabold tracking-tight text-center md:text-left balance">
-            Terms of Service
+            {t('title')}
           </h1>
           <p className="text-muted-foreground text-center md:text-left text-lg">
-            Please review the following agreement for using Daylog.
+            {t('description')}
           </p>
         </div>
 
         <Card className="glass-card border-border/50 shadow-2xl backdrop-blur-md bg-card/70 ring-1 ring-white/10 overflow-hidden">
           <CardHeader className="bg-primary/[0.03] border-b border-border/50 py-8 px-8">
             <CardTitle className="text-xl font-bold">
-              User Registration Terms
+              {t('cardTitle')}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -146,7 +141,7 @@ export default function Page() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline mt-2 tracking-wide"
                         >
-                          View License Detail
+                          {t('licenseLink')}
                           <ExternalLink className="h-3 w-3" />
                         </a>
                       )}
@@ -158,10 +153,10 @@ export default function Page() {
           </CardContent>
           <CardFooter className="bg-primary/[0.03] border-t border-border/50 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-muted-foreground font-medium">
-              Effective Date: February 22, 2026
+              {t('effectiveDate')}
             </p>
             <div className="text-[10px] font-bold bg-primary/10 px-4 py-1.5 rounded-full text-primary uppercase tracking-wider ring-1 ring-primary/20">
-              Apache 2.0 Licensed
+              {t('licenseBadge')}
             </div>
           </CardFooter>
         </Card>
@@ -171,7 +166,7 @@ export default function Page() {
             asChild
             className="rounded-full px-10 py-6 text-base font-bold shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95"
           >
-            <Link href="/register">I understand, take me back</Link>
+            <Link href="/register">{t('confirm')}</Link>
           </Button>
         </div>
       </motion.div>

@@ -1,12 +1,12 @@
 import getVersion from '@/app/(authenticated)/lib/version';
 import PageFooterSponsor from './PageFooterSponsor';
 
-export default function PageFooter() {
+export default async function PageFooter() {
   const showSponsor =
     !process.env.SHOW_SPONSOR_FOOTER ||
     process.env.SHOW_SPONSOR_FOOTER === 'true';
   return showSponsor ? (
-    <PageFooterSponsor />
+    await PageFooterSponsor()
   ) : (
     <footer className="border-t border-border bg-background py-6">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">

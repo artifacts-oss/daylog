@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UsersIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { SettingsType } from '../lib/actions';
+import { useTranslations } from 'next-intl';
 
 interface AdminTabsProps {
   currentUser: { id: number };
@@ -18,11 +19,12 @@ export default function AdminTabs({
   currentUser,
   initialSettings,
 }: AdminTabsProps) {
+  const t = useTranslations('AdminTabs');
   const [activeTab, setActiveTab] = useState('users');
 
   const tabs = [
-    { id: 'users', label: 'Users', icon: UsersIcon },
-    { id: 'preferences', label: 'Preferences', icon: Cog6ToothIcon },
+    { id: 'users', label: t('usersTab'), icon: UsersIcon },
+    { id: 'preferences', label: t('preferencesTab'), icon: Cog6ToothIcon },
   ];
 
   return (
@@ -70,10 +72,10 @@ export default function AdminTabs({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-semibold tracking-tight">
-                      Users
+                      {t('usersTitle')}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      Manage user accounts and permissions.
+                      {t('usersDescription')}
                     </p>
                   </div>
                   <UserModal />

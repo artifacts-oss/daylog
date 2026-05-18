@@ -4,6 +4,7 @@ import FormField from '@/components/FormField';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useActionState } from 'react';
+import { useTranslations } from 'next-intl';
 import { signup } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function RegisterForm() {
   const [state, action, pending] = useActionState(signup, undefined);
+  const t = useTranslations('RegisterPage');
 
   return (
     <div
@@ -51,7 +53,7 @@ export default function RegisterForm() {
             style={{ width: 'auto', height: '56px' }}
           />
           <p className="mt-2 text-sm text-muted-foreground font-medium tracking-wide uppercase">
-            The home for your ideas
+            {t('tagline')}
           </p>
         </motion.div>
 
@@ -64,7 +66,7 @@ export default function RegisterForm() {
             >
               <Alert variant="destructive" className="glass-card">
                 <ExclamationTriangleIcon className="h-4 w-4" />
-                <AlertTitle>Account not created</AlertTitle>
+                <AlertTitle>{t('errorTitle')}</AlertTitle>
                 <AlertDescription>{state.message}</AlertDescription>
               </Alert>
             </motion.div>
@@ -77,16 +79,16 @@ export default function RegisterForm() {
             >
               <Alert className="border-green-500/20 bg-green-500/5 text-green-500 backdrop-blur-sm">
                 <CheckCircleIcon className="h-4 w-4" />
-                <AlertTitle className="font-bold">Account created</AlertTitle>
+                <AlertTitle className="font-bold">{t('successTitle')}</AlertTitle>
                 <AlertDescription>
-                  Your account has been created successfully
+                  {t('successDescription')}
                 </AlertDescription>
                 <Button
                   variant="outline"
                   className="mt-4 w-full border-green-500/30 hover:bg-green-500/20"
                   asChild
                 >
-                  <Link href="/login">Go to login</Link>
+                  <Link href="/login">{t('goToLogin')}</Link>
                 </Button>
               </Alert>
             </motion.div>
@@ -97,36 +99,36 @@ export default function RegisterForm() {
           <Card className="glass-card border-border/50 shadow-xl backdrop-blur-md bg-card/70 ring-1 ring-white/10">
             <CardHeader className="text-center pb-2">
               <CardTitle className="text-2xl font-bold tracking-tight">
-                Create account
+                {t('title')}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Create an account to start your digital journal
+                {t('description')}
               </p>
             </CardHeader>
             <CardContent>
               <form action={action} autoComplete="off" className="space-y-4">
                 <FormField
-                  label="Name"
+                  label={t('nameLabel')}
                   name="name"
-                  placeholder="Enter your name"
+                  placeholder={t('namePlaceholder')}
                   defaultValue={state?.data?.name?.toString()}
                   errors={state?.errors?.name}
                   className="transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20"
                 />
                 <FormField
-                  label="Email address"
+                  label={t('emailLabel')}
                   name="email"
                   type="email"
-                  placeholder="name@example.com"
+                  placeholder={t('emailPlaceholder')}
                   defaultValue={state?.data?.email?.toString()}
                   errors={state?.errors?.email}
                   className="transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20"
                 />
                 <FormField
-                  label="Password"
+                  label={t('passwordLabel')}
                   name="password"
                   type="password"
-                  placeholder="Create a strong password"
+                  placeholder={t('passwordPlaceholder')}
                   defaultValue={state?.data?.password?.toString()}
                   errors={state?.errors?.password}
                   className="transition-all duration-200 focus-within:ring-2 focus-within:ring-primary/20"
@@ -144,12 +146,12 @@ export default function RegisterForm() {
                       htmlFor="terms"
                       className="text-xs m-0 font-medium text-muted-foreground leading-none"
                     >
-                      I agree to the{' '}
+                      {t('termsPrefix')}{' '}
                       <Link
                         href="/register/terms"
                         className="text-foreground hover:underline underline-offset-2"
                       >
-                        terms and policy
+                        {t('termsLink')}
                       </Link>
                     </Label>
                   </div>
@@ -182,10 +184,10 @@ export default function RegisterForm() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      Creating account...
+                        {t('submitting')}
                     </span>
                   ) : (
-                    'Create account'
+                      t('submit')
                   )}
                 </Button>
               </form>
@@ -199,12 +201,12 @@ export default function RegisterForm() {
           transition={{ delay: 0.4 }}
           className="text-center text-sm text-muted-foreground"
         >
-          Already have an account?{' '}
+          {t('signinPrompt')}{' '}
           <Link
             href="/login"
             className="font-semibold text-foreground hover:underline underline-offset-4"
           >
-            Sign in
+            {t('signin')}
           </Link>
         </motion.p>
       </motion.div>

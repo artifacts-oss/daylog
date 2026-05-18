@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import InitRegisterForm from './InitRegisterForm';
 
@@ -40,11 +41,15 @@ describe('InitRegisterForm', () => {
       false,
     ]);
 
-    render(<InitRegisterForm />);
+    renderWithIntl(<InitRegisterForm />);
     expect(screen.getByText('Admin registration')).toBeDefined();
     expect(screen.getByLabelText('Name')).toBeDefined();
     expect(screen.getByLabelText('Email address')).toBeDefined();
     expect(screen.getByLabelText('Password')).toBeDefined();
+    expect(screen.getByRole('link', { name: /terms and policy/i })).toHaveAttribute(
+      'href',
+      '/register/terms',
+    );
     expect(
       screen.getByRole('button', { name: /create admin account/i }),
     ).toBeDefined();
@@ -66,7 +71,7 @@ describe('InitRegisterForm', () => {
       false,
     ]);
 
-    render(<InitRegisterForm />);
+    renderWithIntl(<InitRegisterForm />);
 
     expect(screen.getByText('Name is required')).toBeDefined();
     expect(screen.getByText(/Email is required/i)).toBeDefined();
@@ -86,7 +91,7 @@ describe('InitRegisterForm', () => {
       false,
     ]);
 
-    render(<InitRegisterForm />);
+    renderWithIntl(<InitRegisterForm />);
 
     expect(screen.getByText('Account not created')).toBeDefined();
     expect(screen.getByText('Account creation failed')).toBeDefined();
@@ -105,7 +110,7 @@ describe('InitRegisterForm', () => {
       false,
     ]);
 
-    render(<InitRegisterForm />);
+    renderWithIntl(<InitRegisterForm />);
 
     fireEvent.change(screen.getByPlaceholderText('Enter name'), {
       target: { value: 'John Doe' },
@@ -126,7 +131,7 @@ describe('InitRegisterForm', () => {
 
   it('disables the submit button when pending', () => {
     mocks.useActionState.mockReturnValueOnce([state, vi.fn(), true]);
-    render(<InitRegisterForm />);
+    renderWithIntl(<InitRegisterForm />);
 
     const submitButton = screen.getByText('Creating account...');
     expect(submitButton).toBeDisabled();

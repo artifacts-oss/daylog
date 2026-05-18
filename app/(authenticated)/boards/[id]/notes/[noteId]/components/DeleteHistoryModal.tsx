@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AlertOctagon } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { useTranslations } from 'next-intl';
 
 type DeleteHistoryModalProps = {
   isOpen: boolean;
@@ -26,13 +27,14 @@ type DeleteHistoryModalProps = {
 export default function DeleteHistoryModal({
   isOpen,
   onOpenChange,
-  title = 'Are you sure?',
-  description = 'Do you really want to perform this action? This cannot be undone.',
-  actionLabel = 'Yes, delete',
+  title,
+  description,
+  actionLabel,
   onConfirm,
   isLoading,
   variant = 'danger',
 }: DeleteHistoryModalProps) {
+  const t = useTranslations('NoteEditor');
   const isDanger = variant === 'danger';
 
   return (
@@ -44,7 +46,7 @@ export default function DeleteHistoryModal({
               isDanger ? 'text-[var(--color-text-accent-red)]' : 'text-primary'
             }
           >
-            Confirmation Required
+            {t('confirmationRequired')}
           </Label>
           <AlertDialogTitle className="flex items-center gap-2">
             {title}
@@ -72,8 +74,8 @@ export default function DeleteHistoryModal({
             >
               <AlertOctagon className="h-4 w-4 flex-shrink-0" />
               {isDanger
-                ? 'Warning: This action is permanent and will permanently remove this data.'
-                : 'Note: You are about to restore the note content. Current unsaved changes might be overwritten.'}
+                ? t('warningPermanent')
+                : t('restoreWarning')}
             </p>
           </div>
         </div>
@@ -83,7 +85,7 @@ export default function DeleteHistoryModal({
             disabled={isLoading}
             className="rounded-[12px] text-muted-foreground font-bold hover:bg-secondary/10 border-0"
           >
-            Cancel
+            {t('cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             className={`font-bold px-8 shadow-none border-0 ${
@@ -97,7 +99,7 @@ export default function DeleteHistoryModal({
               onConfirm();
             }}
           >
-            {isLoading ? 'Processing...' : actionLabel}
+            {isLoading ? t('processing') : actionLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

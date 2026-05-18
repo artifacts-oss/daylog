@@ -16,8 +16,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { useTranslations } from 'next-intl';
 
 export default function NavSearch() {
+  const t = useTranslations('NavSearch');
   const [open, setOpen] = useState(false);
   const searchInput = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -100,7 +102,7 @@ export default function NavSearch() {
         className="flex items-center justify-center md:justify-start gap-2 p-2 md:px-4 md:py-2 text-sm text-muted-foreground hover:text-foreground md:bg-muted md:border border-transparent md:border-border hover:bg-accent rounded-full md:rounded-xl transition-all duration-300"
       >
         <MagnifyingGlassIcon className="h-5 w-5 md:h-4 md:w-4" />
-        <span className="hidden md:inline font-medium">Search anything...</span>
+        <span className="hidden md:inline font-medium">{t('trigger')}</span>
         <div className="hidden md:flex items-center gap-1 ml-4 text-[10px] font-bold uppercase tracking-widest opacity-60">
           <kbd className="min-w-[2rem] h-5 inline-flex items-center justify-center px-1 bg-background border border-border rounded-md tracking-normal leading-none">
             Alt
@@ -118,7 +120,7 @@ export default function NavSearch() {
           aria-describedby={undefined}
         >
           <DialogHeader>
-            <DialogTitle>Search</DialogTitle>
+            <DialogTitle>{t('title')}</DialogTitle>
           </DialogHeader>
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -126,7 +128,7 @@ export default function NavSearch() {
               ref={searchInput}
               type="text"
               className="pl-10"
-              placeholder="Search boards and notes..."
+              placeholder={t('placeholder')}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => handleKeyDown(e.key)}
@@ -142,21 +144,17 @@ export default function NavSearch() {
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
                   <div className="animate-spin h-8 w-8 border-2 border-[#000000] border-t-transparent rounded-full mb-3" />
                   <span className="text-xs font-bold uppercase tracking-widest">
-                    Searching...
+                    {t('searching')}
                   </span>
                 </div>
               ) : query ? (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
-                  <span className="text-sm">
-                    No results found for &quot;{query}&quot;
-                  </span>
+                  <span className="text-sm">{t('noResults', { query })}</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/70">
                   <MagnifyingGlassIcon className="h-10 w-10 mb-4 opacity-20" />
-                  <span className="text-sm">
-                    Quickly find boards and notes by title or content
-                  </span>
+                  <span className="text-sm">{t('emptyState')}</span>
                 </div>
               )
             ) : (
@@ -183,7 +181,7 @@ export default function NavSearch() {
                           {truncateWord(item.title, 80)}
                         </span>
                         <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
-                          {item.type}
+                          {item.type === 'note' ? t('noteType') : t('boardType')}
                         </span>
                       </div>
                     </div>
@@ -204,16 +202,16 @@ export default function NavSearch() {
                   <kbd className="w-5 h-5 inline-flex items-center justify-center bg-muted border border-border rounded text-[10px] tracking-normal leading-none">
                     ↑↓
                   </kbd>
-                  Navigate
+                  {t('navigate')}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <kbd className="min-w-[2.5rem] h-5 inline-flex items-center justify-center px-1 bg-muted border border-border rounded text-[10px] tracking-normal leading-none">
                     Enter
                   </kbd>
-                  Open
+                  {t('open')}
                 </span>
               </div>
-              <span>{results.length} results</span>
+              <span>{t('results', { count: results.length })}</span>
             </div>
           )}
         </DialogContent>

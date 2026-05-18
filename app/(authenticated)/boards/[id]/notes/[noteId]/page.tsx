@@ -8,6 +8,7 @@ import { getNote } from '../lib/actions';
 import Editor from './components/Editor';
 import { getImageUrlOrFile } from '@/utils/image';
 import ShareDialog from '@/components/ShareDialog';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 export default async function NotePage({
   params,
@@ -21,15 +22,19 @@ export default async function NotePage({
   const { id, noteId } = await params;
   const board = await getBoard(parseInt(id));
   const note = await getNote(parseInt(noteId));
+  const tNav = await getTranslations('Navigation');
+  const tNotes = await getTranslations('NotesPage');
+  const t = await getTranslations('NoteDetailPage');
+  const locale = await getLocale();
 
   if (!board || !note) {
     return null;
   }
 
   const breadcrumbs = [
-    { name: 'Home', href: '/' },
-    { name: 'Boards', href: '/boards' },
-    { name: board?.title ?? 'Notes', href: `/boards/${board.id}/notes` },
+    { name: tNav('home'), href: '/' },
+    { name: tNav('boards'), href: '/boards' },
+    { name: board?.title ?? tNotes('fallback'), href: `/boards/${board.id}/notes` },
     {
       name: note?.title ?? '',
       href: `/boards/${board.id}/notes/${note.id}`,
@@ -42,12 +47,14 @@ export default async function NotePage({
         title={note?.title}
         description={
           note?.updatedAt
-            ? `Last updated on ${new Intl.DateTimeFormat('default', {
-                dateStyle: 'medium',
-              }).format(note.updatedAt)} at ${new Intl.DateTimeFormat(
-                'default',
-                { timeStyle: 'short' },
-              ).format(note.updatedAt)}`
+            ? t('updatedAt', {
+                date: new Intl.DateTimeFormat(locale, {
+                  dateStyle: 'medium',
+                }).format(note.updatedAt),
+                time: new Intl.DateTimeFormat(locale, {
+                  timeStyle: 'short',
+                }).format(note.updatedAt),
+              })
             : undefined
         }
         imageUrl={

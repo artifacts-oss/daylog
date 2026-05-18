@@ -16,8 +16,10 @@ import {
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 export default function UserModal() {
+  const t = useTranslations('UserModal');
   const [state, action, pending] = useActionState(signup, undefined);
   const [isShowPassword, setIsShowPassword] = useState(false);
   const [open, setOpen] = useState(false);
@@ -32,24 +34,24 @@ export default function UserModal() {
     <>
       <Button onClick={() => setOpen(true)}>
         <PlusIcon className="h-4 w-4 mr-2" />
-        Create new user
+        {t('button')}
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>New user</DialogTitle>
+            <DialogTitle>{t('title')}</DialogTitle>
             <DialogDescription>
-              Fill in the details to create a new user.
+              {t('description')}
             </DialogDescription>
           </DialogHeader>
           <form autoComplete="off" action={action} className="space-y-2">
             <div className="space-y-2 relative pb-5">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name">{t('nameLabel')}</Label>
               <Input
                 id="name"
                 name="name"
                 defaultValue={state?.data?.name?.toString()}
-                placeholder="Enter name"
+                placeholder={t('namePlaceholder')}
                 className={state?.errors?.name ? 'border-destructive' : ''}
               />
               {state?.errors?.name && (
@@ -59,13 +61,13 @@ export default function UserModal() {
               )}
             </div>
             <div className="space-y-2 relative pb-5">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email">{t('emailLabel')}</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
                 defaultValue={state?.data?.email?.toString()}
-                placeholder="Enter email"
+                placeholder={t('emailPlaceholder')}
                 className={state?.errors?.email ? 'border-destructive' : ''}
               />
               {state?.errors?.email && (
@@ -77,14 +79,14 @@ export default function UserModal() {
               )}
             </div>
             <div className="space-y-2 relative pb-5">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t('passwordLabel')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={isShowPassword ? 'text' : 'password'}
                   name="password"
                   defaultValue={state?.data?.password?.toString()}
-                  placeholder="Password"
+                  placeholder={t('passwordPlaceholder')}
                   autoComplete="off"
                   className={
                     state?.errors?.password
@@ -116,7 +118,7 @@ export default function UserModal() {
             {state?.message && (
               <Alert variant="destructive">
                 <ExclamationTriangleIcon className="h-4 w-4" />
-                <AlertTitle>Account not created</AlertTitle>
+                <AlertTitle>{t('errorTitle')}</AlertTitle>
                 <AlertDescription>{state.message}</AlertDescription>
               </Alert>
             )}
@@ -126,10 +128,10 @@ export default function UserModal() {
                 variant="outline"
                 onClick={() => setOpen(false)}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button type="submit" disabled={pending}>
-                {pending ? 'Creating...' : 'Create'}
+                {pending ? t('creating') : t('create')}
               </Button>
             </DialogFooter>
           </form>

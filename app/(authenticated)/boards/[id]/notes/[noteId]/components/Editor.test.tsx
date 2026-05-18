@@ -1,13 +1,13 @@
 import {
   cleanup,
   fireEvent,
-  render,
   screen,
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Note, Picture } from '@/prisma/generated/client';
 import Editor from './Editor';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
 const mocks = vi.hoisted(() => ({
   updateNote: vi.fn(),
@@ -144,7 +144,7 @@ describe('Editor', () => {
   });
 
   it('loads and displays note content', async () => {
-    render(<Editor note={mockNote} />);
+    renderWithIntl(<Editor note={mockNote} />);
 
     await waitFor(() => {
       expect(screen.getByRole('textbox')).toHaveValue(mockNote.content);
@@ -152,13 +152,13 @@ describe('Editor', () => {
   });
 
   it('loads pictures at component mount', async () => {
-    render(<Editor note={mockNote} />);
+    renderWithIntl(<Editor note={mockNote} />);
 
     expect(mocks.getPictures).toHaveBeenCalledWith(mockNote.id);
   });
 
   it('displays saving indicator when content is being saved', async () => {
-    render(<Editor note={mockNote} />);
+    renderWithIntl(<Editor note={mockNote} />);
 
     await waitFor(() => {
       expect(screen.getByRole('textbox')).toHaveValue(mockNote.content);
@@ -172,7 +172,7 @@ describe('Editor', () => {
   });
 
   it('renders the Editor component', async () => {
-    render(<Editor note={mockNote} />);
+    renderWithIntl(<Editor note={mockNote} />);
 
     const editor = screen.getByRole('textbox');
     await waitFor(() => {
@@ -184,7 +184,7 @@ describe('Editor', () => {
 
   it('editor updates note after debounce timer', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
-    render(<Editor note={mockNote} />);
+    renderWithIntl(<Editor note={mockNote} />);
     const editor = screen.getByRole('textbox');
 
     fireEvent.change(editor, { target: { value: 'First update' } });
@@ -206,7 +206,7 @@ describe('Editor', () => {
   it('places picture at cursor position', async () => {
     mocks.getPictures.mockResolvedValue([mockPicture]);
     const noteWithContent = { ...mockNote, content: 'Hello world' };
-    render(<Editor note={noteWithContent} />);
+    renderWithIntl(<Editor note={noteWithContent} />);
 
     await waitFor(() => {
       expect(mocks.getPictures).toHaveBeenCalledWith(mockNote.id);
@@ -261,7 +261,7 @@ describe('Editor', () => {
 
     it('toggles the history sidebar', async () => {
       mocks.getNoteChanges.mockResolvedValue([]);
-      render(<Editor note={mockNote} />);
+      renderWithIntl(<Editor note={mockNote} />);
 
       const historyBtn = screen.getByTitle('Toggle change history');
       fireEvent.click(historyBtn);
@@ -281,7 +281,7 @@ describe('Editor', () => {
 
     it('renders history entries when opened', async () => {
       mocks.getNoteChanges.mockResolvedValue([mockChange]);
-      render(<Editor note={mockNote} />);
+      renderWithIntl(<Editor note={mockNote} />);
 
       fireEvent.click(screen.getByTitle('Toggle change history'));
 
@@ -296,7 +296,7 @@ describe('Editor', () => {
     it('handles clear history action', async () => {
       mocks.getNoteChanges.mockResolvedValue([mockChange]);
       mocks.clearNoteHistory.mockResolvedValue(true);
-      render(<Editor note={mockNote} isOwner={true} />);
+      renderWithIntl(<Editor note={mockNote} isOwner={true} />);
 
       fireEvent.click(screen.getByTitle('Toggle change history'));
 
@@ -314,7 +314,7 @@ describe('Editor', () => {
     it('handles version restore action', async () => {
       mocks.getNoteChanges.mockResolvedValue([mockChange]);
       mocks.restoreToVersion.mockResolvedValue({ success: true });
-      render(<Editor note={mockNote} />);
+      renderWithIntl(<Editor note={mockNote} />);
 
       fireEvent.click(screen.getByTitle('Toggle change history'));
 
@@ -357,7 +357,9 @@ describe('Editor', () => {
       mocks.getNoteChanges.mockResolvedValue([mockChangeWithComment]);
 
       // 1. Render as NOT note owner (userId 1)
-      render(<Editor note={mockNote} isOwner={false} currentUserId={1} />);
+      renderWithIntl(
+        <Editor note={mockNote} isOwner={false} currentUserId={1} />,
+      );
       fireEvent.click(screen.getByTitle('Toggle change history'));
       fireEvent.click(await screen.findByTitle('Toggle comments'));
 
@@ -367,7 +369,9 @@ describe('Editor', () => {
 
       // 2. Render as Note Owner
       cleanup();
-      render(<Editor note={mockNote} isOwner={true} currentUserId={3} />);
+      renderWithIntl(
+        <Editor note={mockNote} isOwner={true} currentUserId={3} />,
+      );
       fireEvent.click(screen.getByTitle('Toggle change history'));
       fireEvent.click(await screen.findByTitle('Toggle comments'));
 

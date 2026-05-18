@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { addChangeComment } from '../../lib/actions';
 import { truncateWord } from '@/utils/text';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 type ChangeCommentsProps = {
   changeId: number;
@@ -34,6 +35,7 @@ export default function ChangeComments({
   isNoteOwner,
   currentUserId,
 }: ChangeCommentsProps) {
+  const t = useTranslations('NoteEditor');
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -58,12 +60,12 @@ export default function ChangeComments({
   return (
     <div className="flex flex-col gap-2.5">
       <h6 className="text-[13px] font-[800] text-foreground tracking-tight">
-        Comments
+        {t('comments')}
       </h6>
 
       {comments.length === 0 && (
         <p className="text-xs text-muted-foreground italic mb-2">
-          No comments yet
+          {t('noCommentsYet')}
         </p>
       )}
 
@@ -98,7 +100,7 @@ export default function ChangeComments({
                 size="icon"
                 className="h-6 w-6 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all shrink-0"
                 onClick={() => handleDelete(comment.id)}
-                title="Delete comment"
+                title={t('deleteComment')}
               >
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -111,7 +113,7 @@ export default function ChangeComments({
         <input
           type="text"
           className="w-full h-8 pl-2.5 pr-8 text-[12px] rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
-          placeholder="Add a comment..."
+          placeholder={t('addComment')}
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           disabled={isSubmitting}

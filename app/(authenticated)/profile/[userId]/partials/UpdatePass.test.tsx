@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import UpdatePass from './UpdatePass';
 
@@ -37,17 +38,17 @@ describe('UpdatePass Component', () => {
   });
 
   it('renders the UpdatePass component', () => {
-    render(<UpdatePass userId={1} profile={mockProfile} />);
+    renderWithIntl(<UpdatePass userId={1} profile={mockProfile} />);
     expect(screen.getByText('Update Password')).toBeDefined();
   });
 
   it('shows current password input if profile id matches user id', () => {
-    render(<UpdatePass userId={1} profile={mockProfile} />);
+    renderWithIntl(<UpdatePass userId={1} profile={mockProfile} />);
     expect(screen.getByLabelText('Current Password')).toBeDefined();
   });
 
   it('does not show current password input if profile id does not match user id', () => {
-    render(<UpdatePass userId={2} profile={mockProfile} />);
+    renderWithIntl(<UpdatePass userId={2} profile={mockProfile} />);
     expect(screen.queryAllByLabelText('Current Password')).toEqual([]);
   });
 
@@ -66,7 +67,7 @@ describe('UpdatePass Component', () => {
       vi.fn(),
       false,
     ]);
-    render(<UpdatePass userId={1} profile={mockProfile} />);
+    renderWithIntl(<UpdatePass userId={1} profile={mockProfile} />);
     expect(screen.getByText('Current password is required')).toBeDefined();
     expect(screen.getByText('Password is too short')).toBeDefined();
     expect(screen.getByText('Passwords do not match')).toBeDefined();
@@ -84,13 +85,13 @@ describe('UpdatePass Component', () => {
       vi.fn(),
       false,
     ]);
-    render(<UpdatePass userId={1} profile={mockProfile} />);
+    renderWithIntl(<UpdatePass userId={1} profile={mockProfile} />);
     expect(screen.getByText(successMessage)).toBeDefined();
   });
 
   it('disables the submit button when pending is true', () => {
     mocks.useActionState.mockReturnValueOnce([state, vi.fn(), true]);
-    render(<UpdatePass userId={1} profile={mockProfile} />);
+    renderWithIntl(<UpdatePass userId={1} profile={mockProfile} />);
     const submitButton = screen.getByText(/Updating.../i);
     expect(submitButton).toBeDisabled();
   });
@@ -98,7 +99,7 @@ describe('UpdatePass Component', () => {
   it('calls the action function when form is submitted', () => {
     const mockAction = vi.fn();
     mocks.useActionState.mockReturnValue([state, mockAction, false]);
-    render(<UpdatePass userId={1} profile={mockProfile} />);
+    renderWithIntl(<UpdatePass userId={1} profile={mockProfile} />);
 
     const submitButton = screen.getByText(/Change Password/i);
     fireEvent.click(submitButton);

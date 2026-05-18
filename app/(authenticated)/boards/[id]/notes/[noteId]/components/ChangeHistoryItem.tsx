@@ -6,6 +6,7 @@ import ChangeComments from './ChangeComments';
 import { getDiffSummary, getDiffPreview } from '@/utils/diff';
 import { truncateWord } from '@/utils/text';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 type ChangeHistoryItemProps = {
   change: {
@@ -51,6 +52,7 @@ export default function ChangeHistoryItem({
   isOwner,
   currentUserId,
 }: ChangeHistoryItemProps) {
+  const t = useTranslations('NoteEditor');
   const [showComments, setShowComments] = useState(false);
 
   const diffSummary = getDiffSummary(change.diffPatch);
@@ -96,30 +98,30 @@ export default function ChangeHistoryItem({
           variant="outline"
           size="sm"
           className="h-7 px-2.5 rounded-[8px] font-[700] text-[11px] hover:bg-primary hover:text-primary-foreground"
-          title="Restore note to this version"
+          title={t('restoreVersionTitle')}
           onClick={handleRestore}
         >
           <History className="h-3 w-3 mr-1.5" />
-          Restore
+          {t('restoreVersion')}
         </Button>
         <Button
           variant={change.comments.length > 0 ? 'secondary' : 'ghost'}
           size="sm"
           className="h-7 px-2.5 rounded-[8px] font-[700] text-[11px] bg-secondary/50"
           onClick={() => setShowComments(!showComments)}
-          title="Toggle comments"
+          title={t('toggleComments')}
         >
           <MessageCircle className="h-3 w-3 mr-1.5" />
           {change.comments.length > 0
-            ? `${change.comments.length} Comments`
-            : 'Comment'}
+            ? t('commentsCount', { count: change.comments.length })
+            : t('comment')}
         </Button>
         {isOwner && (
           <Button
             variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-auto transition-colors"
-            title="Delete this change from history"
+            title={t('deleteChange')}
             onClick={() => onDeleteRequest?.(change.id)}
           >
             <Trash2 className="h-4 w-4" />

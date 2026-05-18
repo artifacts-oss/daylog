@@ -13,6 +13,7 @@ import ChangeHistoryItem from './ChangeHistoryItem';
 import DeleteHistoryModal from './DeleteHistoryModal';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 type ChangeHistorySidebarProps = {
   noteId: number;
@@ -33,6 +34,7 @@ export default function ChangeHistorySidebar({
   isOwner,
   currentUserId,
 }: ChangeHistorySidebarProps) {
+  const t = useTranslations('NoteEditor');
   const [changes, setChanges] = useState<
     Awaited<ReturnType<typeof getNoteChanges>>
   >([]);
@@ -127,7 +129,7 @@ export default function ChangeHistorySidebar({
           <div className="space-y-2 shrink-0">
             <div className="flex items-center justify-between">
               <h3 className="text-[20px] font-[800] text-foreground tracking-tight flex items-center gap-2">
-                Change History
+                {t('changeHistory')}
               </h3>
               <div className="flex items-center gap-2">
                 {changes.length > 0 && isOwner && (
@@ -135,7 +137,7 @@ export default function ChangeHistorySidebar({
                     variant="ghost"
                     size="icon"
                     disabled={isLoading}
-                    title="Clear all history"
+                    title={t('clearAllHistory')}
                     className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"
                     onClick={() => setShowClearHistory(true)}
                   >
@@ -145,7 +147,7 @@ export default function ChangeHistorySidebar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label="Close sidebar"
+                  aria-label={t('closeSidebar')}
                   className="h-8 w-8 rounded-full hover:bg-accent transition-colors"
                   onClick={onClose}
                 >
@@ -166,10 +168,10 @@ export default function ChangeHistorySidebar({
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground/70 py-8 opacity-50 space-y-2">
                 <History className="h-12 w-12" />
                 <p className="text-xs font-bold uppercase tracking-widest text-center">
-                  No changes yet
+                  {t('noChangesYet')}
                 </p>
                 <p className="text-[11px] text-center">
-                  Changes will appear here as you edit this note
+                  {t('changesAppear')}
                 </p>
               </div>
             )}
@@ -201,7 +203,7 @@ export default function ChangeHistorySidebar({
                 className="w-full mt-1 mb-2 font-bold bg-background text-primary hover:bg-accent border-border"
                 onClick={() => setVisibleCount((prev) => prev + 4)}
               >
-                View previous changes
+                {t('viewPreviousChanges')}
               </Button>
             )}
           </div>
@@ -211,9 +213,9 @@ export default function ChangeHistorySidebar({
       <DeleteHistoryModal
         isOpen={showClearHistory}
         onOpenChange={setShowClearHistory}
-        title="Clear all history?"
-        description="Do you really want to clear all history for this note? This action cannot be undone."
-        actionLabel="Yes, clear all"
+        title={t('clearHistoryTitle')}
+        description={t('clearHistoryDescription')}
+        actionLabel={t('clearHistoryAction')}
         onConfirm={handleClearHistory}
         isLoading={isLoading}
       />
@@ -221,9 +223,9 @@ export default function ChangeHistorySidebar({
       <DeleteHistoryModal
         isOpen={changeToDelete !== null}
         onOpenChange={(open) => !open && setChangeToDelete(null)}
-        title="Delete history entry?"
-        description="Are you sure you want to delete this specific change from history? This action cannot be undone."
-        actionLabel="Yes, delete"
+        title={t('deleteHistoryEntryTitle')}
+        description={t('deleteHistoryEntryDescription')}
+        actionLabel={t('deleteHistoryEntryAction')}
         onConfirm={handleItemDelete}
         isLoading={isLoading}
       />
@@ -231,9 +233,9 @@ export default function ChangeHistorySidebar({
       <DeleteHistoryModal
         isOpen={versionToRestore !== null}
         onOpenChange={(open) => !open && setVersionToRestore(null)}
-        title="Restore note?"
-        description="Are you sure you want to restore the note to this version? This will replace the current content."
-        actionLabel="Yes, restore"
+        title={t('restoreNoteTitle')}
+        description={t('restoreNoteDescription')}
+        actionLabel={t('restoreNoteAction')}
         onConfirm={handleVersionRestore}
         isLoading={isLoading}
         variant="primary"
@@ -242,9 +244,9 @@ export default function ChangeHistorySidebar({
       <DeleteHistoryModal
         isOpen={commentToDelete !== null}
         onOpenChange={(open) => !open && setCommentToDelete(null)}
-        title="Delete comment?"
-        description="Are you sure you want to delete this comment? This action cannot be undone."
-        actionLabel="Yes, delete"
+        title={t('deleteCommentTitle')}
+        description={t('deleteCommentDescription')}
+        actionLabel={t('deleteCommentAction')}
         onConfirm={handleCommentDelete}
         isLoading={isLoading}
       />

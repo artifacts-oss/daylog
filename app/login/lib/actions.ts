@@ -3,6 +3,7 @@
 import type { Session, User } from '@/prisma/generated/client';
 
 import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
+import { defaultLocale, isValidLocale, localeCookieName } from '@/i18n/config';
 import { prisma } from '@/prisma/client';
 import { encodeBase32, encodeHex, verifyPassword } from '@/utils/crypto';
 import { randomDelay } from '@/utils/delay';
@@ -13,9 +14,10 @@ import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import { setSessionTokenCookie } from './cookies';
 import {
+  createSigninFormSchema,
+  createValidateMFAFormSchema,
   FormState,
-  SigninFormSchema,
-  ValidateMFAFormSchema,
+  getLoginActionMessages,
   ValidateMFAFormState,
 } from './definitions';
 import { NextRequest } from 'next/server';
@@ -29,18 +31,34 @@ interface AttemptLimitResult {
   message?: string;
 }
 
+async function getCurrentLocale() {
+  try {
+    const cookieStore = await cookies();
+    const requestedLocale = cookieStore.get(localeCookieName)?.value;
+
+    if (requestedLocale && isValidLocale(requestedLocale)) {
+      return requestedLocale;
+    }
+  } catch {
+    // Fallback for tests or non-request contexts.
+  }
+
+  return defaultLocale;
+}
+
 async function checkAttemptLimit(user: {
   id: number;
   failedAttempts?: number | null;
   lockUntil?: Date | null;
-}): Promise<AttemptLimitResult> {
+}, locale = defaultLocale): Promise<AttemptLimitResult> {
   const MAX_FAILED_ATTEMPTS = SECURITY_CONFIG.LOCKOUT.MAX_FAILED_ATTEMPTS;
+  const messages = getLoginActionMessages(locale);
   
   if (user.lockUntil && Date.now() < user.lockUntil.getTime()) {
     return {
       isLocked: true,
       lockUntil: user.lockUntil,
-      message: 'Account temporarily locked. Please try again later.',
+      message: messages.accountLocked,
     };
   }
   
@@ -52,7 +70,7 @@ async function checkAttemptLimit(user: {
   };
 }
 
-async function registerFailedAttempt(userId: number): Promise<AttemptLimitResult> {
+async function registerFailedAttempt(userId: number, locale = defaultLocale): Promise<AttemptLimitResult> {
   const MAX_FAILED_ATTEMPTS = SECURITY_CONFIG.LOCKOUT.MAX_FAILED_ATTEMPTS;
   const LOCK_DURATION = SECURITY_CONFIG.LOCKOUT.LOCK_DURATION_MS;
   
@@ -76,7 +94,7 @@ async function registerFailedAttempt(userId: number): Promise<AttemptLimitResult
     },
   });
   
-  return await checkAttemptLimit(updatedUser);
+  return await checkAttemptLimit(updatedUser, locale);
 }
 
 async function resetFailedAttempts(userId: number): Promise<void> {
@@ -165,8 +183,10 @@ export async function signin(
   formData: FormData,
   request?: NextRequest,
 ) {
+  const locale = await getCurrentLocale();
+  const messages = getLoginActionMessages(locale);
   const callbackUrl = formData.get('callbackUrl')?.toString() || '/';
-  const result = SigninFormSchema.safeParse({
+  const result = createSigninFormSchema(locale).safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
   });
@@ -179,7 +199,7 @@ export async function signin(
     if (!rateLimitResult.allowed) {
       return {
         data: result.data,
-        message: 'Too many login attempts. Please try again later.',
+        message: messages.tooManyAttempts,
       };
     }
   }
@@ -204,11 +224,11 @@ export async function signin(
       console.warn(`Failed login attempt for email: ${result.data.email}`);
       return {
         data: result.data,
-        message: 'Invalid email or password.',
+        message: messages.invalidCredentials,
       };
     }
 
-    const attemptLimit = await checkAttemptLimit(record);
+    const attemptLimit = await checkAttemptLimit(record, locale);
     if (attemptLimit.isLocked) {
       console.warn(
         `Account locked: User with email ${result.data.email} is temporarily locked until ${attemptLimit.lockUntil}`,
@@ -224,14 +244,14 @@ export async function signin(
       record.password,
     );
     if (!isPasswordValid) {
-      const failedAttemptResult = await registerFailedAttempt(record.id);
+      const failedAttemptResult = await registerFailedAttempt(record.id, locale);
       
       console.warn(`Failed login attempt for email: ${result.data.email}`);
       return {
         data: result.data,
         message: failedAttemptResult.isLocked 
           ? failedAttemptResult.message 
-          : 'Invalid email or password.',
+          : messages.invalidCredentials,
       };
     }
 
@@ -249,7 +269,7 @@ export async function signin(
     console.error(e);
     return {
       data: result.data,
-      message: 'An error occurred while signing in to your account.',
+      message: messages.signinUnexpected,
     };
   }
 
@@ -285,12 +305,14 @@ export async function validateMFA(
   state: ValidateMFAFormState,
   formData: FormData,
 ) {
+  const locale = await getCurrentLocale();
+  const messages = getLoginActionMessages(locale);
   const data = {
     id: Number(formData.get('id')),
     password: formData.get('password'),
   };
 
-  const result = ValidateMFAFormSchema.safeParse(data);
+  const result = createValidateMFAFormSchema(locale).safeParse(data);
 
   if (!result.success) {
     return {
@@ -306,10 +328,10 @@ export async function validateMFA(
     });
 
     if (!record) {
-      throw new Error('User not found.');
+      throw new Error(messages.userNotFound);
     }
 
-    const attemptLimit = await checkAttemptLimit(record);
+    const attemptLimit = await checkAttemptLimit(record, locale);
     if (attemptLimit.isLocked) {
       console.warn(
         `Account locked for OTP validation: User ${data.id} is temporarily locked until ${attemptLimit.lockUntil}`,
@@ -318,29 +340,31 @@ export async function validateMFA(
         data: result.data,
         message: attemptLimit.message,
         success: false,
+        isLocked: true,
       };
     }
 
     const secret = record.secret;
     if (!secret) {
-      throw new Error('Secret not found');
+      throw new Error(messages.secretNotFound);
     }
 
     if (!validateTOTP(secret, result.data.password)) {
-      const failedAttemptResult = await registerFailedAttempt(record.id);
+      const failedAttemptResult = await registerFailedAttempt(record.id, locale);
       
       let message = failedAttemptResult.isLocked 
         ? failedAttemptResult.message 
-        : 'OTP is not valid or is expired.';
+        : messages.otpInvalid;
       
       if (!failedAttemptResult.isLocked && failedAttemptResult.remainingAttempts !== undefined) {
-        message += ` ${failedAttemptResult.remainingAttempts} attempts remaining.`;
+        message += ` ${messages.attemptsRemaining.replace('{count}', String(failedAttemptResult.remainingAttempts))}`;
       }
       
       return {
         data: result.data,
         message,
         success: false,
+        isLocked: failedAttemptResult.isLocked,
       };
     }
 
@@ -351,8 +375,9 @@ export async function validateMFA(
     console.error(e);
     return {
       data: result.data,
-      message: 'An error occurred while validating your OTP.',
+      message: messages.otpUnexpected,
       success: false,
+      isLocked: false,
     };
   }
 

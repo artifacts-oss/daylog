@@ -1,8 +1,9 @@
 import '@/utils/test/commonMocks';
-import { render, screen, fireEvent, cleanup, act } from '@testing-library/react';
+import { screen, fireEvent, cleanup, act } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import SharesTable from './SharesTable';
 import { SharedContent } from '../lib/types';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
 // Mock the actions
 vi.mock('../lib/actions', () => ({
@@ -57,12 +58,12 @@ describe('SharesTable', () => {
   });
 
   it('renders "No shared content yet" when empty', () => {
-    render(<SharesTable shares={[]} />);
+    renderWithIntl(<SharesTable shares={[]} />);
     expect(screen.getByText('No shared content yet')).toBeInTheDocument();
   });
 
   it('renders share items with correct icons and titles', () => {
-    render(<SharesTable shares={mockShares} />);
+    renderWithIntl(<SharesTable shares={mockShares} />);
 
     expect(screen.getByText('Test Note')).toBeInTheDocument();
     expect(screen.getByText('Expired Board')).toBeInTheDocument();
@@ -73,7 +74,7 @@ describe('SharesTable', () => {
   });
 
   it('shows correct status badges', () => {
-    render(<SharesTable shares={mockShares} />);
+    renderWithIntl(<SharesTable shares={mockShares} />);
 
     expect(screen.getByText('Password')).toBeInTheDocument();
     expect(screen.getByText('One-Time')).toBeInTheDocument();
@@ -88,7 +89,7 @@ describe('SharesTable', () => {
     Object.assign(navigator, { clipboard: mockClipboard });
     window.alert = vi.fn();
 
-    render(<SharesTable shares={mockShares} />);
+    renderWithIntl(<SharesTable shares={mockShares} />);
 
     const copyButtons = screen.getAllByTitle('Copy share link');
     const button = copyButtons[0];
@@ -116,7 +117,7 @@ describe('SharesTable', () => {
   });
 
   it('shows revocation dialog when delete button is clicked', async () => {
-    render(<SharesTable shares={mockShares} />);
+    renderWithIntl(<SharesTable shares={mockShares} />);
 
     const deleteButtons = screen.getAllByTitle('Revoke link');
     fireEvent.click(deleteButtons[0]);
@@ -125,13 +126,11 @@ describe('SharesTable', () => {
     expect(
       screen.getByText(/Are you sure you want to revoke the link for/),
     ).toBeInTheDocument();
-
-    // Use getAllByText because it appears in the table and the dialog
-    expect(screen.getAllByText('Test Note')).toHaveLength(2);
+    expect(screen.getByText('Test Note')).toBeInTheDocument();
   });
 
   it('hides password update button for expired links', () => {
-    render(<SharesTable shares={mockShares} />);
+    renderWithIntl(<SharesTable shares={mockShares} />);
 
     // s1 (active) has a Key button. s2 (expired) has it hidden.
     // We should find exactly 1 button that matches the password change titles.

@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SettingsType } from '../lib/actions';
 import PreferencesTab from './PreferencesTab';
@@ -46,7 +47,7 @@ describe('PreferencesTab', () => {
   });
 
   it('renders correctly', async () => {
-    render(<PreferencesTab initialSettings={initialSettings} />);
+    renderWithIntl(<PreferencesTab initialSettings={initialSettings} />);
 
     expect(await screen.findByText('Security')).toBeInTheDocument();
     expect(await screen.findByText(/Third-party Integrations/i)).toBeInTheDocument();
@@ -54,7 +55,7 @@ describe('PreferencesTab', () => {
   });
 
   it('toggles MFA checkbox', async () => {
-    render(<PreferencesTab initialSettings={initialSettings} />);
+    renderWithIntl(<PreferencesTab initialSettings={initialSettings} />);
 
     const mfaCheckbox = screen.getByLabelText('Two-Factor Authentication (2FA)');
 
@@ -64,7 +65,7 @@ describe('PreferencesTab', () => {
   });
 
   it('toggles Allow Registration checkbox', () => {
-    render(<PreferencesTab initialSettings={initialSettings} />);
+    renderWithIntl(<PreferencesTab initialSettings={initialSettings} />);
 
     const allowRegCheckbox = screen.getByLabelText('Public Registration');
 
@@ -74,7 +75,7 @@ describe('PreferencesTab', () => {
   });
 
   it('toggles Unsplash checkbox', () => {
-    render(<PreferencesTab initialSettings={initialSettings} />);
+    renderWithIntl(<PreferencesTab initialSettings={initialSettings} />);
 
     const unsplashCheckbox = screen.getByLabelText('Unsplash Integration');
 
@@ -84,7 +85,7 @@ describe('PreferencesTab', () => {
   });
 
   it('toggles S3 checkbox', () => {
-    render(<PreferencesTab initialSettings={initialSettings} />);
+    renderWithIntl(<PreferencesTab initialSettings={initialSettings} />);
 
     const s3Checkbox = screen.getByLabelText('Amazon S3 Storage');
 
@@ -94,7 +95,7 @@ describe('PreferencesTab', () => {
   });
 
   it('submits the form', async () => {
-    render(<PreferencesTab initialSettings={initialSettings} />);
+    renderWithIntl(<PreferencesTab initialSettings={initialSettings} />);
 
     const saveButton = await screen.findByText('Save Changes');
     fireEvent.click(saveButton);
@@ -118,7 +119,7 @@ describe('PreferencesTab', () => {
       false,
     ]);
 
-    render(<PreferencesTab initialSettings={initialSettings} />);
+    renderWithIntl(<PreferencesTab initialSettings={initialSettings} />);
 
     const saveButton = await screen.findByText('Save Changes');
     fireEvent.click(saveButton);

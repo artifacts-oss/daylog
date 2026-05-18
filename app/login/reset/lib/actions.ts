@@ -1,13 +1,32 @@
 'use server';
 
+import { defaultLocale, isValidLocale, localeCookieName } from '@/i18n/config';
 import { prisma } from '@/prisma/client';
 import { hashPassword } from '@/utils/crypto';
 import { createAndVerifyTransporter } from '@/utils/email';
 import { randomBytes } from 'crypto';
-import { FormState, ResetFormSchema } from './definitions';
+import { cookies } from 'next/headers';
+import { createResetFormSchema, FormState, getResetMessages } from './definitions';
+
+async function getCurrentLocale() {
+  try {
+    const cookieStore = await cookies();
+    const requestedLocale = cookieStore.get(localeCookieName)?.value;
+
+    if (requestedLocale && isValidLocale(requestedLocale)) {
+      return requestedLocale;
+    }
+  } catch {
+    // Fallback for tests or non-request contexts.
+  }
+
+  return defaultLocale;
+}
 
 export async function reset(state: FormState, formData: FormData) {
-  const result = ResetFormSchema.safeParse({
+  const locale = await getCurrentLocale();
+  const messages = getResetMessages(locale);
+  const result = createResetFormSchema(locale).safeParse({
     email: formData.get('email'),
   });
 
@@ -25,7 +44,7 @@ export async function reset(state: FormState, formData: FormData) {
 
     if (!record) {
       return {
-        message: 'This email is no registered.',
+        message: messages.notRegistered,
       };
     }
 
@@ -33,8 +52,7 @@ export async function reset(state: FormState, formData: FormData) {
     // Expecting error if SMTPTransport is not well configured.
     const transporter = await createAndVerifyTransporter();
 
-    // Generate a new password and hash it
-const newPassword = randomBytes(8).toString('hex');
+    const newPassword = randomBytes(8).toString('hex');
     const hashedPassword = await hashPassword(newPassword);
     await prisma.user.update({
       where: { id: record.id },
@@ -44,8 +62,8 @@ const newPassword = randomBytes(8).toString('hex');
     const info = await transporter.sendMail({
       from: `"${'daylog'} accounts" <${process.env.SMTP_SERVER_USER}>`,
       to: record.email,
-      subject: 'Account password reset',
-      text: `Your account password has been reset, use ${newPassword} to login. Remember to change your password in profile section.`,
+      subject: messages.emailSubject,
+      text: messages.emailBody.replace('{password}', newPassword),
     });
     return {
       success: info.messageId ? true : false,
@@ -53,7 +71,7 @@ const newPassword = randomBytes(8).toString('hex');
   } catch (e) {
     console.error(e);
     return {
-      message: `An error occurred while reseting your account.`,
+      message: messages.unexpectedError,
     };
   }
 }

@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { CheckIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 function Switch({
   name,
@@ -81,6 +82,7 @@ export default function PreferencesTab({
 }: {
   initialSettings?: SettingsType | null;
 }) {
+  const t = useTranslations('Preferences');
   const [state, action, pending] = useActionState(saveSettings, {
     success: false,
     data: initialSettings ?? {
@@ -117,9 +119,9 @@ export default function PreferencesTab({
         {/* Security Section */}
         <Card className="border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30">
-            <CardTitle>Security</CardTitle>
+            <CardTitle>{t('securityTitle')}</CardTitle>
             <CardDescription>
-              Manage access controls and authentication methods.
+              {t('securityDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="divide-y divide-border/40">
@@ -128,16 +130,16 @@ export default function PreferencesTab({
               value="mfa"
               checked={settings.mfa}
               onChange={() => handleToggle('mfa')}
-              label="Two-Factor Authentication (2FA)"
-              description="Require an extra code from an authenticator app to sign in."
+              label={t('mfaLabel')}
+              description={t('mfaDescription')}
             />
             <Switch
               name="settings"
               value="allowReg"
               checked={settings.allowReg}
               onChange={() => handleToggle('allowReg')}
-              label="Public Registration"
-              description="Allow new users to create an account on this instance."
+              label={t('allowRegistrationLabel')}
+              description={t('allowRegistrationDescription')}
             />
           </CardContent>
         </Card>
@@ -145,9 +147,9 @@ export default function PreferencesTab({
         {/* Third Party Section */}
         <Card className="border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30">
-            <CardTitle>Third-party Integrations</CardTitle>
+            <CardTitle>{t('integrationsTitle')}</CardTitle>
             <CardDescription>
-              Connect external services and data sources.
+              {t('integrationsDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="divide-y divide-border/40">
@@ -156,25 +158,12 @@ export default function PreferencesTab({
               value="allowUnsplash"
               checked={settings.allowUnsplash}
               onChange={() => handleToggle('allowUnsplash')}
-              label="Unsplash Integration"
-              description="Use Unsplash as a high-quality source for board covers and images."
+              label={t('unsplashLabel')}
+              description={t('unsplashDescription')}
               extraInfo={
                 <div className="flex items-start gap-2 text-xs text-muted-foreground mt-2 bg-muted/50 p-3 rounded-lg border border-border/40">
                   <InformationCircleIcon className="h-4 w-4 shrink-0 mt-0.5" />
-                  <div>
-                    Requires{' '}
-                    <code className="bg-muted px-1 py-0.5 rounded">
-                      UNSPLASH_ACCESS_KEY
-                    </code>{' '}
-                    in environment variables.
-                    <a
-                      href="https://unsplash.com/developers"
-                      target="_blank"
-                      className="ml-1 text-primary hover:underline"
-                    >
-                      Learn more
-                    </a>
-                  </div>
+                  <div>{t('unsplashInfo')}</div>
                 </div>
               }
             />
@@ -184,9 +173,9 @@ export default function PreferencesTab({
         {/* Storage Section */}
         <Card className="border-border/40 shadow-sm overflow-hidden">
           <CardHeader className="bg-muted/30">
-            <CardTitle>Storage</CardTitle>
+            <CardTitle>{t('storageTitle')}</CardTitle>
             <CardDescription>
-              Configure where your media and attachments are stored.
+              {t('storageDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent className="divide-y divide-border/40">
@@ -195,14 +184,12 @@ export default function PreferencesTab({
               value="enableS3"
               checked={settings.enableS3}
               onChange={() => handleToggle('enableS3')}
-              label="Amazon S3 Storage"
-              description="Offload file storage to an AWS S3 bucket instead of local storage."
+              label={t('s3Label')}
+              description={t('s3Description')}
               extraInfo={
                 <div className="flex items-start gap-2 text-xs text-muted-foreground mt-2 bg-muted/50 p-3 rounded-lg border border-border/40">
                   <InformationCircleIcon className="h-4 w-4 shrink-0 mt-0.5" />
-                  <div>
-                    Requires S3 bucket credentials in environment variables.
-                  </div>
+                  <div>{t('s3Info')}</div>
                 </div>
               }
             />
@@ -224,7 +211,7 @@ export default function PreferencesTab({
           )}
         </div>
         <Button type="submit" disabled={pending} className="min-w-[140px]">
-          {pending ? 'Saving...' : 'Save Changes'}
+          {pending ? t('saving') : t('saveChanges')}
         </Button>
       </div>
     </form>

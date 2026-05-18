@@ -479,9 +479,10 @@ describe('validateMFA', () => {
     });
 
     expect(result.message).toBe(
-      'OTP is not valid or is expired. 1 attempts remaining.',
+      'OTP is not valid or has expired. 1 attempts remaining.',
     );
     expect(result.success).toBe(false);
+    expect(result.isLocked).toBe(false);
   });
 
   it('should return error with remaining attempts when OTP validation fails', async () => {

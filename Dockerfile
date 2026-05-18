@@ -58,6 +58,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/entrypoint.sh ./entrypoint.sh
+RUN sed -i 's/\r$//' entrypoint.sh
 
 # Create storage directory with proper permissions
 RUN mkdir -p /app/storage && chown -R nextjs:nodejs /app/storage

@@ -1,12 +1,31 @@
 'use server';
 
 import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
+import { defaultLocale, isValidLocale, localeCookieName } from '@/i18n/config';
 import { prisma } from '@/prisma/client';
 import { hashPassword } from '@/utils/crypto';
-import { FormState, SignupFormSchema } from './definitions';
+import { createSignupFormSchema, FormState, getRegisterMessages } from './definitions';
 import { getCurrentSession } from '@/app/login/lib/actions';
+import { cookies } from 'next/headers';
+
+async function getCurrentLocale() {
+  try {
+    const cookieStore = await cookies();
+    const requestedLocale = cookieStore.get(localeCookieName)?.value;
+
+    if (requestedLocale && isValidLocale(requestedLocale)) {
+      return requestedLocale;
+    }
+  } catch {
+    // Fallback for tests or non-request contexts.
+  }
+
+  return defaultLocale;
+}
 
 export async function signup(state: FormState, formData: FormData) {
+  const locale = await getCurrentLocale();
+  const messages = getRegisterMessages(locale);
   const data = {
     name: formData.get('name'),
     email: formData.get('email'),
@@ -14,7 +33,7 @@ export async function signup(state: FormState, formData: FormData) {
     terms: formData.get('terms'),
   };
 
-  const result = SignupFormSchema.safeParse(data);
+  const result = createSignupFormSchema(locale).safeParse(data);
 
   if (!result.success) {
     return {
@@ -30,7 +49,7 @@ export async function signup(state: FormState, formData: FormData) {
 
   if (!isRegistrationAllowed && (!user || user?.role !== 'admin')) {
     return {
-      message: 'Registration is not allowed.',
+      message: messages.registrationNotAllowed,
       success: false,
     };
   }
@@ -47,12 +66,12 @@ export async function signup(state: FormState, formData: FormData) {
     });
     if (user) {
       return {
-        message: 'User already exists.',
+        message: messages.userExists,
         success: false,
       };
     }
 
-const hashedPassword = await hashPassword(result.data.password);
+    const hashedPassword = await hashPassword(result.data.password);
 
     result.data.password = hashedPassword;
 
@@ -62,11 +81,11 @@ const hashedPassword = await hashPassword(result.data.password);
       success: true,
     };
   } catch (e) {
-    console.error(e)
+    console.error(e);
     return {
       success: false,
       data: result.data,
-      message: 'An error occurred while creating your account.',
+      message: messages.unexpectedError,
     };
   }
 }

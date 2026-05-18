@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import NavThemeToggle from './NavThemeToggle';
 import NavSearch from './NavSearch';
+import LocaleSwitcher from './LocaleSwitcher';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -18,6 +19,7 @@ import {
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
 import { signout } from '@/app/(authenticated)/lib/actions';
+import { useTranslations } from 'next-intl';
 
 import { User } from '@/prisma/generated/client';
 
@@ -26,6 +28,8 @@ interface NavHeaderProps {
 }
 
 export default function NavHeader({ user }: NavHeaderProps) {
+  const t = useTranslations('Navigation');
+
   if (!user) {
     return null;
   }
@@ -43,6 +47,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
         <NavSearch />
       </div>
       <div className="flex items-center gap-2">
+        <LocaleSwitcher />
         <NavThemeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -63,7 +68,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link
@@ -71,7 +76,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
                 className="flex items-center cursor-pointer"
               >
                 <UserIcon className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>{t('profile')}</span>
               </Link>
             </DropdownMenuItem>
             {user?.role === 'admin' && (
@@ -81,7 +86,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
                   className="flex items-center cursor-pointer"
                 >
                   <ShieldCheckIcon className="mr-2 h-4 w-4" />
-                  <span>Administration</span>
+                  <span>{t('administration')}</span>
                 </Link>
               </DropdownMenuItem>
             )}
@@ -91,7 +96,7 @@ export default function NavHeader({ user }: NavHeaderProps) {
               className="flex items-center text-destructive focus:text-destructive cursor-pointer"
             >
               <ArrowRightStartOnRectangleIcon className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <span>{t('logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

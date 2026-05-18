@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getUserMFA } from '../../lib/actions';
@@ -7,8 +8,10 @@ import OTPLoginForm from './partials/OTPLoginForm';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export default function OTPLogin() {
+  const t = useTranslations('OTPPage');
   const params = useParams();
   const userId = parseInt(params?.userId as string);
   const [mfa, setMfa] = useState<boolean | null>(null);
@@ -54,7 +57,7 @@ export default function OTPLogin() {
             />
           </Link>
           <p className="mt-2 text-sm text-muted-foreground font-medium tracking-wide uppercase">
-            Multifactor Authentication
+            {t('title')}
           </p>
         </motion.div>
 
@@ -63,10 +66,10 @@ export default function OTPLogin() {
         ) : mfa === false ? (
           <div className="text-center p-8 glass-card border rounded-lg">
             <p className="text-muted-foreground">
-              Access denied or MFA not configured.
+              {t('accessDenied')}
             </p>
             <Button variant="link" asChild className="mt-2">
-              <Link href="/login">Return to login</Link>
+              <Link href="/login">{t('returnToLogin')}</Link>
             </Button>
           </div>
         ) : (
@@ -78,5 +81,3 @@ export default function OTPLogin() {
     </div>
   );
 }
-
-import { Button } from '@/components/ui/button';

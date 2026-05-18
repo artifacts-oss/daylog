@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import UserModal from './UserModal'; // Adjust the import path as needed
 
@@ -27,13 +28,13 @@ describe('UserModal', () => {
   });
 
   it('renders the modal button', () => {
-    render(<UserModal />);
+    renderWithIntl(<UserModal />);
     const button = screen.getByRole('button', { name: /create new user/i });
     expect(button).toBeInTheDocument();
   });
 
   it('opens the modal when the button is clicked', () => {
-    render(<UserModal />);
+    renderWithIntl(<UserModal />);
     const button = screen.getByRole('button', { name: /create new user/i });
     fireEvent.click(button);
     const modal = screen.getByRole('dialog');
@@ -41,7 +42,7 @@ describe('UserModal', () => {
   });
 
   it('renders the form inside the modal', () => {
-    render(<UserModal />);
+    renderWithIntl(<UserModal />);
     const button = screen.getByRole('button', { name: /create new user/i });
     fireEvent.click(button);
     const form = screen.getByText('New user');
@@ -58,7 +59,7 @@ describe('UserModal', () => {
       vi.fn(),
       false,
     ]);
-    render(<UserModal />);
+    renderWithIntl(<UserModal />);
     const button = screen.getByRole('button', { name: /create new user/i });
     fireEvent.click(button);
     const nameError = screen.getByText(/name is required/i);
@@ -77,7 +78,7 @@ describe('UserModal', () => {
       vi.fn(),
       false,
     ]);
-    render(<UserModal />);
+    renderWithIntl(<UserModal />);
     const button = screen.getByRole('button', { name: /create new user/i });
     fireEvent.click(button);
     const passwordError = screen.getByText(/password is required/i);

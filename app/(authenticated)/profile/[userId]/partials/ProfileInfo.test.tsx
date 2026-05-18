@@ -1,5 +1,6 @@
 import { User } from '@/prisma/generated/client';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ProfileInfo from './ProfileInfo';
 
@@ -43,7 +44,7 @@ describe('ProfileInfo', () => {
   });
 
   it('renders profile information form', () => {
-    render(<ProfileInfo profile={mockProfile} />);
+    renderWithIntl(<ProfileInfo profile={mockProfile} />);
 
     expect(screen.getByText('Profile Information')).toBeDefined();
     expect(screen.getByLabelText('Name').getAttribute('value')).toEqual(
@@ -61,7 +62,7 @@ describe('ProfileInfo', () => {
       vi.fn(),
       false,
     ]);
-    render(<ProfileInfo profile={mockProfile} />);
+    renderWithIntl(<ProfileInfo profile={mockProfile} />);
 
     expect(screen.getByText('Name is required')).toBeDefined();
   });
@@ -73,14 +74,14 @@ describe('ProfileInfo', () => {
       vi.fn(),
       false,
     ]);
-    render(<ProfileInfo profile={mockProfile} />);
+    renderWithIntl(<ProfileInfo profile={mockProfile} />);
 
     expect(screen.getByText(successMessage)).toBeDefined();
   });
 
   it('displays a loading state when the form is being submitted', () => {
     mocks.useActionState.mockReturnValue([state, vi.fn(), true]);
-    render(<ProfileInfo profile={mockProfile} />);
+    renderWithIntl(<ProfileInfo profile={mockProfile} />);
 
     const submitButton = screen.getByText(/Saving.../i);
     expect(submitButton).toBeDisabled();
@@ -90,7 +91,7 @@ describe('ProfileInfo', () => {
     const mockAction = vi.fn();
     mocks.useActionState.mockReturnValue([state, mockAction, false]);
 
-    render(<ProfileInfo profile={mockProfile} />);
+    renderWithIntl(<ProfileInfo profile={mockProfile} />);
 
     fireEvent.change(screen.getByLabelText('Name'), {
       target: { value: 'Jane Doe' },

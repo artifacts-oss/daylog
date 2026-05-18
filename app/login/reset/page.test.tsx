@@ -1,6 +1,7 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import Page from './page';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
 const state = { message: 'Error reseting account', success: false };
 
@@ -27,7 +28,7 @@ describe('Page', () => {
   });
 
   it('renders the page correctly', () => {
-    render(<Page />);
+    renderWithIntl(<Page />);
     expect(screen.getByText('Forgot password')).toBeInTheDocument();
     expect(
       screen.getByText(
@@ -40,7 +41,7 @@ describe('Page', () => {
     const mockState = { message: '', success: true };
     mocks.useActionState.mockReturnValueOnce([mockState, vi.fn(), false]);
 
-    render(<Page />);
+    renderWithIntl(<Page />);
     expect(screen.getByText('Account reset')).toBeInTheDocument();
     expect(
       screen.getByText(/Your account has been reset successfully/i),
@@ -51,7 +52,7 @@ describe('Page', () => {
     const mockState = { message: 'Error resetting account', success: false };
     mocks.useActionState.mockReturnValueOnce([mockState, vi.fn(), false]);
 
-    render(<Page />);
+    renderWithIntl(<Page />);
     expect(screen.getByText('Could not reset')).toBeInTheDocument();
     expect(screen.getByText('Error resetting account')).toBeInTheDocument();
   });
@@ -64,7 +65,7 @@ describe('Page', () => {
     };
     mocks.useActionState.mockReturnValue([mockState, vi.fn(), false]);
 
-    render(<Page />);
+    renderWithIntl(<Page />);
     expect(screen.getByText('Invalid email')).toBeInTheDocument();
   });
 
@@ -75,7 +76,7 @@ describe('Page', () => {
       true,
     ]);
 
-    render(<Page />);
+    renderWithIntl(<Page />);
     const submitButton = screen.getByRole('button', { name: /Sending.../i });
     expect(submitButton).toBeDisabled();
   });
@@ -88,7 +89,7 @@ describe('Page', () => {
       false,
     ]);
 
-    render(<Page />);
+    renderWithIntl(<Page />);
     const submitButton = screen.getByRole('button', {
       name: /Send me a new password/i,
     });

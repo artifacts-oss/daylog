@@ -6,19 +6,21 @@ import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 export default function AlertSuccess() {
   const searchParams = useSearchParams();
   const saved = searchParams.get('saved');
   const [visible, setVisible] = useState(true);
+  const t = useTranslations('Alerts');
 
   if (saved !== 'true' || !visible) return null;
 
   return (
     <Alert className="relative">
       <CheckCircleIcon className="h-4 w-4" />
-      <AlertTitle>Saved changes</AlertTitle>
-      <AlertDescription>Your changes have been saved!</AlertDescription>
+      <AlertTitle>{t('savedTitle')}</AlertTitle>
+      <AlertDescription>{t('savedDescription')}</AlertDescription>
       <Button
         variant="ghost"
         size="icon"

@@ -11,8 +11,10 @@ import {
   LockClosedIcon,
 } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export default function OTPLoginForm({ userId }: { userId: number }) {
+  const t = useTranslations('OTPLoginForm');
   const [password, setPassword] = useState('');
   const [state, action, pending] = useActionState(validateMFA, undefined);
 
@@ -37,9 +39,9 @@ export default function OTPLoginForm({ userId }: { userId: number }) {
             >
               <ExclamationTriangleIcon className="h-4 w-4" />
               <AlertTitle>
-                {state.message.includes('locked')
-                  ? 'Account Locked'
-                  : 'Verification failed'}
+                {state.isLocked
+                  ? t('lockedTitle')
+                  : t('errorTitle')}
               </AlertTitle>
               <AlertDescription>{state.message}</AlertDescription>
             </Alert>
@@ -53,10 +55,10 @@ export default function OTPLoginForm({ userId }: { userId: number }) {
             <LockClosedIcon className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">
-            Security Code
+            {t('title')}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            Enter the 6-digit code from your authenticator app
+            {t('description')}
           </p>
         </CardHeader>
         <CardContent>
@@ -101,16 +103,15 @@ export default function OTPLoginForm({ userId }: { userId: number }) {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Verifying...
+                  {t('verifying')}
                 </span>
               ) : (
-                'Verify securely'
+                t('submit')
               )}
             </Button>
 
             <p className="text-center text-xs text-muted-foreground">
-              Use your authenticator app to generate a code <br /> and enter it
-              above.
+              {t('helperLine1')} <br /> {t('helperLine2')}
             </p>
           </form>
         </CardContent>

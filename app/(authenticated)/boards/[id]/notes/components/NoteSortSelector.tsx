@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useTransition } from 'react';
 import { setUserNotesSort } from '../lib/actions';
 import {
@@ -14,12 +15,12 @@ import { ArrowsUpDownIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
 const sortOptions = [
-  { label: 'Newest First', value: 'created_desc' },
-  { label: 'Oldest First', value: 'created_asc' },
-  { label: 'Recently Updated', value: 'updated_desc' },
-  { label: 'Longest Unchanged', value: 'updated_asc' },
-  { label: 'Title: A-Z', value: 'title_asc' },
-  { label: 'Title: Z-A', value: 'title_desc' },
+  { labelKey: 'sortNewestFirst', value: 'created_desc' },
+  { labelKey: 'sortOldestFirst', value: 'created_asc' },
+  { labelKey: 'sortRecentlyUpdated', value: 'updated_desc' },
+  { labelKey: 'sortLongestUnchanged', value: 'updated_asc' },
+  { labelKey: 'sortTitleAsc', value: 'title_asc' },
+  { labelKey: 'sortTitleDesc', value: 'title_desc' },
 ];
 
 export default function NoteSortSelector({
@@ -29,11 +30,12 @@ export default function NoteSortSelector({
   sortingParam?: string;
   boardId: number;
 }) {
+  const t = useTranslations('NotesPage');
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const currentSort = sortingParam || 'created_desc';
   const currentLabel =
-    sortOptions.find((opt) => opt.value === currentSort)?.label || 'Sort';
+    t(sortOptions.find((opt) => opt.value === currentSort)?.labelKey || 'sort');
 
   const handleSort = async (sort: string) => {
     if (sort === currentSort) return;
@@ -74,7 +76,7 @@ export default function NoteSortSelector({
                 'bg-primary/5 text-primary font-bold',
             )}
           >
-            <span className="text-sm">{option.label}</span>
+            <span className="text-sm">{t(option.labelKey)}</span>
             {currentSort === option.value && <CheckIcon className="h-4 w-4" />}
           </DropdownMenuItem>
         ))}

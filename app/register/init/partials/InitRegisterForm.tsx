@@ -1,6 +1,7 @@
 'use client';
 
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useActionState, useState } from 'react';
 import { signupInit } from '../lib/actions';
@@ -16,6 +17,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function InitRegisterForm() {
+  const t = useTranslations('InitRegisterPage');
   const [state, action, pending] = useActionState(signupInit, undefined);
   const [isShowPassword, setIsShowPassword] = useState(false);
 
@@ -46,7 +48,7 @@ export default function InitRegisterForm() {
         {state?.message && (
           <Alert variant="destructive">
             <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertTitle>Account not created</AlertTitle>
+            <AlertTitle>{t('errorTitle')}</AlertTitle>
             <AlertDescription>{state.message}</AlertDescription>
           </Alert>
         )}
@@ -54,29 +56,27 @@ export default function InitRegisterForm() {
         {state?.success && (
           <Alert className="border-green-500 text-green-500">
             <CheckCircleIcon className="h-4 w-4" />
-            <AlertTitle>Account created</AlertTitle>
-            <AlertDescription>
-              Admin account created successfully.
-            </AlertDescription>
+            <AlertTitle>{t('successTitle')}</AlertTitle>
+            <AlertDescription>{t('successDescription')}</AlertDescription>
             <Button asChild className="mt-2">
-              <Link href="/login">Go to login</Link>
+              <Link href="/login">{t('goToLogin')}</Link>
             </Button>
           </Alert>
         )}
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle>Admin registration</CardTitle>
+            <CardTitle>{t('title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <form action={action} autoComplete="off" className="space-y-2">
               <div className="space-y-2 relative pb-5">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('nameLabel')}</Label>
                 <Input
                   id="name"
                   name="name"
                   defaultValue={state?.data?.name?.toString()}
-                  placeholder="Enter name"
+                  placeholder={t('namePlaceholder')}
                   className={state?.errors?.name ? 'border-destructive' : ''}
                 />
                 {state?.errors?.name && (
@@ -86,13 +86,13 @@ export default function InitRegisterForm() {
                 )}
               </div>
               <div className="space-y-2 relative pb-5">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">{t('emailLabel')}</Label>
                 <Input
                   id="email"
                   name="email"
                   type="email"
                   defaultValue={state?.data?.email?.toString()}
-                  placeholder="Enter email"
+                  placeholder={t('emailPlaceholder')}
                   className={state?.errors?.email ? 'border-destructive' : ''}
                 />
                 {state?.errors?.email && (
@@ -104,14 +104,14 @@ export default function InitRegisterForm() {
                 )}
               </div>
               <div className="space-y-2 relative pb-5">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('passwordLabel')}</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={isShowPassword ? 'text' : 'password'}
                     name="password"
                     defaultValue={state?.data?.password?.toString()}
-                    placeholder="Password"
+                    placeholder={t('passwordPlaceholder')}
                     autoComplete="off"
                     className={
                       state?.errors?.password
@@ -140,17 +140,17 @@ export default function InitRegisterForm() {
                 )}
               </div>
               <p className="text-sm text-muted-foreground">
-                By registering your first Admin user you are accepting the{' '}
-                <a
+                {t('termsPrefix')}{' '}
+                <Link
                   href="/register/terms"
                   className="text-primary hover:underline"
                 >
-                  terms and policy
-                </a>
-                .
+                  {t('termsLink')}
+                </Link>
+                {t('termsSuffix')}
               </p>
               <Button type="submit" className="w-full" disabled={pending}>
-                {pending ? 'Creating account...' : 'Create admin account'}
+                {pending ? t('submitting') : t('submit')}
               </Button>
             </form>
           </CardContent>

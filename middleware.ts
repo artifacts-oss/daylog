@@ -2,6 +2,11 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { generalRateLimiter, getClientIP, getRateLimitHeaders } from '@/utils/rateLimit';
 import { SECURITY_CONFIG } from '@/config/security';
+import {
+  localeCookieMaxAge,
+  localeCookieName,
+  resolveLocale,
+} from '@/i18n/config';
 
 const PUBLIC_FILE = /^(?!\/\.(?!well-known\/)).*\.(.*)$/;
 
@@ -38,6 +43,18 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
   const rateLimitResult = generalRateLimiter.isAllowed(`${ip}:${pathname}`);
   
   const response = NextResponse.next();
+  const locale = resolveLocale(
+    request.cookies.get(localeCookieName)?.value,
+    request.headers.get('accept-language'),
+  );
+
+  if (request.cookies.get(localeCookieName)?.value !== locale) {
+    response.cookies.set(localeCookieName, locale, {
+      path: '/',
+      sameSite: 'lax',
+      maxAge: localeCookieMaxAge,
+    });
+  }
   
 // Add security headers from config
   Object.entries(SECURITY_CONFIG.HEADERS).forEach(([key, value]) => {
@@ -102,6 +119,7 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
   // Allow static files, Next.js internals and the auth API through
   if (
     pathname.startsWith('/api/v1/auth') ||
+    pathname.startsWith('/api/v1/locale') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/static') ||
     pathname === '/favicon.ico' ||
@@ -143,8 +161,8 @@ if (origin.host !== hostHeader && !SECURITY_CONFIG.CORS.ALLOWED_ORIGINS.includes
   }
 
   // Validate if admin user exists (for initial registration flow)
-  // Only check if not on register/init page
-  if (pathname !== '/register/init') {
+  // Allow legal terms during the initial registration flow.
+  if (pathname !== '/register/init' && pathname !== '/register/terms') {
     const adminResponse = await fetch(
       `${internalUrl}/api/v1/auth/admin`,
       {

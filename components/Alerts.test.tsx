@@ -1,7 +1,8 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import AlertSuccess from './Alerts';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
 const mockGet = vi.fn();
 
@@ -20,7 +21,7 @@ describe('AlertSuccess', () => {
   it('renders the alert when saved=true', () => {
     mockGet.mockReturnValue('true');
 
-    render(<AlertSuccess />);
+    renderWithIntl(<AlertSuccess />);
 
     expect(screen.getByText('Saved changes')).toBeInTheDocument();
     expect(
@@ -31,7 +32,7 @@ describe('AlertSuccess', () => {
   it('does not render when saved param is missing', () => {
     mockGet.mockReturnValue(null);
 
-    const { container } = render(<AlertSuccess />);
+    const { container } = renderWithIntl(<AlertSuccess />);
 
     expect(container.innerHTML).toBe('');
   });
@@ -39,7 +40,7 @@ describe('AlertSuccess', () => {
   it('does not render when saved param is false', () => {
     mockGet.mockReturnValue('false');
 
-    const { container } = render(<AlertSuccess />);
+    const { container } = renderWithIntl(<AlertSuccess />);
 
     expect(container.innerHTML).toBe('');
   });
@@ -48,7 +49,7 @@ describe('AlertSuccess', () => {
     mockGet.mockReturnValue('true');
     const user = userEvent.setup();
 
-    render(<AlertSuccess />);
+    renderWithIntl(<AlertSuccess />);
 
     expect(screen.getByText('Saved changes')).toBeInTheDocument();
 
@@ -61,7 +62,7 @@ describe('AlertSuccess', () => {
   it('renders the CheckCircleIcon and XMarkIcon', () => {
     mockGet.mockReturnValue('true');
 
-    const { container } = render(<AlertSuccess />);
+    const { container } = renderWithIntl(<AlertSuccess />);
 
     // The alert should contain two SVG icons
     const svgs = container.querySelectorAll('svg');

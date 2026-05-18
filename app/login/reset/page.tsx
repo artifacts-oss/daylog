@@ -14,9 +14,11 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 export default function Page() {
   const [state, action, pending] = useActionState(reset, undefined);
+  const t = useTranslations('ResetPage');
 
   return (
     <div
@@ -45,13 +47,12 @@ export default function Page() {
         {state?.success && (
           <Alert className="border-green-500/20 bg-green-500/5 text-green-500">
             <CheckCircleIcon className="h-4 w-4" />
-            <AlertTitle>Account reset</AlertTitle>
+            <AlertTitle>{t('successTitle')}</AlertTitle>
             <AlertDescription>
-              Your account has been reset successfully. Please check your email
-              inbox and follow the instructions.
+              {t('successDescription')}
             </AlertDescription>
             <Button variant="outline" className="mt-2" asChild>
-              <Link href="/login">Go to login</Link>
+              <Link href="/login">{t('goToLogin')}</Link>
             </Button>
           </Alert>
         )}
@@ -59,19 +60,18 @@ export default function Page() {
         {state?.message && !state?.success && (
           <Alert variant="destructive">
             <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertTitle>Could not reset</AlertTitle>
+            <AlertTitle>{t('errorTitle')}</AlertTitle>
             <AlertDescription>{state.message}</AlertDescription>
           </Alert>
         )}
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle>Forgot password</CardTitle>
+            <CardTitle>{t('title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              Enter your email address and we will send you instructions to
-              reset your password.
+              {t('description')}
             </p>
             <form
               action={action}
@@ -80,12 +80,12 @@ export default function Page() {
               className="space-y-2"
             >
               <div className="space-y-2 relative pb-5">
-                <Label htmlFor="email">Email address</Label>
+                <Label htmlFor="email">{t('emailLabel')}</Label>
                 <Input
                   type="email"
                   name="email"
                   id="email"
-                  placeholder="Enter email"
+                  placeholder={t('emailPlaceholder')}
                   className={state?.errors?.email ? 'border-destructive' : ''}
                 />
                 {state?.errors?.email && (
@@ -96,18 +96,18 @@ export default function Page() {
               </div>
               <Button type="submit" className="w-full" disabled={pending}>
                 <EnvelopeIcon className="h-4 w-4 mr-2" />
-                {pending ? 'Sending...' : 'Send me a new password'}
+                {pending ? t('submitting') : t('submit')}
               </Button>
             </form>
           </CardContent>
         </Card>
 
         <p className="text-center text-sm text-muted-foreground">
-          Never mind,{' '}
+          {t('backPrefix')}{' '}
           <Link href="/login" className="text-foreground hover:underline">
-            take me back
+            {t('backLink')}
           </Link>{' '}
-          to the sign in screen.
+          {t('backSuffix')}
         </p>
       </div>
     </div>

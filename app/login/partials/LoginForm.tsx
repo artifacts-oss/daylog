@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useActionState, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { signin } from '../lib/actions';
 import { validateAllowRegistration } from '@/app/register/lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +19,7 @@ export default function LoginForm() {
   const callbackUrl = searchParams?.get('callbackUrl') || '/';
   const [state, action, pending] = useActionState(signin, undefined);
   const [isRegAllowed, setIsRegAllowed] = useState(false);
+  const t = useTranslations('LoginPage');
 
   useEffect(() => {
     validateAllowRegistration().then((allowReg) => {
@@ -58,7 +60,7 @@ export default function LoginForm() {
             style={{ width: 'auto', height: '56px' }}
           />
           <p className="mt-2 text-sm text-muted-foreground font-medium tracking-wide uppercase">
-            Your thoughts, organized and secure
+            {t('tagline')}
           </p>
         </motion.div>
 
@@ -71,7 +73,7 @@ export default function LoginForm() {
             >
               <Alert variant="destructive" className="glass-card">
                 <ExclamationTriangleIcon className="h-4 w-4" />
-                <AlertTitle>Could not login</AlertTitle>
+                <AlertTitle>{t('errorTitle')}</AlertTitle>
                 <AlertDescription>{state.message}</AlertDescription>
               </Alert>
             </motion.div>
@@ -81,10 +83,10 @@ export default function LoginForm() {
         <Card className="glass-card border-border/50 shadow-xl backdrop-blur-md bg-card/70 ring-1 ring-white/10">
           <CardHeader className="text-center pb-2">
             <CardTitle className="text-2xl font-bold tracking-tight">
-              Welcome back
+              {t('title')}
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Sign in to access your personal workspace
+              {t('description')}
             </p>
           </CardHeader>
           <CardContent>
@@ -95,10 +97,10 @@ export default function LoginForm() {
               className="space-y-4"
             >
               <FormField
-                label="Email address"
+                label={t('emailLabel')}
                 name="email"
                 type="email"
-                placeholder="your@email.com"
+                placeholder={t('emailPlaceholder')}
                 defaultValue={state?.data?.email?.toString()}
                 errors={state?.errors?.email}
                 autoComplete="off"
@@ -106,10 +108,10 @@ export default function LoginForm() {
               />
               <div className="space-y-1">
                 <FormField
-                  label="Password"
+                  label={t('passwordLabel')}
                   name="password"
                   type="password"
-                  placeholder="Your password"
+                  placeholder={t('passwordPlaceholder')}
                   defaultValue={state?.data?.password?.toString()}
                   errors={state?.errors?.password}
                   autoComplete="off"
@@ -120,7 +122,7 @@ export default function LoginForm() {
                     href="/login/reset"
                     className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Forgot password?
+                    {t('forgotPassword')}
                   </Link>
                 </div>
               </div>
@@ -148,10 +150,10 @@ export default function LoginForm() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Signing in...
+                    {t('submitting')}
                   </span>
                 ) : (
-                  'Sign in'
+                  t('submit')
                 )}
               </Button>
             </form>
@@ -165,12 +167,12 @@ export default function LoginForm() {
             transition={{ delay: 0.4 }}
             className="text-center text-sm text-muted-foreground"
           >
-            Don&apos;t have an account yet?{' '}
+            {t('signupPrompt')}{' '}
             <Link
               href="/register"
               className="font-semibold text-foreground hover:underline underline-offset-4"
             >
-              Sign up
+              {t('signup')}
             </Link>
           </motion.p>
         )}

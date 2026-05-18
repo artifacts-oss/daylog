@@ -1,5 +1,8 @@
 import type { NextConfig } from 'next';
 import { PrismaPlugin } from '@prisma/nextjs-monorepo-workaround-plugin';
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -48,4 +51,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

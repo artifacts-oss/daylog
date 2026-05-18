@@ -1,22 +1,52 @@
 import { z } from 'zod';
+import type { AppLocale } from '@/i18n/config';
+import enMessages from '@/messages/en.json';
+import esMessages from '@/messages/es.json';
+import deMessages from '@/messages/de.json';
+import frMessages from '@/messages/fr.json';
 
-export const SignupFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: 'Name must be at least 2 characters long.' })
-    .trim(),
-  email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
-  password: z
-    .string()
-    .min(8, { message: 'Be at least 8 characters long' })
-    .regex(/[a-zA-Z]/, { message: 'Contain at least one letter.' })
-    .regex(/[0-9]/, { message: 'Contain at least one number.' })
-    .regex(/[^a-zA-Z0-9]/, {
-      message: 'Contain at least one special character.',
-    })
-    .trim(),
-  terms: z.string({ message: 'Accept terms and policy is required.' }).trim(),
-});
+type RegisterMessages = {
+  nameMin: string;
+  invalidEmail: string;
+  passwordMin: string;
+  passwordLetter: string;
+  passwordNumber: string;
+  passwordSpecial: string;
+  termsRequired: string;
+  registrationNotAllowed: string;
+  userExists: string;
+  unexpectedError: string;
+};
+
+const registerMessagesByLocale: Record<AppLocale, RegisterMessages> = {
+  en: enMessages.RegisterPage.messages,
+  es: esMessages.RegisterPage.messages,
+  de: deMessages.RegisterPage.messages,
+  fr: frMessages.RegisterPage.messages,
+};
+
+export function getRegisterMessages(locale: AppLocale): RegisterMessages {
+  return registerMessagesByLocale[locale] ?? registerMessagesByLocale.en;
+}
+
+export function createSignupFormSchema(locale: AppLocale) {
+  const messages = getRegisterMessages(locale);
+
+  return z.object({
+    name: z.string().min(2, { message: messages.nameMin }).trim(),
+    email: z.string().email({ message: messages.invalidEmail }).trim(),
+    password: z
+      .string()
+      .min(8, { message: messages.passwordMin })
+      .regex(/[a-zA-Z]/, { message: messages.passwordLetter })
+      .regex(/[0-9]/, { message: messages.passwordNumber })
+      .regex(/[^a-zA-Z0-9]/, {
+        message: messages.passwordSpecial,
+      })
+      .trim(),
+    terms: z.string({ message: messages.termsRequired }).trim(),
+  });
+}
 
 export type FormState =
   | {

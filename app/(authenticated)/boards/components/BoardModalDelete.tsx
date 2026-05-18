@@ -16,12 +16,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AlertOctagon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type BoardModalDeleteType = {
   board: Board;
 };
 
 export default function BoardModalDelete({ board }: BoardModalDeleteType) {
+  const t = useTranslations('BoardDelete');
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [open, setOpen] = useState(false);
@@ -43,30 +45,26 @@ export default function BoardModalDelete({ board }: BoardModalDeleteType) {
           className="h-8 w-8 text-white hover:text-white hover:bg-white/10"
         >
           <TrashIcon className="h-5 w-5" />
-          <span className="sr-only">Delete board</span>
+          <span className="sr-only">{t('delete')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="p-10 max-w-[480px]">
         <DialogHeader className="mb-6">
-          <Label className="text-destructive">Security Verification</Label>
+          <Label className="text-destructive">{t('security')}</Label>
           <DialogTitle className="flex items-center gap-2">
-            Delete Board
+            {t('title')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-8">
           <p className="text-sm text-muted-foreground leading-relaxed antialiased">
-            Are you sure you want to delete{' '}
-            <strong className="text-destructive">{board.title}</strong>? This
-            action is permanent and cannot be undone. All notes and associated
-            data will be erased.
+            {t('description', { title: board.title })}
           </p>
 
           <div className="p-4 bg-[var(--color-accent-red)] rounded-[12px] border border-destructive/20">
             <p className="text-[12px] text-destructive font-medium leading-normal flex gap-2">
               <AlertOctagon className="h-4 w-4 flex-shrink-0" />
-              Warning: Deleting this board will permanently remove all its
-              content.
+              {t('warning')}
             </p>
           </div>
         </div>
@@ -79,7 +77,7 @@ export default function BoardModalDelete({ board }: BoardModalDeleteType) {
             className="rounded-[12px] text-muted-foreground font-bold hover:bg-secondary/10"
             disabled={deleting}
           >
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             variant="danger"
@@ -87,7 +85,7 @@ export default function BoardModalDelete({ board }: BoardModalDeleteType) {
             disabled={deleting}
             className="font-bold px-8 shadow-none"
           >
-            {deleting ? 'Deleting...' : 'Confirm Delete'}
+            {deleting ? t('deleting') : t('confirm')}
           </Button>
         </DialogFooter>
       </DialogContent>

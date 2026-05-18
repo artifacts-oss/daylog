@@ -1,9 +1,30 @@
 'use server';
 
+import { defaultLocale, isValidLocale, localeCookieName } from '@/i18n/config';
 import { prisma } from '@/prisma/client';
 import { hashPassword } from '@/utils/crypto';
 import { revalidatePath } from 'next/cache';
-import { InitFormState, InitSignupFormSchema } from './definitions';
+import {
+  createInitSignupFormSchema,
+  getInitRegisterMessages,
+  InitFormState,
+} from './definitions';
+import { cookies } from 'next/headers';
+
+async function getCurrentLocale() {
+  try {
+    const cookieStore = await cookies();
+    const requestedLocale = cookieStore.get(localeCookieName)?.value;
+
+    if (requestedLocale && isValidLocale(requestedLocale)) {
+      return requestedLocale;
+    }
+  } catch {
+    // Fallback for tests or non-request contexts.
+  }
+
+  return defaultLocale;
+}
 
 export async function validateAdminUserExists() : Promise<boolean> {
   const admin = await prisma.user.findFirst({ where: { role: 'admin' } });
@@ -11,13 +32,15 @@ export async function validateAdminUserExists() : Promise<boolean> {
 }
 
 export async function signupInit(state: InitFormState, formData: FormData) {
+  const locale = await getCurrentLocale();
+  const messages = getInitRegisterMessages(locale);
   const data = {
     name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
   };
 
-  const result = InitSignupFormSchema.safeParse(data);
+  const result = createInitSignupFormSchema(locale).safeParse(data);
 
   if (!result.success) {
     return {
@@ -37,7 +60,7 @@ export async function signupInit(state: InitFormState, formData: FormData) {
     });
     if (user) {
       return {
-        message: 'Admin user already exists.',
+        message: messages.adminExists,
         success: false,
       };
     }
@@ -64,7 +87,7 @@ export async function signupInit(state: InitFormState, formData: FormData) {
     return {
       success: false,
       data: result.data,
-      message: 'An error occurred while creating your admin account.',
+      message: messages.unexpectedError,
     };
   }
 }

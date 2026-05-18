@@ -16,6 +16,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/react/24/outline';
 import { redirect } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 
 export default async function Profile({
   params,
@@ -28,12 +29,14 @@ export default async function Profile({
   }
   const { userId } = await params;
   const profile = await getProfile(parseInt(userId));
+  const tNav = await getTranslations('Navigation');
+  const t = await getTranslations('ProfilePage');
 
   if (profile === null) {
     return (
       <PageContainer>
         <div className="container-xl py-24 text-center">
-          <div className="text-xl font-bold">No profile page found</div>
+          <div className="text-xl font-bold">{t('notFound')}</div>
         </div>
         <PageFooter />
       </PageContainer>
@@ -41,7 +44,7 @@ export default async function Profile({
   }
 
   const breadcrumbs = [
-    { name: 'Home', href: '/' },
+    { name: tNav('home'), href: '/' },
     {
       name: profile?.name ?? '',
       href: `/profile/${userId}`,
@@ -53,27 +56,26 @@ export default async function Profile({
   return (
     <PageContainer>
       <PageHeader
-        title="User data"
-        description="Manage your profile and backup your data"
+        title={t('title')}
+        description={t('description')}
         breadcrumbs={breadcrumbs}
       />
       <PageBody>
         {user.role === 'admin' && user.id !== profile.id && (
           <Alert className="mb-6 border-blue-500 text-blue-700 bg-blue-50 [&>svg]:text-blue-700 [&>h5]:text-blue-700">
             <InformationCircleIcon className="h-4 w-4 text-blue-700" />
-            <AlertTitle>Admin Notice</AlertTitle>
+            <AlertTitle>{t('adminNoticeTitle')}</AlertTitle>
             <AlertDescription className="text-blue-700">
-              You are impersonating this profile as an admin.
+              {t('adminNoticeDescription')}
             </AlertDescription>
           </Alert>
         )}
         {settings?.mfa && !profile.mfa && (
           <Alert variant="destructive" className="mb-6">
             <ExclamationTriangleIcon className="h-4 w-4" />
-            <AlertTitle>Action Required</AlertTitle>
+            <AlertTitle>{t('actionRequiredTitle')}</AlertTitle>
             <AlertDescription>
-              2FA Authentication is not enabled for this profile. It is
-              recommended to enable it for security reasons.
+              {t('actionRequiredDescription')}
             </AlertDescription>
           </Alert>
         )}

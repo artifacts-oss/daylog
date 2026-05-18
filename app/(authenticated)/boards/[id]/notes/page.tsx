@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { getImageUrlOrFile } from '@/utils/image';
 import ShareDialog from '@/components/ShareDialog';
+import { getLocale, getTranslations } from 'next-intl/server';
 
 export default async function Notes({
   params,
@@ -45,22 +46,24 @@ export default async function Notes({
   const notesCount = await getNotesCount(boardId);
   const notes = await getNotes(currentSort, currentPerPage, boardId);
   const settings = await getSettings();
+  const tNav = await getTranslations('Navigation');
+  const t = await getTranslations('NotesPage');
+  const locale = await getLocale();
 
   const breadcrumbs = [
-    { name: 'Home', href: '/' },
-    { name: 'Boards', href: '/boards' },
-    { name: board?.title ?? 'Notes', href: `/boards/${id}/notes` },
+    { name: tNav('home'), href: '/' },
+    { name: tNav('boards'), href: '/boards' },
+    { name: board?.title ?? t('fallback'), href: `/boards/${id}/notes` },
   ];
 
   return (
     <PageContainer>
       <PageHeader
         title={board?.title}
-        description={`Manage your collection of ${notesCount} note${
-          notesCount === 1 ? '' : 's'
-        }. Last updated ${new Intl.DateTimeFormat('en-US', {
-          dateStyle: 'medium',
-        }).format(board.updatedAt)}.`}
+        description={t('description', {
+          count: notesCount,
+          date: new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(board.updatedAt),
+        })}
         imageUrl={
           board?.imageUrl ? getImageUrlOrFile(encodeURI(board.imageUrl)) : null
         }
@@ -81,8 +84,8 @@ export default async function Notes({
                 className="flex-1 sm:flex-none sm:w-auto rounded-xl px-3 sm:px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-primary-foreground shrink-0"
               >
                 <PlusIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">New Note</span>
-                <span className="sm:hidden">New</span>
+                <span className="hidden sm:inline">{t('newNote')}</span>
+                <span className="sm:hidden">{t('newShort')}</span>
                 <div className="hidden lg:flex items-center gap-1 ml-2 opacity-50 text-[10px] font-bold uppercase tracking-widest">
                   <kbd className="min-w-[2rem] h-5 inline-flex items-center justify-center px-1 bg-background/20 rounded tracking-normal leading-none">
                     Alt
@@ -105,9 +108,9 @@ export default async function Notes({
               <div className="p-4 rounded-full bg-background mb-4 shadow-sm text-muted-foreground">
                 <FaceSmileIcon className="h-10 w-10 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-bold mb-2">No notes in this board</h3>
+              <h3 className="text-xl font-bold mb-2">{t('emptyTitle')}</h3>
               <p className="text-muted-foreground max-w-sm mx-auto mb-8">
-                Start capturing your thoughts and organizing your ideas here.
+                {t('emptyDescription')}
               </p>
               <NoteModalForm
                 boardId={boardId}
@@ -116,7 +119,7 @@ export default async function Notes({
                 isUnsplashAllowed={settings?.allowUnsplash}
                 trigger={
                   <Button className="rounded-xl px-8 font-bold transition-all text-primary-foreground">
-                    Create Your First Note
+                    {t('createFirst')}
                   </Button>
                 }
               />
@@ -134,7 +137,7 @@ export default async function Notes({
           {notes && notes.length > 0 && (
             <div className="flex flex-col items-center gap-4 pt-8">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-                Showing {notes.length} of {notesCount} notes
+                {t('showing', { shown: notes.length, total: notesCount })}
               </p>
               {currentPerPage < notesCount && (
                 <Link
@@ -145,7 +148,7 @@ export default async function Notes({
                     variant="outline"
                     className="rounded-full px-12 border-primary/10 hover:border-primary/30 bg-background/50 backdrop-blur-sm transition-all"
                   >
-                    Load More Notes
+                    {t('loadMore')}
                   </Button>
                 </Link>
               )}

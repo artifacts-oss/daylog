@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import ImageSection from '@/components/ImageSection';
+import { useTranslations } from 'next-intl';
 
 type BoardModalFormType = {
   modalId: string;
@@ -41,6 +42,7 @@ export default function BoardModalForm({
   isUnsplashAllowed = false,
   trigger,
 }: BoardModalFormType) {
+  const t = useTranslations('BoardModal');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submiting, setSubmiting] = useState(false);
@@ -128,24 +130,24 @@ export default function BoardModalForm({
             className="h-8 w-8 text-white hover:text-white hover:bg-white/10"
           >
             <PencilSquareIcon className="h-5 w-5" />
-            <span className="sr-only">Edit board</span>
+            <span className="sr-only">{t('edit')}</span>
           </Button>
         </DialogTrigger>
       ) : null}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Create board' : 'Update board'}
+            {mode === 'create' ? t('createTitle') : t('updateTitle')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
           <div className="space-y-2 relative pb-5">
             <Label htmlFor="title">
-              Title <span className="text-accent-red">*</span>
+              {t('titleLabel')} <span className="text-accent-red">*</span>
             </Label>
             <Input
               id="title"
-              placeholder="Your board title"
+              placeholder={t('titlePlaceholder')}
               defaultValue={board?.title}
               {...register('title', { required: true })}
               className={
@@ -156,15 +158,15 @@ export default function BoardModalForm({
             />
             {errors.title && (
               <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
-                Title is required
+                {t('titleRequired')}
               </p>
             )}
           </div>
           <div className="space-y-2 relative pb-5">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t('descriptionLabel')}</Label>
             <Input
               id="description"
-              placeholder="Type any description"
+              placeholder={t('descriptionPlaceholder')}
               defaultValue={board?.description ?? ''}
               {...register('description')}
             />
@@ -172,7 +174,7 @@ export default function BoardModalForm({
           <ImageSection
             currentImageUrl={board?.imageUrl}
             isUnsplashAllowed={isUnsplashAllowed}
-            altText={`Preview image of ${board?.title || 'new board'}`}
+            altText={t('imageAlt', { title: board?.title || t('createTitle') })}
             onImageFileChange={setImageFile}
             onImageUrlChange={setImageUrl}
             onDeleteImage={
@@ -190,14 +192,10 @@ export default function BoardModalForm({
               variant="ghost"
               onClick={() => setOpen(false)}
             >
-              Close
+              {t('close')}
             </Button>
             <Button type="submit" disabled={submiting}>
-              {submiting
-                ? 'Saving...'
-                : mode === 'create'
-                  ? 'Create'
-                  : 'Update'}
+              {submiting ? t('saving') : mode === 'create' ? t('create') : t('update')}
             </Button>
           </DialogFooter>
         </form>

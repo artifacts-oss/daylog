@@ -44,12 +44,15 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export default function UsersTable({
   currentUserId,
 }: {
   currentUserId: number;
 }) {
+  const t = useTranslations('UsersTable');
+  const tNav = useTranslations('Navigation');
   const [users, setUsers] = useState<User[] | null>();
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +74,7 @@ export default function UsersTable({
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <Loader caption="Fetching directory..." />
+        <Loader caption={t('loading')} />
       </div>
     );
   }
@@ -81,10 +84,10 @@ export default function UsersTable({
       <Table>
         <TableHeader className="bg-muted/50">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[300px] font-semibold">User</TableHead>
-            <TableHead className="font-semibold">Role</TableHead>
+            <TableHead className="w-[300px] font-semibold">{t('user')}</TableHead>
+            <TableHead className="font-semibold">{t('role')}</TableHead>
             <TableHead className="w-[100px] text-right font-semibold">
-              Actions
+              {t('actions')}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -107,10 +110,10 @@ export default function UsersTable({
                     </div>
                     <div className="flex flex-col overflow-hidden">
                       <span className="font-medium text-foreground truncate">
-                        {u.name || 'Unnamed User'}
+                        {u.name || t('unnamedUser')}
                         {u.id === currentUserId && (
                           <span className="ml-2 text-[10px] uppercase tracking-wider font-bold text-primary/60 bg-primary/5 px-2 py-0.5 rounded-full ring-1 ring-inset ring-primary/20">
-                            You
+                            {tNav('you')}
                           </span>
                         )}
                       </span>
@@ -147,25 +150,25 @@ export default function UsersTable({
                           className="h-8 w-8 hover:bg-muted"
                         >
                           <EllipsisHorizontalIcon className="h-5 w-5" />
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">{t('openMenu')}</span>
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{t('actions')}</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
                           <a
                             href={`/profile/${u.id}`}
                             className="flex items-center cursor-pointer"
                           >
                             <PencilIcon className="mr-2 h-4 w-4" />
-                            Edit Profile
+                            {t('editProfile')}
                           </a>
                         </DropdownMenuItem>
 
                         {u.id !== currentUserId && (
                           <>
                             <DropdownMenuSeparator />
-                            <DropdownMenuLabel>Permissions</DropdownMenuLabel>
+                            <DropdownMenuLabel>{t('permissions')}</DropdownMenuLabel>
                             <DropdownMenuItem
                               onClick={() => handleClickRole(u.id, u.role)}
                               className="flex items-center cursor-pointer"
@@ -173,12 +176,12 @@ export default function UsersTable({
                               {u.role === 'user' ? (
                                 <>
                                   <ChevronUpIcon className="mr-2 h-4 w-4 text-primary" />
-                                  Elevate to Admin
+                                  {t('elevate')}
                                 </>
                               ) : (
                                 <>
                                   <ChevronDownIcon className="mr-2 h-4 w-4 text-destructive" />
-                                  Demote to User
+                                  {t('demote')}
                                 </>
                               )}
                             </DropdownMenuItem>
@@ -186,7 +189,7 @@ export default function UsersTable({
                             <AlertDialogTrigger asChild>
                               <DropdownMenuItem className="flex items-center text-destructive focus:text-destructive cursor-pointer">
                                 <TrashIcon className="mr-2 h-4 w-4" />
-                                Delete User
+                                {t('deleteUser')}
                               </DropdownMenuItem>
                             </AlertDialogTrigger>
                           </>
@@ -198,19 +201,14 @@ export default function UsersTable({
                       <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
                           <ExclamationTriangleIcon className="h-5 w-5 text-destructive" />
-                          Delete User
+                          {t('deleteTitle')}
                         </AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete{' '}
-                          <strong className="text-foreground">
-                            {u.name || u.email}
-                          </strong>
-                          ? This action cannot be undone and will permanently
-                          remove all data associated with this account.
+                          {t('deleteDescription', { name: u.name || u.email })}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                         <AlertDialogAction
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
                           onClick={async () => {
@@ -220,7 +218,7 @@ export default function UsersTable({
                             }
                           }}
                         >
-                          Delete Account
+                          {t('deleteAccount')}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>

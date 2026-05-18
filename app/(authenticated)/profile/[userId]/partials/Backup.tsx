@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTranslations } from 'next-intl';
 
 type BackupType = {
   profile: {
@@ -22,6 +23,7 @@ type BackupType = {
 };
 
 export default function Backup({ profile }: BackupType) {
+  const t = useTranslations('Backup');
   const [state, action, pending] = useActionState(backupData, undefined);
   const [copied, setCopied] = useState(false);
 
@@ -38,11 +40,9 @@ export default function Backup({ profile }: BackupType) {
       <input type="hidden" name="userId" defaultValue={profile.id} />
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>Backup</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Save or export all your data in a JSON file, depending of your data
-            it may take a while, please don&apos;t refresh in this page until
-            save file dialog appears.
+            {t('description')}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -71,13 +71,13 @@ export default function Backup({ profile }: BackupType) {
                 ) : (
                   <DocumentDuplicateIcon className="h-4 w-4 mr-2" />
                 )}
-                {copied ? 'Copied!' : 'Copy JSON'}
+                {copied ? t('copied') : t('copyJson')}
               </Button>
             </div>
           )}
           <Button type="submit" disabled={pending} className="w-full sm:w-auto">
             <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-            {pending ? 'Processing...' : 'Download Data'}
+            {pending ? t('processing') : t('download')}
           </Button>
         </CardContent>
       </Card>

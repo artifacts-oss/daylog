@@ -16,6 +16,20 @@ import PageHeader from './PageHeader';
 import Placeholder from './Placeholder';
 import TimeDiff from './TimeDiff';
 import NavSidebar from './NavSidebar';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
+
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async () => {
+    return (key: string) => {
+      if (key === 'madeWith') return 'Made with';
+      if (key === 'by') return 'by';
+      if (key === 'sourceCode') return 'Source code';
+      if (key === 'buyMeCoffee') return 'Buy me a Coffee';
+
+      return key;
+    };
+  }),
+}));
 
 vi.mock('input-otp', () => ({
   __esModule: true,
@@ -103,26 +117,30 @@ describe('Component Tests', () => {
   //   expect(container.querySelector('img')).toBeInTheDocument();
   // });
 
-  it('renders PageFooterSponsor component', () => {
-    const { container } = render(<PageFooterSponsor />);
+  it('renders PageFooterSponsor component', async () => {
+    const pageFooterSponsor = await PageFooterSponsor();
+    const { container } = render(pageFooterSponsor);
     expect(container).toBeInTheDocument();
   });
 
-  it('renders PageFooter component', () => {
-    const { container } = render(<PageFooter />);
+  it('renders PageFooter component', async () => {
+    const pageFooter = await PageFooter();
+    const { container } = render(pageFooter);
     expect(container).toBeInTheDocument();
   });
 
-  it('renders PageFooterSponsor component inside PageFooter', () => {
+  it('renders PageFooterSponsor component inside PageFooter', async () => {
     vi.stubEnv('SHOW_SPONSOR_FOOTER', 'true');
-    const { container } = render(<PageFooter />);
+    const pageFooter = await PageFooter();
+    const { container } = render(pageFooter);
     expect(container).toBeInTheDocument();
     expect(screen.getByText('Buy me a Coffee')).toBeInTheDocument();
   });
 
-  it('does not render PageFooterSponsor component inside PageFooter when env is false', () => {
+  it('does not render PageFooterSponsor component inside PageFooter when env is false', async () => {
     vi.stubEnv('SHOW_SPONSOR_FOOTER', 'false');
-    const { container } = render(<PageFooter />);
+    const pageFooter = await PageFooter();
+    const { container } = render(pageFooter);
     expect(container).toBeInTheDocument();
     expect(screen.queryByText('Buy me a Coffee')).not.toBeInTheDocument();
   });
@@ -166,22 +184,21 @@ describe('Component Tests', () => {
   });
 
   it('renders NavHeader component', async () => {
-    const navHeader = await NavHeader({
-      user: { id: 1, name: 'Test User', role: 'user' } as User,
-    });
-    const { container } = render(navHeader);
+    const { container } = renderWithIntl(
+      <NavHeader user={{ id: 1, name: 'Test User', role: 'user' } as User} />,
+    );
     expect(container).toBeInTheDocument();
   });
 
   it('renders NavBar component', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <NavBar user={{ id: 1, role: 'user' } as User} />,
     );
     expect(container).toBeInTheDocument();
   });
 
   it('renders NavBar component with admin role', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <NavBar user={{ id: 1, role: 'admin' } as User} />,
     );
     expect(container).toBeInTheDocument();
@@ -189,7 +206,7 @@ describe('Component Tests', () => {
   });
 
   it('not shows admin nav for non-admin users', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <NavBar user={{ id: 1, role: 'user' } as User} />,
     );
     expect(container).toBeInTheDocument();
@@ -207,7 +224,7 @@ describe('Component Tests', () => {
   });
 
   it('renders NavSidebar component', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <NavSidebar user={{ id: 1, role: 'user' } as User} />,
     );
     expect(container).toBeInTheDocument();

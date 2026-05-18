@@ -1,5 +1,6 @@
 import { OTPInputWrapperType } from '@/components/OTPInputWrapper';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import OTPLoginForm from './OTPLoginForm';
 
@@ -7,10 +8,12 @@ const state: {
   message: string;
   success: boolean;
   errors: { password?: string[] };
+  isLocked?: boolean;
 } = {
   message: 'Error login to account',
   success: false,
   errors: { password: [] },
+  isLocked: false,
 };
 
 const mocks = vi.hoisted(() => ({
@@ -48,7 +51,7 @@ describe('OTPLoginForm', () => {
   });
 
   it('renders the form with initial state', () => {
-    render(<OTPLoginForm userId={1} />);
+    renderWithIntl(<OTPLoginForm userId={1} />);
 
     expect(screen.getByText('Security Code')).toBeInTheDocument();
     expect(
@@ -61,12 +64,12 @@ describe('OTPLoginForm', () => {
 
   it('displays an error message when state has a message', () => {
     mockUseActionState.mockReturnValue([
-      { message: 'Error message', success: false, errors: {} },
+      { message: 'Error message', success: false, errors: {}, isLocked: false },
       vi.fn(),
       false,
     ]);
 
-    render(<OTPLoginForm userId={1} />);
+    renderWithIntl(<OTPLoginForm userId={1} />);
 
     expect(screen.getByText('Verification failed')).toBeInTheDocument();
     expect(screen.getByText('Error message')).toBeInTheDocument();
@@ -78,18 +81,19 @@ describe('OTPLoginForm', () => {
         message: 'error',
         errors: { password: ['Password error'] },
         success: false,
+        isLocked: false,
       },
       vi.fn(),
       false,
     ]);
 
-    render(<OTPLoginForm userId={1} />);
+    renderWithIntl(<OTPLoginForm userId={1} />);
 
     expect(screen.getByText('Password error')).toBeInTheDocument();
   });
 
   it('calls setPassword on OTP input change', () => {
-    render(<OTPLoginForm userId={1} />);
+    renderWithIntl(<OTPLoginForm userId={1} />);
 
     const otpInput = screen.getByTestId('otp-input');
     fireEvent.change(otpInput, { target: { value: '123456' } });
@@ -100,7 +104,7 @@ describe('OTPLoginForm', () => {
   it('disables the submit button when pending is true', () => {
     mockUseActionState.mockReturnValue([state, vi.fn(), true]);
 
-    render(<OTPLoginForm userId={1} />);
+    renderWithIntl(<OTPLoginForm userId={1} />);
 
     const submitButton = screen.getByRole('button', { name: /Verifying/i });
     expect(submitButton).toBeDisabled();

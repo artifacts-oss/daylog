@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation';
 import { useOptimistic, useTransition } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 export default function BoardFavSwitch({
   showFavParam = false,
 }: {
   showFavParam?: boolean;
 }) {
+  const t = useTranslations('BoardFavSwitch');
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showFav, setOptimisticShowFav] = useOptimistic(showFavParam);
@@ -48,7 +50,7 @@ export default function BoardFavSwitch({
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          Recent
+          {t('recent')}
         </button>
 
         <button
@@ -60,7 +62,7 @@ export default function BoardFavSwitch({
               : 'text-muted-foreground hover:text-foreground',
           )}
         >
-          Favorites
+          {t('favorites')}
         </button>
       </div>
 

@@ -31,13 +31,17 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { SharedContent } from '../lib/types';
+import { useLocale, useTranslations } from 'next-intl';
 
 export default function SharesTable({ shares }: { shares: SharedContent[] }) {
+  const t = useTranslations('SharedTable');
+  const locale = useLocale();
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<{
     id: string;
     title: string;
+    entityType: SharedContent['entityType'];
   } | null>(null);
   const [editingPassword, setEditingPassword] = useState<{
     id: string;
@@ -56,7 +60,7 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
       router.refresh();
     } catch (error) {
       console.error('Failed to delete share:', error);
-      alert('Failed to revoke link. Please try again.');
+      alert(t('errors.revoke'));
     } finally {
       setIsDeleting(null);
     }
@@ -72,7 +76,7 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
       router.refresh();
     } catch (error) {
       console.error('Failed to update password:', error);
-      alert('Failed to update password. Please try again.');
+      alert(t('errors.password'));
     } finally {
       setIsUpdating(false);
     }
@@ -91,19 +95,19 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
         <TableHeader className="bg-muted/50">
           <TableRow>
             <TableHead className="w-[300px] font-bold text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
-              Entity
+              {t('headers.entity')}
             </TableHead>
             <TableHead className="font-bold text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
-              Config
+              {t('headers.config')}
             </TableHead>
             <TableHead className="font-bold text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
-              Unique Readers (W/M/Total)
+              {t('headers.readers')}
             </TableHead>
             <TableHead className="font-bold text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
-              Created
+              {t('headers.created')}
             </TableHead>
             <TableHead className="text-right font-bold text-[10px] uppercase tracking-[0.1em] text-muted-foreground/70">
-              Actions
+              {t('headers.actions')}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -116,9 +120,9 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
               >
                 <div className="flex flex-col items-center justify-center gap-2">
                   <LinkIcon className="h-8 w-8 opacity-20" />
-                  <p className="font-medium text-sm">No shared content yet</p>
+                  <p className="font-medium text-sm">{t('empty.title')}</p>
                   <p className="text-[12px] opacity-60">
-                    Share a note or board to see it here.
+                    {t('empty.description')}
                   </p>
                 </div>
               </TableCell>
@@ -150,8 +154,8 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                       </span>
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
                         {share.entityType === 'NOTE'
-                          ? 'Shared Note'
-                          : 'Public Board'}
+                          ? t('types.sharedNote')
+                          : t('types.publicBoard')}
                       </span>
                     </div>
                   </div>
@@ -160,7 +164,7 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                   <div className="flex flex-wrap gap-1.5">
                     {share.hasPassword && (
                       <span className="text-[10px] font-black uppercase tracking-widest text-fuchsia-500 bg-fuchsia-500/10 px-2 py-0.5 rounded-md">
-                        Password
+                        {t('badges.password')}
                       </span>
                     )}
                     {share.expiresAt && (
@@ -172,20 +176,20 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                         }`}
                       >
                         {new Date(share.expiresAt) < new Date()
-                          ? 'Expired'
-                          : 'Expires'}
+                          ? t('badges.expired')
+                          : t('badges.expires')}
                       </span>
                     )}
                     {share.oneTime && (
                       <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
-                        One-Time
+                        {t('badges.oneTime')}
                       </span>
                     )}
                     {!share.hasPassword &&
                       !share.expiresAt &&
                       !share.oneTime && (
                         <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-md">
-                          Public
+                          {t('badges.public')}
                         </span>
                       )}
                   </div>
@@ -210,7 +214,7 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                   </div>
                 </TableCell>
                 <TableCell className="text-[13px] text-muted-foreground">
-                  {new Date(share.createdAt).toLocaleDateString(undefined, {
+                  {new Date(share.createdAt).toLocaleDateString(locale, {
                     month: 'short',
                     day: 'numeric',
                     year: 'numeric',
@@ -234,8 +238,8 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                         className={`h-9 w-9 rounded-xl transition-all ${share.hasPassword ? 'text-fuchsia-500 hover:bg-fuchsia-500/10' : 'hover:bg-primary/10 hover:text-primary'}`}
                         title={
                           share.hasPassword
-                            ? 'Update password'
-                            : 'Add password protection'
+                            ? t('actions.updatePassword')
+                            : t('actions.addPassword')
                         }
                       >
                         <KeyIcon className="h-4 w-4" />
@@ -250,7 +254,11 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                           ? 'bg-emerald-500/10 text-emerald-500'
                           : 'hover:bg-primary/10 hover:text-primary'
                       }`}
-                      title="Copy share link"
+                      title={
+                        copiedId === share.id
+                          ? t('actions.copiedLink')
+                          : t('actions.copyLink')
+                      }
                     >
                       {copiedId === share.id ? (
                         <CheckIcon className="h-4 w-4" />
@@ -263,7 +271,7 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                       size="icon"
                       asChild
                       className="h-9 w-9 rounded-xl hover:bg-accent hover:text-foreground transition-all"
-                      title="Open shared page"
+                      title={t('actions.openPage')}
                     >
                       <a
                         href={`/share/${share.id}`}
@@ -277,10 +285,14 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
                       variant="ghost"
                       size="icon"
                       onClick={() =>
-                        setConfirmDelete({ id: share.id, title: share.title })
+                        setConfirmDelete({
+                          id: share.id,
+                          title: share.title,
+                          entityType: share.entityType,
+                        })
                       }
                       className="h-9 w-9 rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-all border border-transparent hover:border-rose-500/20"
-                      title="Revoke link"
+                      title={t('actions.revoke')}
                     >
                       <TrashIcon className="h-4 w-4" />
                     </Button>
@@ -300,28 +312,29 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
         <DialogContent className="p-10 max-w-[480px] rounded-[32px] border border-border shadow-2xl">
           <DialogHeader className="mb-6">
             <span className="text-[12px] font-bold uppercase tracking-widest text-rose-500 mb-1 block">
-              Security Verification
+              {t('revokeDialog.security')}
             </span>
             <DialogTitle className="flex items-center gap-2 text-2xl font-black tracking-tight text-foreground">
-              Revoke Share Link
+              {t('revokeDialog.title')}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-8">
             <p className="text-sm text-muted-foreground leading-relaxed antialiased font-medium">
-              Are you sure you want to revoke the link for{' '}
-              <strong className="text-rose-500 font-bold">
-                {confirmDelete?.title}
-              </strong>
-              ? This action will immediately stop all future access.
+              {t('revokeDialog.description', {
+                title: confirmDelete?.title ?? '',
+              })}{' '}
             </p>
 
             <div className="p-4 bg-[var(--color-accent-red)] rounded-[12px] border border-rose-500/20">
               <p className="text-[12px] text-rose-500 font-bold leading-normal flex gap-2">
                 <ExclamationTriangleIcon className="h-4 w-4 flex-shrink-0" />
-                Warning: Revoking this link will permanently disable public
-                access to this{' '}
-                {confirmDelete?.title.includes('Board') ? 'board' : 'content'}.
+                {t('revokeDialog.warning', {
+                  target:
+                    confirmDelete?.entityType === 'BOARD'
+                      ? t('targets.board')
+                      : t('targets.content'),
+                })}
               </p>
             </div>
           </div>
@@ -334,7 +347,7 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
               className="rounded-[12px] text-muted-foreground font-bold hover:bg-secondary/10"
               disabled={!!isDeleting}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               variant="danger"
@@ -342,7 +355,9 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
               disabled={!!isDeleting}
               className="font-bold px-8 shadow-none"
             >
-              {isDeleting ? 'Revoking...' : 'Confirm Revoke'}
+              {isDeleting
+                ? t('revokeDialog.revoking')
+                : t('revokeDialog.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -356,13 +371,13 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
         <DialogContent className="max-w-md rounded-[24px] border border-border mt-0">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold tracking-tight">
-              Update Protection
+              {t('passwordDialog.title')}
             </DialogTitle>
           </DialogHeader>
           <div className="py-6 space-y-4">
             <div className="space-y-1">
               <p className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground/60">
-                Target Link
+                {t('passwordDialog.targetLink')}
               </p>
               <p className="font-bold text-foreground">
                 {editingPassword?.title}
@@ -370,18 +385,17 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
             </div>
             <div className="space-y-1.5 pt-2">
               <p className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground/60">
-                New Password
+                {t('passwordDialog.newPassword')}
               </p>
               <Input
                 type="text"
-                placeholder="Leave empty to make public..."
+                placeholder={t('passwordDialog.placeholder')}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="font-medium"
               />
               <p className="text-[11px] text-muted-foreground italic">
-                Setting a new password will invalidate the previous one
-                immediately.
+                {t('passwordDialog.help')}
               </p>
             </div>
           </div>
@@ -391,14 +405,14 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
               onClick={() => setEditingPassword(null)}
               className="rounded-xl font-bold"
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleUpdatePassword}
               disabled={isUpdating}
               className="rounded-xl font-bold bg-primary text-primary-foreground hover:opacity-90"
             >
-              {isUpdating ? 'Updating...' : 'Save Changes'}
+              {isUpdating ? t('common.updating') : t('common.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>

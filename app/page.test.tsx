@@ -42,6 +42,22 @@ vi.mock('@/app/(authenticated)/components/BoardFavToggle', () => ({
   default: vi.fn(() => <div>BoardFavSwitch</div>),
 }));
 
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async () => {
+    return (key: string, values?: Record<string, string | number>) => {
+      if (key === 'breadcrumb') return 'Home';
+      if (key === 'recentActivity') return 'recent activity';
+      if (key === 'favoriteActivity') return 'favorite activity';
+      if (key === 'title') return `Welcome back, ${values?.name ?? ''}`;
+      if (key === 'description') {
+        return `You have ${values?.count ?? 0} active boards. Here is your ${values?.activity ?? 'recent activity'}.`;
+      }
+
+      return key;
+    };
+  }),
+}));
+
 describe('Home Page', () => {
   const defaultUser = {
     user: {

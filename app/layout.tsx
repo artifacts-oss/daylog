@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import localFont from 'next/font/local';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale } from 'next-intl/server';
 import './globals.css';
+import LocaleStorageSync from '../components/LocaleStorageSync';
 import MainLayout from './partials/MainLayout';
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -27,12 +30,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${jakartaSans.variable} ${geistMono.variable} font-sans antialiased`}>
-        <MainLayout>
-          {children}
-        </MainLayout>
+        <NextIntlClientProvider>
+          <LocaleStorageSync />
+          <MainLayout>
+            {children}
+          </MainLayout>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

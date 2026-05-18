@@ -1,10 +1,10 @@
 import {
   cleanup,
   fireEvent,
-  render,
   screen,
   waitFor,
 } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import UsersTable from './UsersTable';
 
@@ -33,12 +33,12 @@ describe('UsersTable', () => {
   });
 
   it('renders loading state initially', () => {
-    render(<UsersTable currentUserId={1} />);
+    renderWithIntl(<UsersTable currentUserId={1} />);
     expect(screen.getByText('Fetching directory...')).toBeInTheDocument();
   });
 
   it('renders users after loading', async () => {
-    render(<UsersTable currentUserId={1} />);
+    renderWithIntl(<UsersTable currentUserId={1} />);
     await waitFor(() => {
       expect(screen.getByText('User One')).toBeInTheDocument();
       expect(screen.getByText('User Two')).toBeInTheDocument();
@@ -46,7 +46,7 @@ describe('UsersTable', () => {
   });
 
   it('handles role change', async () => {
-    render(<UsersTable currentUserId={1} />);
+    renderWithIntl(<UsersTable currentUserId={1} />);
     await waitFor(() => {
       expect(screen.getByText('User One')).toBeInTheDocument();
       expect(screen.getByText('User Two')).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe('UsersTable', () => {
   });
 
   it('handles user deletion', async () => {
-    render(<UsersTable currentUserId={1} />);
+    renderWithIntl(<UsersTable currentUserId={1} />);
     await waitFor(() => {
       expect(screen.getByText('User One')).toBeInTheDocument();
       expect(screen.getByText('User Two')).toBeInTheDocument();

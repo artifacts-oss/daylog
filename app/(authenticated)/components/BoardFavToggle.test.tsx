@@ -1,6 +1,7 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import BoardFavSwitch from './BoardFavToggle';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
 const mocks = vi.hoisted(() => {
   return {
@@ -23,7 +24,7 @@ describe('BoardFavSwitch', () => {
   });
 
   it('renders both buttons', () => {
-    render(<BoardFavSwitch />);
+    renderWithIntl(<BoardFavSwitch />);
     expect(screen.getByRole('button', { name: /recent/i })).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /favorites/i }),
@@ -31,7 +32,7 @@ describe('BoardFavSwitch', () => {
   });
 
   it('activates "Show recent" button by default', () => {
-    render(<BoardFavSwitch />);
+    renderWithIntl(<BoardFavSwitch />);
     const showAllBtn = screen.getByRole('button', { name: /recent/i });
     const favBtn = screen.getByRole('button', { name: /favorites/i });
     expect(showAllBtn.className).toContain('text-primary');
@@ -39,7 +40,7 @@ describe('BoardFavSwitch', () => {
   });
 
   it('activates "Favorites" button when showFavParam is true', () => {
-    render(<BoardFavSwitch showFavParam={true} />);
+    renderWithIntl(<BoardFavSwitch showFavParam={true} />);
     const showAllBtn = screen.getByRole('button', { name: /recent/i });
     const favBtn = screen.getByRole('button', { name: /favorites/i });
     expect(favBtn.className).toContain(
@@ -49,7 +50,7 @@ describe('BoardFavSwitch', () => {
   });
 
   it('toggles active button on click', async () => {
-    const { rerender } = render(<BoardFavSwitch showFavParam={false} />);
+    const { rerender } = renderWithIntl(<BoardFavSwitch showFavParam={false} />);
     const showAllBtn = screen.getByRole('button', { name: /recent/i });
     const favBtn = screen.getByRole('button', { name: /favorites/i });
 
@@ -77,7 +78,7 @@ describe('BoardFavSwitch', () => {
   });
 
   it('updates URL search params and calls router methods on toggle', async () => {
-    render(<BoardFavSwitch />);
+    renderWithIntl(<BoardFavSwitch />);
     const favBtn = screen.getByRole('button', { name: /favorites/i });
 
     fireEvent.click(favBtn);

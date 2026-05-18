@@ -55,9 +55,10 @@ describe('NoteModalDelete', () => {
     render(<NoteModalDelete note={mockNote} />);
     fireEvent.click(screen.getByRole('button', { name: "Delete note" }));
     
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toBeInTheDocument();
     expect(screen.getByText('Delete Note')).toBeInTheDocument();
-    expect(screen.getByText('Test Note')).toBeInTheDocument();
+    expect(dialog).toHaveTextContent('Are you sure you want to delete Test Note?');
   });
 
   it('calls deleteNote and refreshes on confirm', async () => {

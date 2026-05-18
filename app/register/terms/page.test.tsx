@@ -1,5 +1,6 @@
 import type React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import Page from './page';
 
@@ -37,7 +38,7 @@ describe('Terms of Service Page', () => {
   });
 
   it('renders the "Terms of Service" heading', () => {
-    render(<Page />);
+    renderWithIntl(<Page />);
     const heading = screen.getByRole('heading', {
       name: /Terms of Service/i,
       level: 1,
@@ -46,7 +47,7 @@ describe('Terms of Service Page', () => {
   });
 
   it('renders "Back to Registration" links', () => {
-    render(<Page />);
+    renderWithIntl(<Page />);
     const backLinks = screen.getAllByRole('link', {
       name: /Back to Registration/i,
     });
@@ -55,7 +56,7 @@ describe('Terms of Service Page', () => {
   });
 
   it('renders the external license link', () => {
-    render(<Page />);
+    renderWithIntl(<Page />);
     const externalLink = screen.getByRole('link', {
       name: /View License Detail/i,
     });
@@ -67,7 +68,7 @@ describe('Terms of Service Page', () => {
   });
 
   it('renders the sections properly', () => {
-    render(<Page />);
+    renderWithIntl(<Page />);
     expect(screen.getByText('Introduction')).toBeInTheDocument();
     expect(
       screen.getByText(/By registering for an account on our platform/),
@@ -81,7 +82,7 @@ describe('Terms of Service Page', () => {
   });
 
   it('renders "I understand, take me back" link', () => {
-    render(<Page />);
+    renderWithIntl(<Page />);
     const understandLink = screen.getByRole('link', {
       name: /I understand, take me back/i,
     });

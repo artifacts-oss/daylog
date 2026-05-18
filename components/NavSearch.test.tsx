@@ -1,10 +1,10 @@
 import {
   cleanup,
   fireEvent,
-  render,
   screen,
   waitFor,
 } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import NavSearch from './NavSearch';
 
@@ -42,7 +42,7 @@ describe('NavSearch', () => {
       setTimeout(() => {}, 1000);
       return new Promise(() => {});
     });
-    render(<NavSearch />);
+    renderWithIntl(<NavSearch />);
     fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
     const input = await screen.findByPlaceholderText(
       /Search boards and notes/i,
@@ -56,12 +56,12 @@ describe('NavSearch', () => {
   });
 
   it('renders search button and modal', () => {
-    render(<NavSearch />);
+    renderWithIntl(<NavSearch />);
     expect(screen.getByText(/Search anything/i)).toBeInTheDocument();
   });
 
   it('shows empty results message when no results', async () => {
-    render(<NavSearch />);
+    renderWithIntl(<NavSearch />);
     // Open modal by simulating click
     fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
     vi.advanceTimersByTime(350);
@@ -70,7 +70,7 @@ describe('NavSearch', () => {
   });
 
   it('shows search results when input is typed', async () => {
-    render(<NavSearch />);
+    renderWithIntl(<NavSearch />);
     fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
     const input = await screen.findByPlaceholderText(
       /Search boards and notes/i,
@@ -85,7 +85,7 @@ describe('NavSearch', () => {
   });
 
   it('shows navigation instructions in modal footer', async () => {
-    render(<NavSearch />);
+    renderWithIntl(<NavSearch />);
     fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
     const input = await screen.findByPlaceholderText(
       /Search boards and notes/i,
@@ -97,7 +97,7 @@ describe('NavSearch', () => {
   });
 
   it('navigates results with keyboard', async () => {
-    render(<NavSearch />);
+    renderWithIntl(<NavSearch />);
     fireEvent.click(screen.getByRole('button', { name: /Search anything/i }));
     const input = await screen.findByPlaceholderText(
       /Search boards and notes/i,

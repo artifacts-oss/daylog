@@ -1,10 +1,10 @@
 import {
   cleanup,
   fireEvent,
-  render,
   screen,
   waitFor,
 } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import LoginForm from './LoginForm';
 
@@ -54,14 +54,14 @@ describe('LoginForm', () => {
   });
 
   it('renders the login form', () => {
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
     expect(screen.getByText('Welcome back')).toBeInTheDocument();
   });
 
   it('displays an error message when state.message is present', () => {
     mockState.message = 'Invalid credentials';
     mocks.useActionState.mockReturnValue([mockState, vi.fn(), false]);
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
     expect(screen.getByText('Could not login')).toBeInTheDocument();
     expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
   });
@@ -69,25 +69,25 @@ describe('LoginForm', () => {
   it('displays email validation errors', () => {
     mockState.errors = { email: ['Email is required'] };
     mocks.useActionState.mockReturnValue([mockState, vi.fn(), false]);
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
     expect(screen.getByText('Email is required')).toBeInTheDocument();
   });
 
   it('displays password validation errors', () => {
     mockState.errors = { password: ['Password is required'] };
     mocks.useActionState.mockReturnValue([mockState, vi.fn(), false]);
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
     expect(screen.getByText('Password is required')).toBeInTheDocument();
   });
 
   it('disables the submit button when pending is true', () => {
     mocks.useActionState.mockReturnValue([mockState, vi.fn(), true]);
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
     expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
   });
 
   it('renders the registration link when allowReg is true', async () => {
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
     await waitFor(() => {
       expect(
         screen.getByText("Don't have an account yet?"),
@@ -98,7 +98,7 @@ describe('LoginForm', () => {
 
   it('does not render the registration link when allowReg is false', async () => {
     mocks.validateAllowRegistration.mockResolvedValue(false);
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
 
     await waitFor(() => {
       expect(
@@ -111,7 +111,7 @@ describe('LoginForm', () => {
   it('submits the form with email and password', () => {
     const mockAction = vi.fn();
     mocks.useActionState.mockReturnValue([mockState, mockAction, false]);
-    render(<LoginForm />);
+    renderWithIntl(<LoginForm />);
     fireEvent.change(screen.getByPlaceholderText('your@email.com'), {
       target: { value: 'test@example.com' },
     });

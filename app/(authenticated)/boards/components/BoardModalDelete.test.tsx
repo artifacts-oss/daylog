@@ -55,9 +55,10 @@ describe('BoardModalDelete', () => {
     render(<BoardModalDelete board={mockBoard} />);
     fireEvent.click(screen.getByRole('button', { name: "Delete board" }));
     
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toBeInTheDocument();
     expect(screen.getByText('Delete Board')).toBeInTheDocument();
-    expect(screen.getByText('Test Board')).toBeInTheDocument();
+    expect(dialog).toHaveTextContent('Are you sure you want to delete Test Board?');
   });
 
   it('calls deleteBoard and refreshes on confirm', async () => {

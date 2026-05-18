@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 interface NavBarProps {
   user: User;
@@ -19,6 +20,7 @@ interface NavBarProps {
 }
 
 export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
+  const t = useTranslations('Navigation');
   const path = usePathname() || '/';
   const adminPattern = /^\/admin\/?$/;
   const homePattern = /^\/$/;
@@ -28,25 +30,25 @@ export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
 
   const navItems = [
     {
-      name: 'Home',
+      name: t('home'),
       href: '/',
       icon: HomeIcon,
       active: homePattern.test(path),
     },
     {
-      name: 'Boards',
+      name: t('boards'),
       href: '/boards',
       icon: Squares2X2Icon,
       active: boardPattern.test(path) || notePattern.test(path),
     },
     {
-      name: 'Profile',
+      name: t('profile'),
       href: `/profile/${user?.id}`,
       icon: UserIcon,
       active: profilePattern.test(path),
     },
     {
-      name: 'Shared',
+      name: t('shared'),
       href: '/shared',
       icon: ShareIcon,
       active: path.startsWith('/shared'),
@@ -55,7 +57,7 @@ export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
 
   if (user?.role === 'admin') {
     navItems.push({
-      name: 'Admin',
+      name: t('admin'),
       href: '/admin',
       icon: ShieldCheckIcon,
       active: adminPattern.test(path),

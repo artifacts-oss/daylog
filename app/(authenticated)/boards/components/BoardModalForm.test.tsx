@@ -2,10 +2,10 @@ import { Board } from '@/prisma/generated/client';
 import {
   cleanup,
   fireEvent,
-  render,
   screen,
   waitFor,
 } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import BoardModalForm from './BoardModalForm';
 
@@ -73,7 +73,7 @@ describe('BoardModalForm', () => {
   });
 
   it('renders create board form', () => {
-    render(<BoardModalForm modalId="testModal" mode="create" open={true} />);
+    renderWithIntl(<BoardModalForm modalId="testModal" mode="create" open={true} />);
 
     expect(screen.getByText('Create board')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Your board title')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('BoardModalForm', () => {
       description: 'Test Description',
       imageUrl: 'test.jpg',
     };
-    render(
+    renderWithIntl(
       <BoardModalForm
         modalId="testModal"
         mode="update"
@@ -106,7 +106,7 @@ describe('BoardModalForm', () => {
   it('submits create board form', async () => {
     mocks.createBoard.mockResolvedValue(1);
 
-    render(<BoardModalForm modalId="testModal" mode="create" open={true} />);
+    renderWithIntl(<BoardModalForm modalId="testModal" mode="create" open={true} />);
 
     fireEvent.change(screen.getByPlaceholderText('Your board title'), {
       target: { value: 'New Board' },
@@ -134,7 +134,7 @@ describe('BoardModalForm', () => {
       imageUrl: 'test.jpg',
     };
 
-    render(
+    renderWithIntl(
       <BoardModalForm
         modalId="testModal"
         mode="update"
@@ -173,7 +173,7 @@ describe('BoardModalForm', () => {
       imageUrl: 'test.jpg',
     };
 
-    render(
+    renderWithIntl(
       <BoardModalForm
         modalId="testModal"
         mode="update"
@@ -208,7 +208,7 @@ describe('BoardModalForm', () => {
       imageUrl: 'test.jpg',
     };
 
-    render(
+    renderWithIntl(
       <BoardModalForm
         modalId="testModal"
         mode="update"

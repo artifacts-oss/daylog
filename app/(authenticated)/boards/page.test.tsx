@@ -39,6 +39,35 @@ vi.mock('@/app/(authenticated)/boards/components/BoardCard', () => ({
   )),
 }));
 
+vi.mock('@/app/(authenticated)/boards/components/BoardModalForm', () => ({
+  default: vi.fn(() => <div data-testid="board-modal-form">BoardModalForm</div>),
+}));
+
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async (namespace: string) => {
+    if (namespace === 'Navigation') {
+      return (key: string) => {
+        if (key === 'home') return 'Home';
+        if (key === 'boards') return 'Boards';
+        return key;
+      };
+    }
+
+    return (key: string, values?: Record<string, string | number>) => {
+      if (key === 'title') return 'Your Boards';
+      if (key === 'description') return `You have curated ${values?.count ?? 0} collections so far. Manage and organize your ideas here.`;
+      if (key === 'emptyTitle') return 'No boards found';
+      if (key === 'emptyDescription') return 'Create your first board to start organizing your notes and thoughts.';
+      if (key === 'createFirst') return 'Create My First Board';
+      if (key === 'newBoard') return 'New Board';
+      if (key === 'newShort') return 'New';
+      if (key === 'showing') return `Showing ${values?.shown ?? 0} of ${values?.total ?? 0} boards`;
+      if (key === 'loadMore') return 'Load More Boards';
+      return key;
+    };
+  }),
+}));
+
 describe('Boards Page', () => {
   const defaultSearchParams = {
     searchParams: Promise.resolve({

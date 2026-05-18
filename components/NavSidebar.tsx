@@ -34,6 +34,8 @@ import {
 import { signout } from '@/app/(authenticated)/lib/actions';
 import NavThemeToggle from './NavThemeToggle';
 import { cn } from '@/lib/utils';
+import LocaleSwitcher from './LocaleSwitcher';
+import { useTranslations } from 'next-intl';
 
 import { User } from '@/prisma/generated/client';
 
@@ -42,6 +44,7 @@ interface NavSidebarProps {
 }
 
 export default function NavSidebar({ user }: NavSidebarProps) {
+  const t = useTranslations('Navigation');
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -170,6 +173,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
 
         <div className="flex items-center gap-2">
           <NavSearch />
+          <LocaleSwitcher />
           <NavThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -201,7 +205,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
                   className="rounded-xl flex items-center py-2.5 cursor-pointer"
                 >
                   <UserIcon className="mr-3 h-4 w-4 opacity-60" />
-                  <span className="font-medium">Profile</span>
+                  <span className="font-medium">{t('profile')}</span>
                 </Link>
               </DropdownMenuItem>
               {user?.role === 'admin' && (
@@ -211,7 +215,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
                     className="rounded-xl flex items-center py-2.5 cursor-pointer"
                   >
                     <ShieldCheckIcon className="mr-3 h-4 w-4 opacity-60" />
-                    <span className="font-medium">Administration</span>
+                    <span className="font-medium">{t('administration')}</span>
                   </Link>
                 </DropdownMenuItem>
               )}
@@ -221,7 +225,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
                 className="rounded-xl flex items-center py-2.5 text-destructive focus:text-destructive cursor-pointer group"
               >
                 <ArrowRightStartOnRectangleIcon className="mr-3 h-4 w-4 opacity-60 group-hover:opacity-100 transition-opacity" />
-                <span className="font-medium">Log out</span>
+                <span className="font-medium">{t('logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

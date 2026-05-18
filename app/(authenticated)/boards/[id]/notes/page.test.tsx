@@ -42,6 +42,32 @@ vi.mock('@/utils/image', () => ({
   getImageUrlOrFile: vi.fn((url) => url),
 }));
 
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(async (namespace: string) => {
+    if (namespace === 'Navigation') {
+      return (key: string) => {
+        if (key === 'home') return 'Home';
+        if (key === 'boards') return 'Boards';
+        return key;
+      };
+    }
+
+    return (key: string, values?: Record<string, string | number>) => {
+      if (key === 'fallback') return 'Notes';
+      if (key === 'description') return `Manage your collection of ${values?.count ?? 0} notes. Last updated ${values?.date ?? ''}.`;
+      if (key === 'newNote') return 'New Note';
+      if (key === 'newShort') return 'New';
+      if (key === 'emptyTitle') return 'No notes in this board';
+      if (key === 'emptyDescription') return 'Start capturing your thoughts and organizing your ideas here.';
+      if (key === 'createFirst') return 'Create Your First Note';
+      if (key === 'showing') return `Showing ${values?.shown ?? 0} of ${values?.total ?? 0} notes`;
+      if (key === 'loadMore') return 'Load More Notes';
+      return key;
+    };
+  }),
+  getLocale: vi.fn(async () => 'en'),
+}));
+
 vi.mock('./components/NoteModalForm', () => ({
   default: () => <div data-testid="NoteModalForm" />,
 }));

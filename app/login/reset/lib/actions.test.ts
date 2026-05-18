@@ -44,7 +44,7 @@ describe('reset', () => {
 
     const result = await reset({}, formData);
 
-    expect(result.message).toBe('This email is no registered.');
+    expect(result.message).toBe('This email is not registered.');
   });
 
   it('should reset password and send email if email is registered', async () => {
@@ -105,7 +105,7 @@ describe('reset', () => {
       data: { password: 'mocked-hash' },
     });
     expect(mocks.createAndVerifyTransporter).toHaveBeenCalled();
-    expect(result.message).toBe("An error occurred while reseting your account.");
+    expect(result.message).toBe('An error occurred while resetting your account.');
   });
 
   it('should return error message if an exception occurs', async () => {
@@ -118,7 +118,7 @@ describe('reset', () => {
     const result = await reset({}, formData);
 
     expect(result.message).toBe(
-      `An error occurred while reseting your account.`
+      'An error occurred while resetting your account.'
     );
   });
 });

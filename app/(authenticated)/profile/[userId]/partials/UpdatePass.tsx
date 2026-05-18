@@ -12,6 +12,7 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 type UpdatePassType = {
   userId: number | null;
@@ -23,15 +24,16 @@ type UpdatePassType = {
 };
 
 export default function UpdatePass({ userId, profile }: UpdatePassType) {
+  const t = useTranslations('UpdatePassword');
   const [state, action, pending] = useActionState(updatePassword, undefined);
 
   return (
     <form action={action}>
       <Card className="mt-4">
         <CardHeader>
-          <CardTitle>Update Password</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Ensure your account is using a long, random password to stay secure.
+            {t('description')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -39,12 +41,12 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {profile.id === userId && (
               <div className="space-y-2 relative pb-4">
-                <Label htmlFor="current">Current Password</Label>
+                <Label htmlFor="current">{t('currentLabel')}</Label>
                 <Input
                   id="current"
                   type="password"
                   name="current"
-                  placeholder="Enter current password"
+                  placeholder={t('currentPlaceholder')}
                 />
                 {state?.errors?.current && (
                   <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
@@ -54,13 +56,13 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
               </div>
             )}
             <div className="space-y-2 relative pb-4">
-              <Label htmlFor="password">New Password</Label>
+              <Label htmlFor="password">{t('newLabel')}</Label>
               <Input
                 id="password"
                 type="password"
                 name="password"
                 defaultValue={state?.data?.password?.toString()}
-                placeholder="Enter your new secure password"
+                placeholder={t('newPlaceholder')}
               />
               {state?.errors?.password && (
                 <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
@@ -69,12 +71,12 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
               )}
             </div>
             <div className="space-y-2 relative pb-4">
-              <Label htmlFor="confirm">Password Confirmation</Label>
+              <Label htmlFor="confirm">{t('confirmLabel')}</Label>
               <Input
                 id="confirm"
                 type="password"
                 name="confirm"
-                placeholder="Confirm your new password"
+                placeholder={t('confirmPlaceholder')}
               />
               {state?.errors?.confirm && (
                 <p className="text-[12px] text-accent-red absolute -bottom-0 left-0">
@@ -97,7 +99,7 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
           )}
           <Button type="submit" disabled={pending}>
             <LockClosedIcon className="h-4 w-4 mr-2" />
-            {pending ? 'Updating...' : 'Change Password'}
+            {pending ? t('updating') : t('changePassword')}
           </Button>
         </CardContent>
       </Card>

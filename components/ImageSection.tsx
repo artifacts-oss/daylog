@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { useState, useEffect } from 'react';
 import Loader from '@/components/Loader';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 type UnsplashImage = {
   id: string;
@@ -40,6 +41,7 @@ export default function ImageSection({
   isUnsplashAllowed = false,
   altText,
 }: ImageSectionProps) {
+  const t = useTranslations('ImageSection');
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
   const [isUnsplashMode, setIsUnsplashMode] = useState(false);
@@ -116,9 +118,9 @@ export default function ImageSection({
       if (!res.ok) {
         const text = await res.text();
         if (res.status === 500 && text.includes('UNSPLASH_ACCESS_KEY')) {
-          setError('Unsplash API key is not configured in the environment.');
+          setError(t('errors.unsplashKey'));
         } else {
-          setError('Failed to fetch images from Unsplash.');
+          setError(t('errors.unsplashFetch'));
         }
         setImages([]);
         return;
@@ -130,7 +132,7 @@ export default function ImageSection({
       setPage(page);
     } catch (error) {
       console.error('Unsplash fetch error:', error);
-      setError('An unexpected error occurred while searching.');
+      setError(t('errors.searchUnexpected'));
     } finally {
       setLoading(false);
     }
@@ -156,7 +158,7 @@ export default function ImageSection({
     <div className="space-y-4 pt-2">
       <div className="flex items-center justify-between">
         <Label className="text-[12px] font-bold uppercase text-muted-foreground">
-          Cover Image
+          {t('coverImage')}
         </Label>
         <div className="flex gap-2">
           {isUnsplashMode && (
@@ -168,7 +170,7 @@ export default function ImageSection({
               onClick={() => setIsUnsplashMode(false)}
             >
               <XMarkIcon className="h-3.5 w-3.5 mr-1" />
-              Cancel Search
+              {t('cancelSearch')}
             </Button>
           )}
           {onDeleteImage &&
@@ -207,7 +209,7 @@ export default function ImageSection({
                 ) : (
                   <TrashIcon className="h-3.5 w-3.5 mr-1" />
                 )}
-                {isDeleting ? 'Removing...' : 'Remove Current'}
+                {isDeleting ? t('removing') : t('removeCurrent')}
               </Button>
             )}
         </div>
@@ -223,7 +225,7 @@ export default function ImageSection({
       >
         {isDeleting ? (
           <div className="flex h-full items-center justify-center py-12">
-            <Loader caption="Removing image..." />
+            <Loader caption={t('removingImage')} />
           </div>
         ) : isUnsplashMode ? (
           <div className="absolute inset-0 p-4 flex flex-col gap-4 overflow-hidden">
@@ -232,7 +234,7 @@ export default function ImageSection({
               <Input
                 autoFocus
                 type="text"
-                placeholder="Search high-quality images from Unsplash..."
+                placeholder={t('searchPlaceholder')}
                 className="pl-10 h-10 rounded-xl bg-background border-border focus-visible:ring-ring"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
@@ -247,7 +249,7 @@ export default function ImageSection({
             <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar pr-1">
               {loading ? (
                 <div className="flex h-full items-center justify-center py-12">
-                  <Loader caption="Searching beauty..." />
+                  <Loader caption={t('searchingBeauty')} />
                 </div>
               ) : error ? (
                 <div className="flex h-full items-center justify-center py-12 px-8 text-center">
@@ -256,7 +258,7 @@ export default function ImageSection({
                       <XMarkIcon className="h-6 w-6 text-destructive" />
                     </div>
                     <p className="text-sm font-bold text-destructive mb-1">
-                      Search Failed
+                      {t('searchFailed')}
                     </p>
                     <p className="text-xs text-destructive/80 leading-relaxed">
                       {error}
@@ -275,7 +277,7 @@ export default function ImageSection({
                       <Image
                         fill
                         src={image.urls.thumb}
-                        alt={image.description || 'Unsplash image'}
+                        alt={image.description || t('unsplashImageAlt')}
                         className="object-cover transition-transform duration-500 group-hover/item:scale-110"
                       />
                       <div className="absolute inset-0 bg-black/0 group-hover/item:bg-black/20 transition-colors" />
@@ -286,14 +288,14 @@ export default function ImageSection({
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground/70 py-8">
                   <PhotoIcon className="h-10 w-10 mb-2 opacity-20" />
                   <p className="text-sm font-medium">
-                    No results found for &quot;{keyword}&quot;
+                    {t('noResults', { keyword })}
                   </p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground/70 opacity-50 space-y-2">
                   <PhotoIcon className="h-12 w-12" />
                   <p className="text-xs font-bold uppercase tracking-widest text-center">
-                    Enter a keyword to explore
+                    {t('enterKeyword')}
                   </p>
                 </div>
               )}
@@ -302,7 +304,7 @@ export default function ImageSection({
             {images.length > 0 && (
               <div className="flex items-center justify-between pt-2 border-t border-border">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
-                  Page {page} of results
+                  {t('pageResults', { page })}
                 </p>
                 <div className="flex gap-1">
                   <Button
@@ -342,7 +344,7 @@ export default function ImageSection({
               <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs">
                 <label className="cursor-pointer bg-background text-foreground h-10 px-4 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-background/90 transition-colors shadow-lg shrink-0">
                   <PhotoIcon className="h-5 w-5 mr-2" />
-                  Change Image
+                  {t('changeImage')}
                   <input
                     type="file"
                     accept="image/*"
@@ -356,7 +358,7 @@ export default function ImageSection({
                     className="h-10 rounded-xl bg-white/20 border-white/30 text-white hover:bg-white/30 backdrop-blur-md font-bold text-sm"
                     onClick={() => setIsUnsplashMode(true)}
                   >
-                    Select from Unsplash
+                    {t('selectFromUnsplash')}
                   </Button>
                 )}
               </div>
@@ -370,7 +372,7 @@ export default function ImageSection({
             <div className="flex flex-col items-center gap-2">
               <div className="flex flex-col sm:flex-row gap-2 w-full px-4">
                 <label className="cursor-pointer bg-primary text-primary-foreground h-10 px-6 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-primary/90 transition-colors shadow-lg shrink-0 whitespace-nowrap">
-                  Upload from Device
+                  {t('uploadFromDevice')}
                   <input
                     type="file"
                     accept="image/*"
@@ -385,12 +387,12 @@ export default function ImageSection({
                     className="h-10 rounded-xl font-bold text-sm bg-background hover:bg-accent transition-colors"
                     onClick={() => setIsUnsplashMode(true)}
                   >
-                    Search Unsplash
+                    {t('searchUnsplash')}
                   </Button>
                 )}
               </div>
               <p className="text-[11px] text-muted-foreground/70 font-medium uppercase tracking-widest mt-1">
-                1920x1080 recommended • max 5mb
+                {t('recommendation')}
               </p>
             </div>
           </div>

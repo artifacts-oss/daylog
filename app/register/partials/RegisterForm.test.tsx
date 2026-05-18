@@ -1,4 +1,5 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, screen } from '@testing-library/react';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import RegisterForm from './RegisterForm';
 
@@ -25,7 +26,7 @@ describe('RegisterForm', () => {
   });
 
   it('renders form elements correctly', () => {
-    render(<RegisterForm />);
+    renderWithIntl(<RegisterForm />);
 
     expect(
       screen.getByText('Create account', { selector: 'h3' }),
@@ -38,7 +39,7 @@ describe('RegisterForm', () => {
   });
 
   it('shows error message when account creation fails', () => {
-    render(<RegisterForm />);
+    renderWithIntl(<RegisterForm />);
     fireEvent.click(screen.getByRole('button', { name: /create account/i }));
 
     expect(screen.getByText('Account not created')).toBeDefined();
@@ -52,7 +53,7 @@ describe('RegisterForm', () => {
       false,
     ]);
 
-    render(<RegisterForm />);
+    renderWithIntl(<RegisterForm />);
 
     expect(screen.getByText('Account created')).toBeDefined();
     expect(
@@ -64,7 +65,7 @@ describe('RegisterForm', () => {
   it('disables submit button when pending', async () => {
     mocks.useActionState.mockReturnValueOnce([state, vi.fn(), true]);
 
-    render(<RegisterForm />);
+    renderWithIntl(<RegisterForm />);
 
     const submitButton = screen.getByRole('button', {
       name: /Creating account.../i,

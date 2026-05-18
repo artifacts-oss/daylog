@@ -1,7 +1,8 @@
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ImageSection from './ImageSection';
+import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
 // Mock getImageUrlOrFile
 vi.mock('@/utils/image', () => ({
@@ -23,7 +24,7 @@ describe('ImageSection', () => {
   });
 
   it('renders default state without image', () => {
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         onImageFileChange={mockOnImageFileChange}
@@ -36,7 +37,7 @@ describe('ImageSection', () => {
   });
 
   it('renders default state with Unsplash allowed', () => {
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         onImageFileChange={mockOnImageFileChange}
@@ -50,7 +51,7 @@ describe('ImageSection', () => {
   });
 
   it('renders image when currentImageUrl is provided', () => {
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         currentImageUrl="https://test-image.jpg"
@@ -68,7 +69,7 @@ describe('ImageSection', () => {
 
   it('handles image file selection', async () => {
     const user = userEvent.setup();
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         onImageFileChange={mockOnImageFileChange}
@@ -93,7 +94,7 @@ describe('ImageSection', () => {
 
   it('handles file removal after selection', async () => {
     const user = userEvent.setup();
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         onImageFileChange={mockOnImageFileChange}
@@ -124,7 +125,7 @@ describe('ImageSection', () => {
 
   it('handles image removal for existing image', async () => {
     const user = userEvent.setup();
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         currentImageUrl="https://test-image.jpg"
@@ -142,7 +143,7 @@ describe('ImageSection', () => {
 
   it('opens and closes Unsplash search mode', async () => {
     const user = userEvent.setup();
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         onImageFileChange={mockOnImageFileChange}
@@ -188,7 +189,7 @@ describe('ImageSection', () => {
     });
 
     const user = userEvent.setup();
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         onImageFileChange={mockOnImageFileChange}
@@ -230,7 +231,7 @@ describe('ImageSection', () => {
     });
 
     const user = userEvent.setup();
-    render(
+    renderWithIntl(
       <ImageSection
         altText="Test Image"
         onImageFileChange={mockOnImageFileChange}
