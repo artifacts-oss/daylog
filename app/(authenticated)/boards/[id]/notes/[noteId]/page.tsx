@@ -43,7 +43,7 @@ export default async function NotePage({
     return null;
   }
 
-  const noteShare = await getEntityPublicShare('NOTE', note.id);
+  const _noteShare = await getEntityPublicShare('NOTE', note.id);
 
   const breadcrumbs = canEditViaShare
     ? [

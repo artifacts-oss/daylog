@@ -798,8 +798,8 @@ export async function recoverEncryptedData(
 }
 
 export async function wipeEncryptedData(
-  state: EncryptionFormState,
-  formData: FormData,
+  _state: EncryptionFormState,
+  _formData: FormData,
 ): Promise<EncryptionFormState> {
   const { user } = await getCurrentSession();
   if (!user) return { message: 'Unauthorized', success: false };

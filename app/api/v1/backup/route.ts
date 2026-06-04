@@ -154,7 +154,7 @@ export async function GET(req: NextRequest) {
 
     const date = new Date().toISOString().slice(0, 10);
 
-    return new Response(zipBuffer, {
+    return new Response(new Uint8Array(zipBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/zip',

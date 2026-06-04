@@ -15,7 +15,6 @@ import {
   CheckIcon,
   ArrowTopRightOnSquareIcon,
   KeyIcon,
-  ExclamationTriangleIcon,
   DocumentTextIcon,
   Squares2X2Icon,
   UsersIcon,

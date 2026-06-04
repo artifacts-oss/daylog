@@ -47,7 +47,7 @@ export default async function Notes({
   const notesCount = await getNotesCount(boardId);
   const notes = await getNotes(currentSort, currentPerPage, boardId);
   const settings = await getSettings();
-  const boardShare = await getEntityPublicShare('BOARD', boardId);
+  const _boardShare = await getEntityPublicShare('BOARD', boardId);
   const tNav = await getTranslations('Navigation');
   const t = await getTranslations('NotesPage');
   const locale = await getLocale();
