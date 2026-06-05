@@ -27,6 +27,9 @@ type NoteEditorType = {
   isOwner?: boolean;
   canDeleteHistory?: boolean;
   currentUserId?: number;
+  remoteContent?: string | null;
+  onContentChange?: (content: string) => void;
+  onCursorLineChange?: (line: number) => void;
 };
 
 export default function Editor({
@@ -34,6 +37,9 @@ export default function Editor({
   isOwner,
   canDeleteHistory,
   currentUserId,
+  remoteContent,
+  onContentChange,
+  onCursorLineChange,
 }: NoteEditorType) {
   const router = useRouter();
   const t = useTranslations('NoteEditor');
@@ -91,8 +97,8 @@ export default function Editor({
     }
   }, [note.id, note.content]);
 
-  /* Refactor: Use useRef for timer to avoid re-renders and dependency modification */
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isApplyingRemote = useRef(false);
 
   const updateNoteHandler = useCallback(
     async (content: string) => {
@@ -120,19 +126,48 @@ export default function Editor({
   const saveContent = useCallback(
     (content: string) => {
       localStorage.setItem(`note-${note.id}`, content);
+      onContentChange?.(content);
       setIsSaving(true);
       debounceSave(content, () => {
         setIsSaving(false);
       });
     },
-    [note.id, debounceSave],
+    [note.id, debounceSave, onContentChange],
   );
 
   useEffect(() => {
-    if (markdown !== localStorage.getItem(`note-${note.id}`)) {
+    if (!isApplyingRemote.current && markdown !== localStorage.getItem(`note-${note.id}`)) {
       saveContent(markdown);
     }
   }, [markdown, note.id, saveContent]);
+
+  // Apply incoming remote content from collaborative session
+  useEffect(() => {
+    if (remoteContent == null || remoteContent === markdown) return;
+
+    const textarea = document.querySelector(
+      '.w-md-editor-text-input',
+    ) as HTMLTextAreaElement | null;
+    const selStart = textarea?.selectionStart ?? 0;
+    const selEnd = textarea?.selectionEnd ?? 0;
+
+    isApplyingRemote.current = true;
+    setMarkdown(remoteContent);
+    localStorage.setItem(`note-${note.id}`, remoteContent);
+
+    // Restore cursor position after React re-renders
+    requestAnimationFrame(() => {
+      const el = document.querySelector(
+        '.w-md-editor-text-input',
+      ) as HTMLTextAreaElement | null;
+      if (el) {
+        el.selectionStart = Math.min(selStart, remoteContent.length);
+        el.selectionEnd = Math.min(selEnd, remoteContent.length);
+      }
+      isApplyingRemote.current = false;
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [remoteContent]);
 
   const handlePlaceImage = (imageUrl: string) => {
     const textarea = document.getElementsByClassName(
@@ -372,6 +407,14 @@ export default function Editor({
                 minHeight={400}
                 value={markdown}
                 onChange={(value) => setMarkdown(value ?? '')}
+                onStatistics={(stats) => {
+                  if (onCursorLineChange) {
+                    const line = stats.text
+                      .substring(0, stats.selection.start)
+                      .split('\n').length;
+                    onCursorLineChange(line);
+                  }
+                }}
                 previewOptions={{
                   rehypePlugins: [[rehypeSanitize]],
                 }}

@@ -5,7 +5,8 @@ import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
 import { getNote, getEditShareForNote, getNoteForRecipient } from '../lib/actions';
-import Editor from './components/Editor';
+import CollabEditor from './components/CollabEditor';
+import { prisma } from '@/prisma/client';
 import { getImageUrlOrFile } from '@/utils/image';
 import ShareDialog from '@/components/ShareDialog';
 import { getEntityPublicShare } from '@/app/(authenticated)/shared/lib/actions';
@@ -44,6 +45,11 @@ export default async function NotePage({
   }
 
   const _noteShare = await getEntityPublicShare('NOTE', note.id);
+
+  const hasEditShare = !!(await prisma.share.findFirst({
+    where: { entityType: 'NOTE', entityId: note.id, canEdit: true, scope: 'SPECIFIC' },
+  }));
+  const enableCollab = hasEditShare;
 
   const breadcrumbs = canEditViaShare
     ? [
@@ -86,11 +92,13 @@ export default async function NotePage({
       </PageHeader>
       <PageBody>
         {note && (
-          <Editor
+          <CollabEditor
             note={note}
             isOwner={board.userId === user.id || canEditViaShare}
             canDeleteHistory={board.userId === user.id}
             currentUserId={user.id}
+            currentUserName={user.name ?? user.email ?? ''}
+            enableCollab={enableCollab}
           />
         )}
       </PageBody>
