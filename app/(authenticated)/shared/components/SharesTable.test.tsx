@@ -78,7 +78,7 @@ describe('SharesTable', () => {
     expect(screen.getByText('Expired Board')).toBeInTheDocument();
 
     // Check type indicators
-    expect(screen.getByText('Shared Note')).toBeInTheDocument();
+    expect(screen.getByText('Public Note')).toBeInTheDocument();
     expect(screen.getByText('Public Board')).toBeInTheDocument();
   });
 
@@ -128,7 +128,7 @@ describe('SharesTable', () => {
   it('shows revocation dialog when delete button is clicked', async () => {
     renderWithIntl(<SharesTable shares={mockShares} />);
 
-    const deleteButtons = screen.getAllByTitle('Revoke link');
+    const deleteButtons = screen.getAllByTitle('Revoke');
     fireEvent.click(deleteButtons[0]);
 
     expect(screen.getByText('Security Verification')).toBeInTheDocument();

@@ -31,7 +31,7 @@ describe('Share Actions', () => {
 
   describe('createShare', () => {
     it('should create a share for an owned note', async () => {
-      mocks.getCurrentSession.mockResolvedValue({ user: mockUser });
+      mocks.getCurrentSession.mockResolvedValue({ user: mockUser, session: { id: 1 } });
       prismaMock.note.findFirst.mockResolvedValue({ id: 101 } as any);
       prismaMock.share.create.mockResolvedValue({ id: 'share-1' } as any);
       mocks.hashPassword.mockResolvedValue('hashed-pw');
@@ -64,7 +64,7 @@ describe('Share Actions', () => {
     });
 
     it('should fail if entity is not owned', async () => {
-      mocks.getCurrentSession.mockResolvedValue({ user: mockUser });
+      mocks.getCurrentSession.mockResolvedValue({ user: mockUser, session: { id: 1 } });
       prismaMock.note.findFirst.mockResolvedValue(null);
       await expect(createShare({ entityType: 'NOTE', entityId: 1 })).rejects.toThrow('Note not found or access denied');
     });
@@ -179,6 +179,7 @@ describe('Share Actions', () => {
         entityId: 101,
         password: 'hashed-password',
         views: [],
+        recipients: [],
         createdAt: new Date()
       };
       

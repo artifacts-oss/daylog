@@ -59,6 +59,7 @@ vi.mock('@/app/login/lib/actions', () => ({
 const mockUsePathname = vi.fn(() => '/');
 vi.mock('next/navigation', () => ({
   usePathname: () => mockUsePathname(),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 describe('Component Tests', () => {

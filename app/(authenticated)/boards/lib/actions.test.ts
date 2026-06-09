@@ -90,6 +90,8 @@ describe('Board Actions', () => {
   });
 
   it('should delete a board', async () => {
+    prismaMock.note.findMany.mockResolvedValue([]);
+    prismaMock.share.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.board.delete.mockResolvedValue(board as Board);
     const result = await deleteBoard(board as Board);
     expect(result).toEqual(board);
