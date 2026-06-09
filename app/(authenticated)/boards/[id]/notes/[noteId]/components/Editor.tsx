@@ -21,6 +21,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ChangeHistorySidebar from './ChangeHistorySidebar';
 import { History } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
+type PresenceUser = {
+  userId: number;
+  userName: string;
+  color: string;
+};
 
 type NoteEditorType = {
   note: Note;
@@ -30,6 +42,7 @@ type NoteEditorType = {
   remoteContent?: string | null;
   onContentChange?: (content: string) => void;
   onCursorLineChange?: (line: number) => void;
+  presenceUsers?: PresenceUser[];
 };
 
 export default function Editor({
@@ -40,6 +53,7 @@ export default function Editor({
   remoteContent,
   onContentChange,
   onCursorLineChange,
+  presenceUsers,
 }: NoteEditorType) {
   const router = useRouter();
   const t = useTranslations('NoteEditor');
@@ -381,7 +395,26 @@ export default function Editor({
               </Button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {presenceUsers && presenceUsers.length > 0 && (
+                <TooltipProvider delayDuration={300}>
+                  <div className="flex items-center -space-x-1.5">
+                    {presenceUsers.map((user) => (
+                      <Tooltip key={user.userId}>
+                        <TooltipTrigger asChild>
+                          <div
+                            className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white ring-2 ring-background select-none cursor-default"
+                            style={{ backgroundColor: user.color }}
+                          >
+                            {user.userName.charAt(0).toUpperCase()}
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>{user.userName}</TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
+                </TooltipProvider>
+              )}
               <AnimatePresence>
                 {isSaving && (
                   <motion.div

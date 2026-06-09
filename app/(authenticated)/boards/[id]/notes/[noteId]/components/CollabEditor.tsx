@@ -4,7 +4,13 @@ import { Note } from '@/prisma/generated/client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { computeDiff, applyPatch } from '@/utils/diff';
 import Editor from './Editor';
-import PresenceOverlay, { type PresenceEntry } from './PresenceOverlay';
+
+export type PresenceEntry = {
+  userId: number;
+  userName: string;
+  line: number;
+  color: string;
+};
 
 const USER_COLORS = [
   '#ef4444',
@@ -269,25 +275,15 @@ export default function CollabEditor({
   const presenceEntries = Array.from(presenceMap.values());
 
   return (
-    <div className="relative">
-      {enableCollab && collabState === 'CONNECTED' && presenceEntries.length > 0 && (
-        <div className="flex items-center gap-2 mb-2 text-[11px] font-[600] text-muted-foreground uppercase tracking-wider">
-          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
-          Live · {presenceEntries.length + 1} editing
-        </div>
-      )}
-      <div className="relative">
-        <Editor
-          note={note}
-          isOwner={isOwner}
-          canDeleteHistory={canDeleteHistory}
-          currentUserId={currentUserId}
-          remoteContent={enableCollab ? remoteContent : null}
-          onContentChange={enableCollab ? handleContentChange : undefined}
-          onCursorLineChange={enableCollab ? handleCursorLineChange : undefined}
-        />
-        {enableCollab && <PresenceOverlay entries={presenceEntries} />}
-      </div>
-    </div>
+    <Editor
+      note={note}
+      isOwner={isOwner}
+      canDeleteHistory={canDeleteHistory}
+      currentUserId={currentUserId}
+      remoteContent={enableCollab ? remoteContent : null}
+      onContentChange={enableCollab ? handleContentChange : undefined}
+      onCursorLineChange={enableCollab ? handleCursorLineChange : undefined}
+      presenceUsers={enableCollab && collabState === 'CONNECTED' ? presenceEntries : undefined}
+    />
   );
 }
