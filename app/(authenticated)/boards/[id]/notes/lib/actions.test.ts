@@ -1,5 +1,5 @@
 import { prisma } from '@/prisma/client';
-import { Note, Picture } from '@/prisma/generated/client';
+import { Board, Note, Picture } from '@/prisma/generated/client';
 import { prismaMock } from '@/prisma/singleton';
 import { removeFile, saveBase64File } from '@/utils/storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -232,7 +232,7 @@ describe('Note Actions', () => {
 
     mocks.saveBase64File.mockReturnValue(filepath);
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
 
     const result = await saveImage({ noteId, imageUrl: imageBase64 });
@@ -258,7 +258,7 @@ describe('Note Actions', () => {
     const filepath = 'http://example.com/image.jpg';
     const existentFilePath = 'path/to/existent/image.jpg';
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
     const result = await saveImage({
       noteId,
@@ -274,7 +274,7 @@ describe('Note Actions', () => {
     const fileurl = 'http://example.com/image.jpg';
 
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
 
     const result = await saveImage({ noteId, imageUrl: fileurl });
@@ -297,7 +297,7 @@ describe('Note Actions', () => {
       enableS3: true,
     });
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
 
     const key = await saveImage({ noteId, imageUrl: imageBase64 });
@@ -312,7 +312,7 @@ describe('Note Actions', () => {
 
     mocks.removeFile.mockReturnValue(true);
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
 
     await deleteImage(noteId, filePath);
@@ -335,7 +335,7 @@ describe('Note Actions', () => {
     } as Picture;
 
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.picture.create.mockResolvedValue(picture);
 
     const result = await savePicture({ noteId, imageUrl: picture.imageUrl });
@@ -361,7 +361,7 @@ describe('Note Actions', () => {
 
     mocks.removeFile.mockReturnValue(true);
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.picture.findUnique.mockResolvedValue(picture);
 
     await deletePicture(noteId, picture.id);
@@ -384,7 +384,7 @@ describe('Note Actions', () => {
 
     mocks.removeFile.mockReturnValue(false);
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.picture.findUnique.mockResolvedValue(picture);
 
     await deletePicture(noteId, picture.id);
@@ -404,7 +404,7 @@ describe('Note Actions', () => {
     } as Picture;
 
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as any);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.picture.findMany.mockResolvedValue([picture]);
 
     const result = await getPictures(noteId);
