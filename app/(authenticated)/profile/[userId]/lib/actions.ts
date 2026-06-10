@@ -364,15 +364,17 @@ export async function deleteAccount(
 
   let accountDeleted = false;
   try {
-    // Check if the user exists
-    const user = await prisma.user.findUnique({
-      where: {
-        id: result.data.userId,
-        password: result.data.password,
-      },
+    // Re-authenticate against the target account's password hash.
+    // The previous implementation compared the plaintext password directly
+    // in the WHERE clause against the bcrypt hash, which never matched.
+    const targetUser = await prisma.user.findUnique({
+      where: { id: result.data.userId },
     });
 
-    if (!user) {
+    if (
+      !targetUser ||
+      !(await verifyPassword(result.data.password, targetUser.password))
+    ) {
       return {
         message: 'You are not allowed to perform this action.',
         success: false,
@@ -380,7 +382,7 @@ export async function deleteAccount(
     }
 
     const deleteUser = await prisma.user.delete({
-      where: { email: user.email },
+      where: { email: targetUser.email },
     });
 
     if (deleteUser) {
@@ -405,21 +407,42 @@ export async function deleteAccount(
   }
 }
 
-export async function getProfile(userId: number) {
+export type SafeProfile = Pick<
+  User,
+  | 'id'
+  | 'email'
+  | 'name'
+  | 'role'
+  | 'mfa'
+  | 'terms'
+  | 'encryptionEnabled'
+  | 'encryptedDataLocked'
+>;
+
+export async function getProfile(userId: number): Promise<SafeProfile | null> {
   const { user } = await getCurrentSession();
   if (user === null) {
     return redirect('/login');
   }
 
+  // Never expose sensitive fields (password hash, TOTP secret, MFA code,
+  // encryption salt, lockout state) to the client (CWE-213).
   const record = await prisma.user.findUnique({
     where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      mfa: true,
+      terms: true,
+      encryptionEnabled: true,
+      encryptedDataLocked: true,
+    },
   });
 
   // If the user is an admin, they can view any user's profile
-  if (
-    record &&
-    (user.role === 'admin' || record?.id === user.id)
-  ) {
+  if (record && (user.role === 'admin' || record?.id === user.id)) {
     return record;
   } else {
     return null;

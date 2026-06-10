@@ -190,7 +190,14 @@ export async function signin(
 ) {
   const locale = await getCurrentLocale();
   const messages = getLoginActionMessages(locale);
-  const callbackUrl = formData.get('callbackUrl')?.toString() || '/';
+  const requestedCallbackUrl = formData.get('callbackUrl')?.toString() || '/';
+  // Only allow same-origin relative paths to prevent open redirects (CWE-601).
+  // Reject protocol-relative URLs (//evil.com) and any absolute URL.
+  const callbackUrl =
+    requestedCallbackUrl.startsWith('/') &&
+    !requestedCallbackUrl.startsWith('//')
+      ? requestedCallbackUrl
+      : '/';
   const result = createSigninFormSchema(locale).safeParse({
     email: formData.get('email'),
     password: formData.get('password'),

@@ -1,7 +1,6 @@
 'use client';
 
 import OTPInputWrapper from '@/components/OTPInputWrapper';
-import { User } from '@/prisma/generated/client';
 import { generateTOTPSecret, generateTOTPUrl } from '@/utils/totp';
 import {
   EyeIcon,
@@ -11,7 +10,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import { AlertOctagon } from 'lucide-react';
 import { useActionState, useEffect, useState } from 'react';
-import { deleteMFA, sendOTP, updateMFA } from '../lib/actions';
+import { deleteMFA, sendOTP, updateMFA, type SafeProfile } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,7 +28,7 @@ import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 
 type ProfileInfoType = {
-  profile: User;
+  profile: SafeProfile;
 };
 
 export default function MultiFAAuth({ profile }: ProfileInfoType) {

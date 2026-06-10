@@ -1,7 +1,6 @@
 'use client';
 
 import Loader from '@/components/Loader';
-import { User } from '@/prisma/generated/client';
 import {
   ExclamationTriangleIcon,
   PencilIcon,
@@ -22,7 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { deleteUser, getUsers, setRole } from '../lib/actions';
+import { deleteUser, getUsers, setRole, type SafeUser } from '../lib/actions';
 import {
   Table,
   TableBody,
@@ -53,7 +52,7 @@ export default function UsersTable({
 }) {
   const t = useTranslations('UsersTable');
   const tNav = useTranslations('Navigation');
-  const [users, setUsers] = useState<User[] | null>();
+  const [users, setUsers] = useState<SafeUser[] | null>();
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
