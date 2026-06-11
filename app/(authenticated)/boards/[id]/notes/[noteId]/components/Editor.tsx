@@ -9,6 +9,7 @@ import {
   deletePicture,
   deleteImage,
 } from '../../lib/actions';
+import { adjustCursorOffset } from '@/utils/diff';
 import Image from 'next/image';
 import { getImageUrlOrFile, resizeImage } from '@/utils/image';
 import MDEditor from '@uiw/react-md-editor';
@@ -174,18 +175,22 @@ export default function Editor({
     const selStart = textarea?.selectionStart ?? 0;
     const selEnd = textarea?.selectionEnd ?? 0;
 
+    // Map the cursor through the diff so insertions/deletions before the
+    // caret don't displace it to the wrong position in the merged content.
+    const adjustedStart = adjustCursorOffset(markdown, remoteContent, selStart);
+    const adjustedEnd = adjustCursorOffset(markdown, remoteContent, selEnd);
+
     isApplyingRemote.current = true;
     setMarkdown(remoteContent);
     localStorage.setItem(`note-${note.id}`, remoteContent);
 
-    // Restore cursor position after React re-renders
     requestAnimationFrame(() => {
       const el = document.querySelector(
         '.w-md-editor-text-input',
       ) as HTMLTextAreaElement | null;
       if (el) {
-        el.selectionStart = Math.min(selStart, remoteContent.length);
-        el.selectionEnd = Math.min(selEnd, remoteContent.length);
+        el.selectionStart = adjustedStart;
+        el.selectionEnd = adjustedEnd;
       }
       isApplyingRemote.current = false;
     });

@@ -100,6 +100,51 @@ export function getDiffSummary(patchText: string): {
 }
 
 /**
+ * Maps a cursor offset from oldText into the equivalent offset in newText by
+ * walking the character-level diff. Used to keep the caret in place when a
+ * remote collaborative edit is applied.
+ *
+ * - Equal segment: advance both pointers together.
+ * - Delete segment: the old chars are gone; if the cursor was inside them,
+ *   clamp it to the start of the deletion.
+ * - Insert segment: new chars appear before the cursor, so advance newPos.
+ */
+export function adjustCursorOffset(
+  oldText: string,
+  newText: string,
+  offset: number,
+): number {
+  // Use character-level diff (no semantic cleanup) for accurate offset mapping
+  const diffs = dmp.diff_main(oldText, newText);
+  let oldPos = 0;
+  let newPos = 0;
+
+  for (const [op, text] of diffs) {
+    if (op === 0) {
+      // EQUAL
+      if (oldPos + text.length > offset) {
+        newPos += offset - oldPos;
+        return newPos;
+      }
+      oldPos += text.length;
+      newPos += text.length;
+    } else if (op === -1) {
+      // DELETE
+      if (oldPos + text.length > offset) {
+        // Cursor was inside deleted text — place it at the deletion point
+        return newPos;
+      }
+      oldPos += text.length;
+    } else {
+      // INSERT — shifts new content forward, old position unchanged
+      newPos += text.length;
+    }
+  }
+
+  return newPos;
+}
+
+/**
  * Gets a preview of the text changed in a diff patch
  * @param patchText - The patch string
  * @param maxLength - Maximum length of the preview
