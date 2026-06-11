@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { loadNoteRoomContent } from './noteCollaboration';
+
+vi.mock('./redis', () => ({ redis: {}, createSubscriber: vi.fn() }));
 import {
   deriveEncryptionKey,
   encryptField,

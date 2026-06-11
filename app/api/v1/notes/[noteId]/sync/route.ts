@@ -1,7 +1,13 @@
 import { getCurrentSession } from '@/app/login/lib/actions';
 import { prisma } from '@/prisma/client';
 import { NextRequest } from 'next/server';
-import { getOrCreateRoom, broadcastToRoom, loadNoteRoomContent } from '@/lib/noteCollaboration';
+import {
+  getOrInitRoom,
+  updateRoomContent,
+  setPresence,
+  publishEvent,
+  loadNoteRoomContent,
+} from '@/lib/noteCollaboration';
 import { computeDiff, applyPatch } from '@/utils/diff';
 
 const MAX_PATCH_SIZE = 64 * 1024; // 64 KB
@@ -59,23 +65,12 @@ export async function POST(
       return Response.json({ error: 'Invalid line' }, { status: 400 });
     }
 
-    const room = await getOrCreateRoom(noteId, () =>
-      loadNoteRoomContent(noteId, req.cookies.get('session')?.value),
-    );
-
     const userName = user.name ?? user.email ?? 'Unknown';
-    room.presence.set(user.id, {
-      userId: user.id,
-      userName,
-      line,
-      updatedAt: Date.now(),
+    await setPresence(noteId, user.id, userName, line);
+    await publishEvent(noteId, {
+      type: 'presence',
+      data: { userId: user.id, userName, line },
     });
-
-    broadcastToRoom(
-      noteId,
-      { type: 'presence', data: { userId: user.id, userName, line } },
-      user.id,
-    );
 
     return Response.json({ ok: true });
   }
@@ -99,51 +94,40 @@ export async function POST(
       return Response.json({ error: 'Patch too large' }, { status: 413 });
     }
 
-    const room = await getOrCreateRoom(noteId, () =>
-      loadNoteRoomContent(noteId, req.cookies.get('session')?.value),
+    const sessionToken = req.cookies.get('session')?.value;
+    const { content, revision } = await getOrInitRoom(noteId, () =>
+      loadNoteRoomContent(noteId, sessionToken),
     );
 
     let newContent: string | null = null;
-
-    if (baseRevision === room.revision) {
-      newContent = applyPatch(room.content, patch);
-    } else if (baseRevision < room.revision) {
-      // Try fuzzy OT: apply the patch on top of current content
-      newContent = applyPatch(room.content, patch);
+    if (baseRevision === revision || baseRevision < revision) {
+      newContent = applyPatch(content, patch);
     }
 
     if (newContent === null) {
       // Patch failed — tell client to hard-resync
-      return Response.json({
-        ok: false,
-        content: room.content,
-        revision: room.revision,
-      });
+      return Response.json({ ok: false, content, revision });
     }
 
-    // Only update if content actually changed
-    if (newContent !== room.content) {
-      // Compute the effective patch from current content to new content for broadcasting
-      const effectivePatch = computeDiff(room.content, newContent);
-      room.content = newContent;
-      room.revision += 1;
+    if (newContent !== content) {
+      const effectivePatch = computeDiff(content, newContent);
+      const newRevision = revision + 1;
 
-      broadcastToRoom(
-        noteId,
-        {
-          type: 'content',
-          data: {
-            revision: room.revision,
-            content: room.content,
-            patch: effectivePatch,
-            authorId: user.id,
-          },
+      await updateRoomContent(noteId, newContent, newRevision);
+      await publishEvent(noteId, {
+        type: 'content',
+        data: {
+          revision: newRevision,
+          content: newContent,
+          patch: effectivePatch,
+          authorId: user.id,
         },
-        user.id,
-      );
+      });
+
+      return Response.json({ ok: true, revision: newRevision });
     }
 
-    return Response.json({ ok: true, revision: room.revision });
+    return Response.json({ ok: true, revision });
   }
 
   return Response.json({ error: 'Unknown type' }, { status: 400 });

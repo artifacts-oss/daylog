@@ -5,27 +5,13 @@ import {
   getSessionEncryptionKey,
   isEncrypted,
 } from '@/utils/encryption';
-
-export interface CollabConnection {
-  id: string;
-  userId: number;
-  userName: string;
-  controller: ReadableStreamDefaultController;
-}
+import { redis } from './redis';
 
 export interface CollabPresence {
   userId: number;
   userName: string;
   line: number;
   updatedAt: number;
-}
-
-export interface CollabRoom {
-  content: string;
-  revision: number;
-  connections: Map<string, CollabConnection>;
-  presence: Map<number, CollabPresence>;
-  initPromise: Promise<string>;
 }
 
 export type CollabEventType = 'init' | 'content' | 'presence' | 'leave' | 'ping';
@@ -35,9 +21,12 @@ export interface CollabEvent {
   data: Record<string, unknown>;
 }
 
-const g = globalThis as typeof globalThis & { __noteRooms?: Map<number, CollabRoom> };
-if (!g.__noteRooms) g.__noteRooms = new Map();
-const noteRooms = g.__noteRooms;
+const ROOM_TTL_S = 7 * 24 * 60 * 60; // 7 days
+const PRESENCE_TTL_S = 24 * 60 * 60; // 1 day
+
+export const eventsChannel = (noteId: number) => `collab:events:${noteId}`;
+const roomKey = (noteId: number) => `collab:room:${noteId}`;
+const presenceKey = (noteId: number) => `collab:presence:${noteId}`;
 
 /**
  * Loads the plaintext content of a note for a collaboration room. Rooms always
@@ -85,57 +74,98 @@ export async function loadNoteRoomContent(
   return content;
 }
 
-export async function getOrCreateRoom(
+/**
+ * Returns the current room state from Redis, loading from the DB via
+ * contentLoader if the key does not exist yet. Uses HSETNX so concurrent
+ * connections racing to initialize the same room are safe.
+ */
+export async function getOrInitRoom(
   noteId: number,
   contentLoader: () => Promise<string>,
-): Promise<CollabRoom> {
-  if (noteRooms.has(noteId)) {
-    const room = noteRooms.get(noteId)!;
-    await room.initPromise;
-    return room;
+): Promise<{ content: string; revision: number }> {
+  const key = roomKey(noteId);
+  const existing = await redis.hgetall(key);
+
+  if (existing && Object.keys(existing).length > 0) {
+    return {
+      content: existing.content ?? '',
+      revision: parseInt(existing.revision ?? '0', 10),
+    };
   }
 
-  const initPromise = contentLoader();
-  const room: CollabRoom = {
-    content: '',
-    revision: 0,
-    connections: new Map(),
-    presence: new Map(),
-    initPromise,
-  };
-  noteRooms.set(noteId, room);
+  const content = await contentLoader();
+  const won = await redis.hsetnx(key, 'content', content);
+  if (won) {
+    await redis.hset(key, 'revision', '0');
+    await redis.expire(key, ROOM_TTL_S);
+    return { content, revision: 0 };
+  }
 
-  room.content = await initPromise;
-  return room;
+  // Another instance initialised the room first — read their state.
+  const final = await redis.hgetall(key);
+  return {
+    content: final.content ?? content,
+    revision: parseInt(final.revision ?? '0', 10),
+  };
 }
 
-export function broadcastToRoom(
+export async function getRoomState(
   noteId: number,
-  event: CollabEvent,
-  excludeUserId?: number,
-): void {
-  const room = noteRooms.get(noteId);
-  if (!room) return;
+): Promise<{ content: string; revision: number } | null> {
+  const data = await redis.hgetall(roomKey(noteId));
+  if (!data || Object.keys(data).length === 0) return null;
+  return {
+    content: data.content ?? '',
+    revision: parseInt(data.revision ?? '0', 10),
+  };
+}
 
-  const message = formatSSE(event.type, event.data);
-  for (const conn of room.connections.values()) {
-    if (excludeUserId !== undefined && conn.userId === excludeUserId) continue;
+export async function updateRoomContent(
+  noteId: number,
+  content: string,
+  revision: number,
+): Promise<void> {
+  const key = roomKey(noteId);
+  await redis.hset(key, 'content', content, 'revision', String(revision));
+  await redis.expire(key, ROOM_TTL_S);
+}
+
+export async function setPresence(
+  noteId: number,
+  userId: number,
+  userName: string,
+  line: number,
+): Promise<void> {
+  const key = presenceKey(noteId);
+  const entry: CollabPresence = { userId, userName, line, updatedAt: Date.now() };
+  await redis.hset(key, String(userId), JSON.stringify(entry));
+  await redis.expire(key, PRESENCE_TTL_S);
+}
+
+export async function removePresence(noteId: number, userId: number): Promise<void> {
+  await redis.hdel(presenceKey(noteId), String(userId));
+}
+
+export async function getAllPresence(
+  noteId: number,
+): Promise<Record<string, CollabPresence>> {
+  const data = await redis.hgetall(presenceKey(noteId));
+  if (!data) return {};
+  const result: Record<string, CollabPresence> = {};
+  for (const [uid, json] of Object.entries(data)) {
     try {
-      conn.controller.enqueue(message);
+      result[uid] = JSON.parse(json) as CollabPresence;
     } catch {
-      // Connection is closed; will be cleaned up on abort
+      // skip malformed entry
     }
   }
+  return result;
+}
+
+export async function publishEvent(noteId: number, event: CollabEvent): Promise<void> {
+  await redis.publish(eventsChannel(noteId), JSON.stringify(event));
 }
 
 export function formatSSE(event: string, data: Record<string, unknown>): string {
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-}
-
-export function getRoomPresence(room: CollabRoom): Record<number, CollabPresence> {
-  return Object.fromEntries(room.presence.entries());
-}
-
-export function deleteRoom(noteId: number): void {
-  noteRooms.delete(noteId);
 }

@@ -6,14 +6,16 @@ import { getCurrentSession } from '@/app/login/lib/actions';
 import { prisma } from '@/prisma/client';
 import { NextRequest } from 'next/server';
 import {
-  getOrCreateRoom,
-  broadcastToRoom,
-  deleteRoom,
+  getOrInitRoom,
+  getAllPresence,
+  removePresence,
+  publishEvent,
   formatSSE,
-  getRoomPresence,
+  eventsChannel,
   loadNoteRoomContent,
+  type CollabEvent,
 } from '@/lib/noteCollaboration';
-import { randomUUID } from 'crypto';
+import { createSubscriber } from '@/lib/redis';
 
 async function hasNoteAccess(noteId: number, userId: number): Promise<boolean> {
   const asOwner = await prisma.note.findFirst({
@@ -51,54 +53,88 @@ export async function GET(
     return Response.json({ error: 'Not allowed' }, { status: 403 });
   }
 
-  const userName = user.name ?? user.email ?? 'Unknown';
-
   const sessionToken = req.cookies.get('session')?.value;
-  const room = await getOrCreateRoom(noteId, () =>
+  const { content, revision } = await getOrInitRoom(noteId, () =>
     loadNoteRoomContent(noteId, sessionToken),
   );
+  const presence = await getAllPresence(noteId);
 
-  const connectionId = randomUUID();
+  // Each SSE connection gets its own Redis subscriber connection.
+  const subscriber = createSubscriber();
+  const pendingSSE: string[] = [];
+  let streamController: ReadableStreamDefaultController | null = null;
+
+  // Set up the message handler before subscribing to avoid missing events
+  // that arrive between subscribe() and the ReadableStream start() call.
+  subscriber.on('message', (_channel, rawMessage) => {
+    try {
+      const event = JSON.parse(rawMessage) as CollabEvent;
+      const sseStr = formatSSE(event.type, event.data);
+      if (streamController) {
+        try {
+          streamController.enqueue(sseStr);
+        } catch {
+          // Stream closed; cleanup will fire via cancel()
+        }
+      } else {
+        pendingSSE.push(sseStr);
+      }
+    } catch {
+      // Ignore malformed Redis messages
+    }
+  });
+
+  await subscriber.subscribe(eventsChannel(noteId));
+
   let pingInterval: ReturnType<typeof setInterval> | null = null;
+
+  const cleanup = async () => {
+    if (pingInterval) {
+      clearInterval(pingInterval);
+      pingInterval = null;
+    }
+    try {
+      await subscriber.unsubscribe();
+      subscriber.quit();
+    } catch {
+      // Ignore errors on teardown
+    }
+    await removePresence(noteId, user.id);
+    await publishEvent(noteId, { type: 'leave', data: { userId: user.id } });
+  };
 
   const stream = new ReadableStream({
     start(controller) {
-      room.connections.set(connectionId, {
-        id: connectionId,
-        userId: user.id,
-        userName,
-        controller,
-      });
+      streamController = controller;
 
-      // Send initial state
+      // Drain any events that arrived before start() was called
+      for (const msg of pendingSSE.splice(0)) {
+        try {
+          controller.enqueue(msg);
+        } catch {
+          // ignore
+        }
+      }
+
+      // Send initial state (exclude self from presence)
+      const presenceWithoutSelf = Object.fromEntries(
+        Object.entries(presence).filter(([uid]) => parseInt(uid) !== user.id),
+      );
       controller.enqueue(
-        formatSSE('init', {
-          revision: room.revision,
-          content: room.content,
-          presence: getRoomPresence(room),
-        }),
+        formatSSE('init', { revision, content, presence: presenceWithoutSelf }),
       );
 
-      // Keep-alive ping every 30 seconds; also detects dead connections
+      // Keep-alive ping every 30 s; also detects dead connections
       pingInterval = setInterval(() => {
         try {
           controller.enqueue(formatSSE('ping', {}));
         } catch {
-          // Client disconnected without a clean close — evict it now
-          if (pingInterval) clearInterval(pingInterval);
-          room.connections.delete(connectionId);
-          room.presence.delete(user.id);
-          broadcastToRoom(noteId, { type: 'leave', data: { userId: user.id } });
-          if (room.connections.size === 0) deleteRoom(noteId);
+          void cleanup();
         }
       }, 30_000);
     },
     cancel() {
-      if (pingInterval) clearInterval(pingInterval);
-      room.connections.delete(connectionId);
-      room.presence.delete(user.id);
-      broadcastToRoom(noteId, { type: 'leave', data: { userId: user.id } });
-      if (room.connections.size === 0) deleteRoom(noteId);
+      return cleanup();
     },
   });
 
