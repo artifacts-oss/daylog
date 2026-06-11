@@ -76,6 +76,9 @@ export default function Editor({
   const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Tracks content waiting to be persisted so unmount/beforeunload can flush it
+  const pendingContentRef = useRef<string | null>(null);
+  const noteRef = useRef(note);
 
   const { theme } = useTheme();
 
@@ -99,6 +102,10 @@ export default function Editor({
   // Sync local state only when the user navigates to a *different* note
   // (note.id changes) or on the very first mount. This prevents an autosave
   // revalidation from overwriting what the user is currently typing.
+  useEffect(() => {
+    noteRef.current = note;
+  }, [note]);
+
   useEffect(() => {
     if (
       initialContentRef.current === null ||
@@ -142,8 +149,10 @@ export default function Editor({
       localStorage.setItem(`note-${note.id}`, content);
       onContentChange?.(content);
       setIsSaving(true);
+      pendingContentRef.current = content;
       debounceSave(content, () => {
         setIsSaving(false);
+        pendingContentRef.current = null;
       });
     },
     [note.id, debounceSave, onContentChange],
@@ -182,6 +191,29 @@ export default function Editor({
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [remoteContent]);
+
+  // Flush pending autosave when the component unmounts (e.g. user navigates away)
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current !== null && pendingContentRef.current !== null) {
+        clearTimeout(debounceTimerRef.current);
+        void updateNote({ ...noteRef.current, content: pendingContentRef.current });
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Best-effort flush on tab/browser close via keepalive-capable Server Action call
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (pendingContentRef.current !== null) {
+        void updateNote({ ...noteRef.current, content: pendingContentRef.current });
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handlePlaceImage = (imageUrl: string) => {
     const textarea = document.getElementsByClassName(

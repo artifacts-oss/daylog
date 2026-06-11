@@ -135,3 +135,7 @@ export function formatSSE(event: string, data: Record<string, unknown>): string 
 export function getRoomPresence(room: CollabRoom): Record<number, CollabPresence> {
   return Object.fromEntries(room.presence.entries());
 }
+
+export function deleteRoom(noteId: number): void {
+  noteRooms.delete(noteId);
+}

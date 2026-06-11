@@ -77,7 +77,7 @@ export default function CollabEditor({
   // lastSyncedContentRef is updated BEFORE the fetch (optimistic) so that
   // subsequent keystrokes compute diffs from the right base even when the
   // server hasn't responded yet.
-  const flushPatch = useCallback(() => {
+  const flushPatch = useCallback((keepalive = false) => {
     if (collabStateRef.current !== 'CONNECTED') return;
     const newContent = localContentRef.current;
     const patch = computeDiff(lastSyncedContentRef.current, newContent);
@@ -90,6 +90,7 @@ export default function CollabEditor({
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'content', baseRevision, patch }),
+      keepalive,
     })
       .then((r) => r.json())
       .then((data: { ok: boolean; revision?: number; content?: string }) => {
@@ -262,15 +263,27 @@ export default function CollabEditor({
 
   useEffect(() => {
     if (!enableCollab) return;
+    const handleBeforeUnload = () => flushPatch(true);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [enableCollab, flushPatch]);
+
+  useEffect(() => {
+    if (!enableCollab) return;
     connect();
     return () => {
+      // Flush any buffered keystrokes before the SSE connection closes
+      if (patchTimerRef.current) {
+        clearTimeout(patchTimerRef.current);
+        patchTimerRef.current = null;
+        flushPatch();
+      }
       esRef.current?.close();
       esRef.current = null;
       if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
-      if (patchTimerRef.current) clearTimeout(patchTimerRef.current);
       if (presenceTimerRef.current) clearTimeout(presenceTimerRef.current);
     };
-  }, [enableCollab, connect]);
+  }, [enableCollab, connect, flushPatch]);
 
   const presenceEntries = Array.from(presenceMap.values());
 

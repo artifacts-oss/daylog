@@ -6,6 +6,7 @@ import { NextRequest } from 'next/server';
 import {
   getOrCreateRoom,
   broadcastToRoom,
+  deleteRoom,
   formatSSE,
   getRoomPresence,
   loadNoteRoomContent,
@@ -76,12 +77,17 @@ export async function GET(
         }),
       );
 
-      // Keep-alive ping every 30 seconds
+      // Keep-alive ping every 30 seconds; also detects dead connections
       pingInterval = setInterval(() => {
         try {
           controller.enqueue(formatSSE('ping', {}));
         } catch {
+          // Client disconnected without a clean close — evict it now
           if (pingInterval) clearInterval(pingInterval);
+          room.connections.delete(connectionId);
+          room.presence.delete(user.id);
+          broadcastToRoom(noteId, { type: 'leave', data: { userId: user.id } });
+          if (room.connections.size === 0) deleteRoom(noteId);
         }
       }, 30_000);
     },
@@ -89,8 +95,8 @@ export async function GET(
       if (pingInterval) clearInterval(pingInterval);
       room.connections.delete(connectionId);
       room.presence.delete(user.id);
-
       broadcastToRoom(noteId, { type: 'leave', data: { userId: user.id } });
+      if (room.connections.size === 0) deleteRoom(noteId);
     },
   });
 
