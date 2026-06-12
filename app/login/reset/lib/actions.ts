@@ -2,7 +2,7 @@
 
 import { defaultLocale, isValidLocale, localeCookieName } from '@/i18n/config';
 import { prisma } from '@/prisma/client';
-import { hashPassword, verifyPassword } from '@/utils/crypto';
+import { hashPassword } from '@/utils/crypto';
 import { createAndVerifyTransporter } from '@/utils/email';
 import { createHash, randomBytes } from 'crypto';
 import { cookies } from 'next/headers';
