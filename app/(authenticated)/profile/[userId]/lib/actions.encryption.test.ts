@@ -28,6 +28,9 @@ const mocks = vi.hoisted(() => ({
   encodeHex: vi.fn().mockReturnValue('session-id'),
   deriveEncryptionKey: vi.fn().mockResolvedValue(Buffer.from('mockkey')),
   reEncryptAll: vi.fn(),
+  decryptField: vi.fn((value: string) =>
+    value.startsWith('enc:') ? value.slice(4) : value,
+  ),
   decryptBoardFields: vi.fn().mockImplementation((b: Board) => b),
   decryptNoteFields: vi.fn().mockImplementation((n: Note) => n),
 }));
@@ -61,9 +64,7 @@ vi.mock('@/utils/encryption', () => ({
     (value: string | null) => !!value && value.startsWith('enc:'),
   ),
   encryptField: vi.fn((value: string) => `enc:${value}`),
-  decryptField: vi.fn((value: string) =>
-    value.startsWith('enc:') ? value.slice(4) : value,
-  ),
+  decryptField: mocks.decryptField,
   encryptBoardFields: vi.fn().mockImplementation((b: Board) => b),
   encryptNoteFields: vi.fn().mockImplementation((n: Note) => n),
   decryptBoardFields: mocks.decryptBoardFields,
@@ -245,33 +246,43 @@ describe('enableEncryption', () => {
 });
 
 describe('recoverEncryptedData', () => {
-  it('re-encrypts all data with the new password', async () => {
+  it('decrypts all data to plaintext and disables encryption lock', async () => {
     prismaMock.user.findUnique.mockResolvedValue({
       id: 1,
       encryptionSalt: 'salt',
     } as User);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 10 } as Board);
-    prismaMock.note.findFirst.mockResolvedValue({ id: 20 } as Note);
-    prismaMock.session.update.mockResolvedValue({} as Session);
+    prismaMock.board.findMany.mockResolvedValue([
+      { id: 10, title: 'enc:boardtitle', description: 'enc:desc' } as Board,
+    ]);
+    prismaMock.note.findMany.mockResolvedValue([
+      { id: 20, title: 'enc:notetitle', content: 'enc:content' } as Note,
+    ]);
+    prismaMock.noteChange.findMany.mockResolvedValue([]);
+    prismaMock.changeComment.findMany.mockResolvedValue([]);
+    prismaMock.$transaction.mockResolvedValue([]);
     prismaMock.user.update.mockResolvedValue({} as User);
 
     const result = await recoverEncryptedData(
       undefined,
-      formDataFrom({ oldPassword: 'old', newPassword: 'new' }),
+      formDataFrom({ oldPassword: 'old' }),
     );
 
     expect(result).toEqual({
       success: true,
-      message: 'Data recovered and re-encrypted successfully.',
+      message: 'Data recovered successfully. You can now re-enable encryption.',
     });
-    expect(mocks.reEncryptAll).toHaveBeenCalledWith(
-      1,
-      expect.any(Buffer),
-      expect.any(Buffer),
-    );
+    expect(mocks.reEncryptAll).not.toHaveBeenCalled();
+    expect(prismaMock.board.update).toHaveBeenCalledWith({
+      where: { id: 10 },
+      data: { title: 'boardtitle', description: 'desc' },
+    });
+    expect(prismaMock.note.update).toHaveBeenCalledWith({
+      where: { id: 20 },
+      data: { title: 'notetitle', content: 'content' },
+    });
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 1 },
-      data: { encryptionEnabled: true, encryptedDataLocked: false },
+      data: { encryptedDataLocked: false },
     });
   });
 
@@ -280,14 +291,19 @@ describe('recoverEncryptedData', () => {
       id: 1,
       encryptionSalt: 'salt',
     } as User);
-    prismaMock.board.findFirst.mockResolvedValue({ id: 10 } as Board);
-    mocks.decryptBoardFields.mockImplementationOnce(() => {
+    prismaMock.board.findMany.mockResolvedValue([
+      { id: 10, title: 'enc:boardtitle' } as Board,
+    ]);
+    prismaMock.note.findMany.mockResolvedValue([]);
+    prismaMock.noteChange.findMany.mockResolvedValue([]);
+    prismaMock.changeComment.findMany.mockResolvedValue([]);
+    mocks.decryptField.mockImplementationOnce(() => {
       throw new Error('bad key');
     });
 
     const result = await recoverEncryptedData(
       undefined,
-      formDataFrom({ oldPassword: 'wrong', newPassword: 'new' }),
+      formDataFrom({ oldPassword: 'wrong' }),
     );
 
     expect(result).toEqual({
@@ -305,7 +321,7 @@ describe('recoverEncryptedData', () => {
 
     const result = await recoverEncryptedData(
       undefined,
-      formDataFrom({ oldPassword: 'old', newPassword: 'new' }),
+      formDataFrom({ oldPassword: 'old' }),
     );
 
     expect(result).toEqual({
@@ -317,7 +333,7 @@ describe('recoverEncryptedData', () => {
   it('rejects an invalid form', async () => {
     const result = await recoverEncryptedData(
       undefined,
-      formDataFrom({ oldPassword: 'old' }),
+      formDataFrom({ oldPassword: '' }),
     );
 
     expect(result?.success).toBe(false);
@@ -329,7 +345,7 @@ describe('recoverEncryptedData', () => {
 
     const result = await recoverEncryptedData(
       undefined,
-      formDataFrom({ oldPassword: 'old', newPassword: 'new' }),
+      formDataFrom({ oldPassword: 'old' }),
     );
 
     expect(result).toEqual({ message: 'Unauthorized', success: false });
@@ -457,7 +473,7 @@ describe('updatePassword encryption handling', () => {
     });
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 1 },
-      data: { encryptedDataLocked: true },
+      data: { encryptedDataLocked: true, encryptionEnabled: false },
     });
     expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({
       where: { userId: 1 },

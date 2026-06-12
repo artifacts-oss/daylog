@@ -304,22 +304,6 @@ const LockedBanner = ({ profile }: Props) => {
                     </p>
                   )}
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-password-recover">{t('passwordLabel')}</Label>
-                  <Input
-                    id="new-password-recover"
-                    name="newPassword"
-                    type="password"
-                    placeholder={t('passwordPlaceholder')}
-                    className="h-[48px] rounded-[12px]"
-                    required
-                  />
-                  {recoverState?.errors?.newPassword && (
-                    <p className="text-[12px] font-bold text-accent-red mt-1">
-                      {recoverState.errors.newPassword}
-                    </p>
-                  )}
-                </div>
                 {recoverState?.message && !recoverState.success && (
                   <Alert variant="destructive">
                     <AlertDescription className="text-xs font-bold">{recoverState.message}</AlertDescription>

@@ -115,7 +115,6 @@ export const EncryptionFormSchema = z.object({
 
 export const RecoverEncryptionFormSchema = z.object({
   oldPassword: z.string().min(1, { message: 'Old password is required.' }).trim(),
-  newPassword: z.string().min(1, { message: 'New password is required.' }).trim(),
 });
 
 export type EncryptionFormState =
@@ -132,7 +131,6 @@ export type RecoverEncryptionFormState =
   | {
       errors?: {
         oldPassword?: string[];
-        newPassword?: string[];
       };
       message?: string;
       success?: boolean;

@@ -216,11 +216,11 @@ export async function updatePassword(
 
     if (user?.id !== data.id && isAdmin) {
       // Admin changed another user's password — if that user had encryption enabled,
-      // we can't re-encrypt (old password unknown), so mark data as locked.
+      // we can't re-encrypt (old password unknown), so disable encryption and mark data locked.
       if (record.encryptionEnabled) {
         await prisma.user.update({
           where: { id: data.id },
-          data: { encryptedDataLocked: true },
+          data: { encryptedDataLocked: true, encryptionEnabled: false },
         });
       }
       await prisma.session.deleteMany({
@@ -835,10 +835,7 @@ export async function recoverEncryptedData(
   state: RecoverEncryptionFormState,
   formData: FormData,
 ): Promise<RecoverEncryptionFormState> {
-  const data = {
-    oldPassword: formData.get('oldPassword'),
-    newPassword: formData.get('newPassword'),
-  };
+  const data = { oldPassword: formData.get('oldPassword') };
   const result = RecoverEncryptionFormSchema.safeParse(data);
   if (!result.success) {
     return { errors: result.error.flatten().fieldErrors, success: false };
@@ -855,34 +852,86 @@ export async function recoverEncryptedData(
 
     const oldKey = await deriveEncryptionKey(result.data.oldPassword, record.encryptionSalt);
 
-    // Probe decryption with old key
-    const probeBoard = await prisma.board.findFirst({ where: { userId: user.id } });
-    const probeNote = await prisma.note.findFirst({ where: { boards: { userId: user.id } } });
+    const boards = await prisma.board.findMany({
+      where: { userId: user.id },
+      select: { id: true, title: true, description: true },
+    });
+    const notes = await prisma.note.findMany({
+      where: { boards: { userId: user.id } },
+      select: { id: true, title: true, content: true },
+    });
+    const noteIds = notes.map((n) => n.id);
+    const noteChanges = await prisma.noteChange.findMany({
+      where: { noteId: { in: noteIds } },
+      select: { id: true, diffPatch: true, previousContent: true },
+    });
+    const changeComments = await prisma.changeComment.findMany({
+      where: { change: { noteId: { in: noteIds } } },
+      select: { id: true, content: true },
+    });
+
+    // Probe with old key using decryptField directly — it throws on AES-GCM auth failure.
     try {
-      if (probeBoard) decryptBoardFields(probeBoard, oldKey);
-      if (probeNote) decryptNoteFields(probeNote, oldKey);
+      const probeField = boards[0]?.title ?? notes[0]?.title;
+      if (probeField && isEncrypted(probeField)) {
+        decryptField(probeField, oldKey);
+      }
     } catch {
       return { message: 'Old password is incorrect or data cannot be decrypted.', success: false };
     }
 
-    const newKey = await deriveEncryptionKey(result.data.newPassword, record.encryptionSalt);
-    await reEncryptAll(user.id, oldKey, newKey);
+    const safeDecrypt = (value: string) => {
+      try {
+        return decryptField(value, oldKey);
+      } catch {
+        return value;
+      }
+    };
 
-    const cookieStore = await cookies();
-    const token = cookieStore.get('session')?.value;
-    if (token) {
-      const sessionId = encodeHex(token);
-      const wrapped = wrapKeyWithMaster(newKey);
-      await prisma.session.update({ where: { id: sessionId }, data: { encryptedKey: wrapped } });
-    }
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { encryptionEnabled: true, encryptedDataLocked: false },
-    });
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: user.id },
+        data: { encryptedDataLocked: false },
+      }),
+      prisma.session.updateMany({ where: { userId: user.id }, data: { encryptedKey: null } }),
+      ...boards.map((b) =>
+        prisma.board.update({
+          where: { id: b.id },
+          data: {
+            title: safeDecrypt(b.title),
+            description: b.description != null ? safeDecrypt(b.description) : b.description,
+          },
+        }),
+      ),
+      ...notes.map((n) =>
+        prisma.note.update({
+          where: { id: n.id },
+          data: {
+            title: safeDecrypt(n.title),
+            content: n.content != null ? safeDecrypt(n.content) : n.content,
+          },
+        }),
+      ),
+      ...noteChanges.map((nc) =>
+        prisma.noteChange.update({
+          where: { id: nc.id },
+          data: {
+            diffPatch: safeDecrypt(nc.diffPatch),
+            previousContent:
+              nc.previousContent != null ? safeDecrypt(nc.previousContent) : nc.previousContent,
+          },
+        }),
+      ),
+      ...changeComments.map((cc) =>
+        prisma.changeComment.update({
+          where: { id: cc.id },
+          data: { content: safeDecrypt(cc.content) },
+        }),
+      ),
+    ]);
 
     revalidatePath(`/profile/${user.id}`);
-    return { success: true, message: 'Data recovered and re-encrypted successfully.' };
+    return { success: true, message: 'Data recovered successfully. You can now re-enable encryption.' };
   } catch (e) {
     console.error(e);
     return { message: 'An error occurred during recovery.', success: false };

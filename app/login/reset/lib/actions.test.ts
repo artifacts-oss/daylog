@@ -223,6 +223,7 @@ describe('setPassword', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           encryptedDataLocked: true,
+          encryptionEnabled: false,
         }),
       }),
     );

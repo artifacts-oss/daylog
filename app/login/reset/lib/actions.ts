@@ -140,8 +140,8 @@ export async function setPassword(
         passwordResetToken: null,
         passwordResetExpires: null,
         // If encryption was enabled, the derived key is now unrecoverable.
-        // Mark data as locked so the recovery flow is shown on next login.
-        ...(record.encryptionEnabled ? { encryptedDataLocked: true } : {}),
+        // Disable encryption and mark data locked so the recovery flow is shown on next login.
+        ...(record.encryptionEnabled ? { encryptedDataLocked: true, encryptionEnabled: false } : {}),
       },
     });
 

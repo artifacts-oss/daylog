@@ -200,17 +200,19 @@ export async function reEncryptAll(
 
   await prisma.$transaction([
     ...boards.map((board) => {
-      const reEncrypted = encryptBoardFields(decryptBoardFields(board, oldKey), newKey);
+      const title = reEncrypt(board.title);
+      const description = board.description != null ? reEncrypt(board.description) : board.description;
       return prisma.board.update({
         where: { id: board.id },
-        data: { title: reEncrypted.title, description: reEncrypted.description },
+        data: { title, description },
       });
     }),
     ...notes.map((note) => {
-      const reEncrypted = encryptNoteFields(decryptNoteFields(note, oldKey), newKey);
+      const title = reEncrypt(note.title);
+      const content = note.content != null ? reEncrypt(note.content) : note.content;
       return prisma.note.update({
         where: { id: note.id },
-        data: { title: reEncrypted.title, content: reEncrypted.content },
+        data: { title, content },
       });
     }),
     ...noteChanges.map((nc) =>
