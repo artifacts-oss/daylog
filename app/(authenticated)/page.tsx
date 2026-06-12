@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
@@ -8,10 +9,12 @@ import {
   getLatestBoardImage,
 } from '@/app/(authenticated)/lib/actions';
 import { getCurrentSession } from '@/app/login/lib/actions';
-import HomeTabs from '@/app/partials/HomeTabs';
-import { getBoards } from '@/app/(authenticated)/boards/lib/actions';
-import { getNotes } from '@/app/(authenticated)/boards/[id]/notes/lib/actions';
-import { Board } from '@/prisma/generated/client';
+import BoardsSection from '@/app/(authenticated)/components/BoardsSection';
+import NotesSection from '@/app/(authenticated)/components/NotesSection';
+import {
+  BoardsSkeleton,
+  NotesSkeleton,
+} from '@/app/(authenticated)/components/HomeSkeletons';
 import { getImageUrlOrFile } from '@/utils/image';
 import { getTranslations } from 'next-intl/server';
 
@@ -29,23 +32,12 @@ export default async function Home({
   const { showFav = 'false' } = await searchParams;
   const isShowFav = showFav === 'true';
 
-  const [boardsCount, latestBoardImage, allBoards, notes] = await Promise.all([
+  // Only the cheap header data is awaited here so the header renders right away.
+  // Boards and Notes stream in independently via their own Suspense boundaries.
+  const [boardsCount, latestBoardImage] = await Promise.all([
     getBoardsCount(),
     getLatestBoardImage(),
-    getBoards('created_desc', 7),
-    getNotes('created_desc', 20),
   ]);
-
-  const filteredBoards =
-    allBoards
-      ?.filter((board: Board) => (isShowFav ? board.favorite : true))
-      .sort((a: Board, b: Board) => {
-        if (isShowFav) return 0;
-        return +b.favorite - +a.favorite;
-      }) || [];
-
-  const filteredNotes =
-    notes?.filter((note) => (isShowFav ? note.favorite : true)) || [];
 
   const t = await getTranslations('HomePage');
   const breadcrumbs = [{ name: t('breadcrumb'), href: '/' }];
@@ -58,9 +50,7 @@ export default async function Home({
         imageUrl={getImageUrlOrFile(latestBoardImage ?? '')}
         description={t('description', {
           count: boardsCount,
-          activity: isShowFav
-            ? t('favoriteActivity')
-            : t('recentActivity'),
+          activity: isShowFav ? t('favoriteActivity') : t('recentActivity'),
         })}
       >
         {boardsCount > 0 && (
@@ -70,11 +60,14 @@ export default async function Home({
         )}
       </PageHeader>
       <PageBody>
-        <HomeTabs
-          boards={filteredBoards}
-          notes={filteredNotes}
-          showFav={isShowFav}
-        />
+        <div className="space-y-12 py-4">
+          <Suspense fallback={<BoardsSkeleton />}>
+            <BoardsSection showFav={isShowFav} />
+          </Suspense>
+          <Suspense fallback={<NotesSkeleton />}>
+            <NotesSection showFav={isShowFav} />
+          </Suspense>
+        </div>
       </PageBody>
       <PageFooter />
     </PageContainer>

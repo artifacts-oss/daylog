@@ -8,8 +8,6 @@ const mocks = vi.hoisted(() => ({
   getCurrentSession: vi.fn(),
   getBoardsCount: vi.fn(),
   getLatestBoardImage: vi.fn(),
-  getBoards: vi.fn(),
-  getNotes: vi.fn(),
 }));
 
 vi.mock('@/app/login/lib/actions', () => ({
@@ -21,21 +19,17 @@ vi.mock('@/app/(authenticated)/lib/actions', () => ({
   getLatestBoardImage: mocks.getLatestBoardImage,
 }));
 
-vi.mock('@/app/(authenticated)/boards/lib/actions', () => ({
-  getBoards: mocks.getBoards,
-}));
-
-vi.mock('@/app/(authenticated)/boards/[id]/notes/lib/actions', () => ({
-  getNotes: mocks.getNotes,
-}));
-
-vi.mock('@/app/partials/HomeTabs', () => ({
+vi.mock('@/app/(authenticated)/components/BoardsSection', () => ({
   default: vi.fn(({ showFav }: { showFav: boolean }) => (
     <div>
-      <div data-testid="HomeTabs">HomeTabs</div>
+      <div data-testid="BoardsSection">BoardsSection</div>
       <div>showFav: {showFav.toString()}</div>
     </div>
   )),
+}));
+
+vi.mock('@/app/(authenticated)/components/NotesSection', () => ({
+  default: vi.fn(() => <div data-testid="NotesSection">NotesSection</div>),
 }));
 
 vi.mock('@/app/(authenticated)/components/BoardFavToggle', () => ({
@@ -81,8 +75,6 @@ describe('Home Page', () => {
 
   beforeEach(() => {
     cleanup();
-    mocks.getBoards.mockResolvedValue([]);
-    mocks.getNotes.mockResolvedValue([]);
     mocks.getBoardsCount.mockResolvedValue(0);
     mocks.getLatestBoardImage.mockResolvedValue(null);
   });
@@ -124,13 +116,14 @@ describe('Home Page', () => {
     expect(screen.queryByText('BoardFavSwitch')).toBeNull();
   });
 
-  it('passes showFav parameter correctly to HomeTabs', async () => {
+  it('passes showFav parameter correctly to the streamed sections', async () => {
     mocks.getCurrentSession.mockResolvedValue(defaultUser);
     mocks.getBoardsCount.mockResolvedValue(3);
 
     render(await Home({ searchParams: Promise.resolve({ showFav: 'true' }) }));
 
-    expect(screen.getByText('HomeTabs')).toBeInTheDocument();
+    expect(screen.getByTestId('BoardsSection')).toBeInTheDocument();
+    expect(screen.getByTestId('NotesSection')).toBeInTheDocument();
     expect(screen.getByText('showFav: true')).toBeInTheDocument();
   });
 
