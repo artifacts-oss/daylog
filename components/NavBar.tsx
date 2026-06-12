@@ -4,7 +4,6 @@ import { User } from '@/prisma/generated/client';
 import {
   HomeIcon,
   Squares2X2Icon,
-  UserIcon,
   ShieldCheckIcon,
   ShareIcon,
   GlobeAltIcon,
@@ -26,7 +25,6 @@ export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
   const searchParams = useSearchParams();
   const adminPattern = /^\/admin\/?$/;
   const homePattern = /^\/$/;
-  const profilePattern = /^\/profile\/[a-zA-Z0-9_-]+\/?$/;
   const boardPattern = /^\/boards(\/[a-zA-Z0-9_-]+)?\/?$/;
   const notePattern = /^\/boards\/[a-zA-Z0-9_-]+\/notes(\/[a-zA-Z0-9_-]+)?\/?$/;
   const isCommunityNote = notePattern.test(path) && searchParams.get('ref') === 'community';
@@ -43,12 +41,6 @@ export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
       href: '/boards',
       icon: Squares2X2Icon,
       active: !isCommunityNote && (boardPattern.test(path) || notePattern.test(path)),
-    },
-    {
-      name: t('profile'),
-      href: `/profile/${user?.id}`,
-      icon: UserIcon,
-      active: profilePattern.test(path),
     },
     {
       name: t('shared'),
