@@ -40,6 +40,8 @@ const baseProfile: User = {
   lockUntil: null,
   mfaCode: null,
   mfaCodeSentAt: null,
+  passwordResetToken: null,
+  passwordResetExpires: null,
 };
 
 describe('EncryptData', () => {

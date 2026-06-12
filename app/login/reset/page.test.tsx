@@ -91,7 +91,7 @@ describe('Page', () => {
 
     renderWithIntl(<Page />);
     const submitButton = screen.getByRole('button', {
-      name: /Send me a new password/i,
+      name: /Send reset link/i,
     });
     fireEvent.click(submitButton);
     expect(actionMock).toHaveBeenCalled();
