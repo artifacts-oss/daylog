@@ -24,14 +24,15 @@ const containerVars = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.05,
+      staggerChildren: 0.03,
+      delayChildren: 0,
     },
   },
 };
 
 const itemVars = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0 },
+  hidden: { opacity: 0, y: 6 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.15 } },
 };
 
 export default function HomeTabs({
