@@ -235,6 +235,274 @@ describe('Editor', () => {
     });
   });
 
+  describe('Note content initialization', () => {
+    it('renders empty editor when note content is null', async () => {
+      const nullContentNote = { ...mockNote, content: null } as Note;
+      renderWithIntl(<Editor note={nullContentNote} />);
+      await waitFor(() => {
+        expect(screen.getByRole('textbox')).toHaveValue('');
+      });
+    });
+  });
+
+  describe('Gallery sidebar', () => {
+    it('shows "Close Gallery" label when gallery is open', async () => {
+      renderWithIntl(<Editor note={mockNote} />);
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: /Close Gallery/i })).toBeInTheDocument();
+      });
+    });
+
+    it('closes gallery sidebar when X button is clicked', async () => {
+      renderWithIntl(<Editor note={mockNote} />);
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await waitFor(() => expect(screen.getByText('Pictures')).toBeInTheDocument());
+
+      fireEvent.click(screen.getByLabelText('Close sidebar'));
+      await waitFor(() => {
+        expect(screen.queryByText('Pictures')).not.toBeInTheDocument();
+      });
+    });
+
+    it('shows empty state when there are no pictures and no featured image', async () => {
+      mocks.getPictures.mockResolvedValue([]);
+      renderWithIntl(<Editor note={{ ...mockNote, imageUrl: null } as Note} />);
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await waitFor(() => {
+        expect(screen.getByText('No pictures')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Sidebar mutual exclusivity', () => {
+    it('opening gallery closes an open history sidebar', async () => {
+      mocks.getNoteChanges.mockResolvedValue([]);
+      renderWithIntl(<Editor note={mockNote} />);
+
+      fireEvent.click(screen.getByTitle('Toggle change history'));
+      await waitFor(() => expect(screen.getByText('Change History')).toBeInTheDocument());
+
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await waitFor(() => {
+        expect(screen.queryByText('Change History')).not.toBeInTheDocument();
+      });
+    });
+
+    it('opening history sidebar closes an open gallery sidebar', async () => {
+      mocks.getNoteChanges.mockResolvedValue([]);
+      renderWithIntl(<Editor note={mockNote} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await waitFor(() => expect(screen.getByText('Pictures')).toBeInTheDocument());
+
+      fireEvent.click(screen.getByTitle('Toggle change history'));
+      await waitFor(() => {
+        expect(screen.queryByText('Pictures')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Presence users', () => {
+    it('renders an avatar with the first letter of each presence user name', () => {
+      const presenceUsers = [
+        { userId: 1, userName: 'Alice', color: '#ff0000' },
+        { userId: 2, userName: 'Bob', color: '#00ff00' },
+      ];
+      renderWithIntl(<Editor note={mockNote} presenceUsers={presenceUsers} />);
+      expect(screen.getByText('A')).toBeInTheDocument();
+      expect(screen.getByText('B')).toBeInTheDocument();
+    });
+
+    it('does not render presence avatars when presenceUsers is empty', () => {
+      renderWithIntl(<Editor note={mockNote} presenceUsers={[]} />);
+      expect(screen.queryByText('A')).not.toBeInTheDocument();
+    });
+  });
+
+  it('applies incoming remoteContent to the editor', async () => {
+    const { rerender } = renderWithIntl(<Editor note={mockNote} />);
+    await waitFor(() => expect(screen.getByRole('textbox')).toHaveValue('Initial content'));
+
+    rerender(<Editor note={mockNote} remoteContent="Collaborative update" />);
+    await waitFor(() => {
+      expect(screen.getByRole('textbox')).toHaveValue('Collaborative update');
+    });
+  });
+
+  it('calls onContentChange callback when user edits content', () => {
+    const onContentChange = vi.fn();
+    renderWithIntl(<Editor note={mockNote} onContentChange={onContentChange} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'New text' } });
+    expect(onContentChange).toHaveBeenCalledWith('New text');
+  });
+
+  describe('localStorage sync', () => {
+    it('saves content to localStorage when user types', () => {
+      renderWithIntl(<Editor note={mockNote} />);
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Saved locally' } });
+      expect(localStorage.getItem(`note-${mockNote.id}`)).toBe('Saved locally');
+    });
+
+    it('updates editor content from a storage event triggered by another tab', async () => {
+      renderWithIntl(<Editor note={mockNote} />);
+      await waitFor(() => expect(screen.getByRole('textbox')).toHaveValue('Initial content'));
+
+      localStorage.setItem(`note-${mockNote.id}`, 'From another tab');
+      window.dispatchEvent(new StorageEvent('storage', { key: `note-${mockNote.id}` }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('textbox')).toHaveValue('From another tab');
+      });
+    });
+  });
+
+  describe('Pending save flushing', () => {
+    it('flushes pending content to server when component unmounts before debounce fires', () => {
+      vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
+      const { unmount } = renderWithIntl(<Editor note={mockNote} />);
+      fireEvent.change(screen.getByRole('textbox'), {
+        target: { value: 'Unsaved on unmount' },
+      });
+      unmount();
+      expect(mocks.updateNote).toHaveBeenCalledWith({
+        ...mockNote,
+        content: 'Unsaved on unmount',
+      });
+    });
+
+    it('flushes pending content to server on beforeunload event', () => {
+      vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
+      renderWithIntl(<Editor note={mockNote} />);
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Pending save' } });
+      window.dispatchEvent(new Event('beforeunload'));
+      expect(mocks.updateNote).toHaveBeenCalledWith({
+        ...mockNote,
+        content: 'Pending save',
+      });
+    });
+  });
+
+  describe('Picture management', () => {
+    it('calls deletePicture and reloads the picture list', async () => {
+      mocks.getPictures.mockResolvedValue([mockPicture]);
+      mocks.deletePicture.mockResolvedValue(undefined);
+      renderWithIntl(<Editor note={mockNote} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await screen.findByTestId('picture-preview-1');
+
+      fireEvent.click(screen.getByTitle('Delete picture'));
+      await waitFor(() => {
+        expect(mocks.deletePicture).toHaveBeenCalledWith(mockNote.id, mockPicture.id);
+        expect(mocks.getPictures).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('displays note featured image in the gallery sidebar', async () => {
+      mocks.getPictures.mockResolvedValue([]);
+      const noteWithImage = {
+        ...mockNote,
+        imageUrl: 'https://example.com/cover.jpg',
+      } as Note;
+      renderWithIntl(<Editor note={noteWithImage} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await waitFor(() => {
+        expect(screen.getByTestId('picture-preview-default')).toBeInTheDocument();
+      });
+    });
+
+    it('calls deleteImage when the featured image delete button is clicked', async () => {
+      mocks.getPictures.mockResolvedValue([]);
+      mocks.deleteImage.mockResolvedValue(undefined);
+      const noteWithImage = {
+        ...mockNote,
+        imageUrl: 'https://example.com/cover.jpg',
+      } as Note;
+      renderWithIntl(<Editor note={noteWithImage} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await screen.findByTestId('picture-preview-default');
+
+      fireEvent.click(screen.getByTitle('Delete picture'));
+      await waitFor(() => {
+        expect(mocks.deleteImage).toHaveBeenCalledWith(
+          noteWithImage.id,
+          noteWithImage.imageUrl,
+        );
+      });
+    });
+
+    it('inserts picture into editor on Enter key in picture preview', async () => {
+      mocks.getPictures.mockResolvedValue([mockPicture]);
+      const noteWithContent = { ...mockNote, content: 'Hello' };
+      renderWithIntl(<Editor note={noteWithContent} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      const preview = await screen.findByTestId('picture-preview-1');
+
+      vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
+      fireEvent.keyDown(preview, { key: 'Enter' });
+      vi.advanceTimersByTime(1000);
+
+      await waitFor(() => {
+        expect(mocks.updateNote).toHaveBeenCalledWith(
+          expect.objectContaining({
+            content: expect.stringContaining(mockPicture.imageUrl),
+          }),
+        );
+      });
+    });
+
+    it('triggers delete on Space key press on the picture delete button', async () => {
+      mocks.getPictures.mockResolvedValue([mockPicture]);
+      mocks.deletePicture.mockResolvedValue(undefined);
+      renderWithIntl(<Editor note={mockNote} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /Open Gallery/i }));
+      await screen.findByTestId('picture-preview-1');
+
+      fireEvent.keyDown(screen.getByTitle('Delete picture'), { key: ' ' });
+      await waitFor(() => {
+        expect(mocks.deletePicture).toHaveBeenCalledWith(mockNote.id, mockPicture.id);
+      });
+    });
+  });
+
+  describe('canDeleteHistory prop', () => {
+    const mockChangeEntry = {
+      id: 101,
+      noteId: 1,
+      userId: 1,
+      diffPatch: '@@ -1,3 +1,6 @@\n-Foo\n+Bar\n',
+      previousContent: 'Foo',
+      createdAt: new Date(),
+      user: { id: 1, name: 'Test User', email: 'test@example.com' },
+      comments: [],
+    };
+
+    it('shows clear history button when canDeleteHistory is true even if isOwner is false', async () => {
+      mocks.getNoteChanges.mockResolvedValue([mockChangeEntry]);
+      renderWithIntl(<Editor note={mockNote} isOwner={false} canDeleteHistory={true} />);
+
+      fireEvent.click(screen.getByTitle('Toggle change history'));
+      await waitFor(() => {
+        expect(screen.getByTitle('Clear all history')).toBeInTheDocument();
+      });
+    });
+
+    it('hides clear history button when both canDeleteHistory and isOwner are false', async () => {
+      mocks.getNoteChanges.mockResolvedValue([mockChangeEntry]);
+      renderWithIntl(<Editor note={mockNote} isOwner={false} canDeleteHistory={false} />);
+
+      fireEvent.click(screen.getByTitle('Toggle change history'));
+      await waitFor(() => expect(screen.getByText('Change History')).toBeInTheDocument());
+
+      expect(screen.queryByTitle('Clear all history')).not.toBeInTheDocument();
+    });
+  });
+
   describe('Change History Integration', () => {
     const mockNote = {
       id: 1,
