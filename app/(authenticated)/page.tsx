@@ -29,11 +29,12 @@ export default async function Home({
   const { showFav = 'false' } = await searchParams;
   const isShowFav = showFav === 'true';
 
-  // Fetch data on the server
-  const boardsCount = await getBoardsCount();
-  const latestBoardImage = await getLatestBoardImage();
-  const allBoards = await getBoards('created_desc', 7);
-  const notes = await getNotes('created_desc', 20);
+  const [boardsCount, latestBoardImage, allBoards, notes] = await Promise.all([
+    getBoardsCount(),
+    getLatestBoardImage(),
+    getBoards('created_desc', 7),
+    getNotes('created_desc', 20),
+  ]);
 
   const filteredBoards =
     allBoards

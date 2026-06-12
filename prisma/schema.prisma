@@ -61,6 +61,9 @@ model Board {
   notes       Note[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([userId, updatedAt])
 }
 
 model Note {
@@ -75,6 +78,8 @@ model Note {
   changes   NoteChange[]
   createdAt DateTime     @default(now())
   updatedAt DateTime     @default(now()) @updatedAt
+
+  @@index([boardsId, createdAt])
 }
 
 model Setting {
