@@ -5,15 +5,29 @@ import { prisma } from '@/prisma/client';
 import { User } from '@/prisma/generated/client';
 import { SettingsFormState } from './definitions';
 
-export async function getUsers(): Promise<User[] | null> {
-  const users = await prisma.user.findMany();
+export type SafeUser = Pick<User, 'id' | 'name' | 'email' | 'role'>;
+
+export async function getUsers(): Promise<SafeUser[] | null> {
+  const { user } = await getCurrentSession();
+
+  if (!user) {
+    throw new Error('Unauthorized');
+  }
+
+  if (user.role !== 'admin') {
+    throw new Error('Forbidden');
+  }
+
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, email: true, role: true },
+  });
   return users;
 }
 
 export async function setRole(
   userId: number,
   role: string,
-): Promise<User | null> {
+): Promise<SafeUser | null> {
   const { user } = await getCurrentSession();
 
   if (!user) {
@@ -46,6 +60,7 @@ export async function setRole(
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: { role: role },
+    select: { id: true, name: true, email: true, role: true },
   });
 
   return updatedUser;

@@ -7,10 +7,13 @@ import frMessages from '@/messages/fr.json';
 
 type ResetMessages = {
   invalidEmail: string;
-  notRegistered: string;
   unexpectedError: string;
+  invalidOrExpiredToken: string;
+  passwordTooShort: string;
+  passwordMismatch: string;
   emailSubject: string;
   emailBody: string;
+  encryptionNotice: string;
 };
 
 const resetMessagesByLocale: Record<AppLocale, ResetMessages> = {
@@ -35,11 +38,39 @@ export function createResetFormSchema(locale: AppLocale) {
   });
 }
 
+export function createSetPasswordFormSchema(locale: AppLocale) {
+  const messages = getResetMessages(locale);
+
+  return z
+    .object({
+      token: z.string().min(1),
+      password: z.string().min(8, { message: messages.passwordTooShort }),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: messages.passwordMismatch,
+      path: ['confirmPassword'],
+    });
+}
+
 export type FormState =
   | {
       errors?: {
         email?: string[];
       };
       message?: string;
+      success?: boolean;
+    }
+  | undefined;
+
+export type SetPasswordFormState =
+  | {
+      errors?: {
+        token?: string[];
+        password?: string[];
+        confirmPassword?: string[];
+      };
+      message?: string;
+      success?: boolean;
     }
   | undefined;

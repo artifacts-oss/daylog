@@ -1,6 +1,5 @@
 'use client';
 
-import { User } from '@/prisma/generated/client';
 import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
 import { AlertOctagon } from 'lucide-react';
 import { useActionState, useState } from 'react';
@@ -9,6 +8,7 @@ import {
   enableEncryption,
   recoverEncryptedData,
   wipeEncryptedData,
+  type SafeProfile,
 } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +25,7 @@ import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 
-type Props = { profile: User; masterKeyConfigured?: boolean };
+type Props = { profile: SafeProfile; masterKeyConfigured?: boolean };
 
 export default function EncryptData({ profile, masterKeyConfigured = false }: Props) {
   const t = useTranslations('EncryptData');
@@ -301,22 +301,6 @@ const LockedBanner = ({ profile }: Props) => {
                   {recoverState?.errors?.oldPassword && (
                     <p className="text-[12px] font-bold text-accent-red mt-1">
                       {recoverState.errors.oldPassword}
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-password-recover">{t('passwordLabel')}</Label>
-                  <Input
-                    id="new-password-recover"
-                    name="newPassword"
-                    type="password"
-                    placeholder={t('passwordPlaceholder')}
-                    className="h-[48px] rounded-[12px]"
-                    required
-                  />
-                  {recoverState?.errors?.newPassword && (
-                    <p className="text-[12px] font-bold text-accent-red mt-1">
-                      {recoverState.errors.newPassword}
                     </p>
                   )}
                 </div>

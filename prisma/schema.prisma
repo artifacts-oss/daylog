@@ -36,6 +36,8 @@ model User {
   encryptionEnabled   Boolean         @default(false)
   encryptionSalt      String?
   encryptedDataLocked Boolean         @default(false)
+  passwordResetToken  String?
+  passwordResetExpires DateTime?
   createdShares       Share[]         @relation("CreatedShares")
   receivedShares      ShareRecipient[]
 }

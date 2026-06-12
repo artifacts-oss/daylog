@@ -27,12 +27,31 @@ describe('actions', () => {
   });
 
   describe('getUsers', () => {
-    it('should return users from the database', async () => {
+    it('should return users from the database for an admin', async () => {
+      mocks.getCurrentSession.mockResolvedValue({
+        user: { id: 1, name: 'Admin', role: 'admin' },
+      });
       const mockUsers: [Partial<User>] = [{ id: 1, name: 'John Doe' }];
       prismaMock.user.findMany.mockResolvedValue(mockUsers as [User]);
 
       const users = await getUsers();
       expect(users).toEqual(mockUsers);
+    });
+
+    it('should reject a non-admin user', async () => {
+      mocks.getCurrentSession.mockResolvedValue({
+        user: { id: 2, name: 'Regular', role: 'user' },
+      });
+
+      await expect(getUsers()).rejects.toThrow('Forbidden');
+      expect(prismaMock.user.findMany).not.toHaveBeenCalled();
+    });
+
+    it('should reject an unauthenticated request', async () => {
+      mocks.getCurrentSession.mockResolvedValue({ user: null });
+
+      await expect(getUsers()).rejects.toThrow('Unauthorized');
+      expect(prismaMock.user.findMany).not.toHaveBeenCalled();
     });
   });
 

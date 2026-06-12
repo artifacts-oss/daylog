@@ -8,9 +8,13 @@ import { getCurrentSessionKey } from './encryptionKey';
 import { decryptBoardFields, decryptNoteFields } from '@/utils/encryption';
 
 export async function signout() {
-  const { user } = await getCurrentSession();
+  const { user, session } = await getCurrentSession();
   if (!user) {
     return Response.json({ error: 'Session not found' });
+  }
+  // Invalidate the session server-side, not just the cookie (CWE-613).
+  if (session) {
+    await prisma.session.delete({ where: { id: session.id } }).catch(() => {});
   }
   await deleteSessionTokenCookie();
   redirect('/login');

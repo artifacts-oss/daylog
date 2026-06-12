@@ -1,9 +1,8 @@
 'use client';
 
-import { User } from '@/prisma/generated/client';
 import { CloudArrowDownIcon } from '@heroicons/react/24/outline';
 import { useActionState } from 'react';
-import { updateProfile } from '../lib/actions';
+import { updateProfile, type SafeProfile } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +15,7 @@ import {
 import { useTranslations } from 'next-intl';
 
 type ProfileInfoType = {
-  profile: User;
+  profile: SafeProfile;
 };
 
 export default function ProfileInfo({ profile }: ProfileInfoType) {

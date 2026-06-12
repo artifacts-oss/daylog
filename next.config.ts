@@ -17,27 +17,9 @@ const nextConfig: NextConfig = {
     // however api/v1/images and api/v1/storage are optimized with Sharp https://github.com/lovell/sharp
     unoptimized: true,
   },
-  headers: async () => {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          {
-            key: 'Access-Control-Allow-Origin',
-            value: '*',
-          },
-          {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, OPTIONS',
-          },
-          {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
-          },
-        ],
-      },
-    ];
-  },
+  // CORS is handled in middleware.ts, which validates the request Origin
+  // against SECURITY_CONFIG.CORS.ALLOWED_ORIGINS. A static wildcard
+  // (Access-Control-Allow-Origin: *) here would override that and is unsafe.
   experimental: {
     serverActions: {
       bodySizeLimit: '64mb',

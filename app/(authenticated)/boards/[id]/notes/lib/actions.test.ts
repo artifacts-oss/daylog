@@ -362,7 +362,7 @@ describe('Note Actions', () => {
     mocks.removeFile.mockReturnValue(true);
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
     prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
-    prismaMock.picture.findUnique.mockResolvedValue(picture);
+    prismaMock.picture.findFirst.mockResolvedValue(picture);
 
     await deletePicture(noteId, picture.id);
 
@@ -385,7 +385,7 @@ describe('Note Actions', () => {
     mocks.removeFile.mockReturnValue(false);
     prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
     prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
-    prismaMock.picture.findUnique.mockResolvedValue(picture);
+    prismaMock.picture.findFirst.mockResolvedValue(picture);
 
     await deletePicture(noteId, picture.id);
 

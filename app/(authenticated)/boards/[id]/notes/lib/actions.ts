@@ -354,8 +354,8 @@ export async function deletePicture(
     const note = await getNoteWithAccess(noteId, user.id);
     if (!note) throw new Error('Note not found');
 
-    const picture = await prisma.picture.findUnique({
-      where: { id: pictureId },
+    const picture = await prisma.picture.findFirst({
+      where: { id: pictureId, notesId: noteId },
     });
 
     if (!picture) {

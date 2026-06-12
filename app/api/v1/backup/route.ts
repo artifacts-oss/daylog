@@ -2,6 +2,7 @@ import { getCurrentSession } from '@/app/login/lib/actions';
 import { prisma } from '@/prisma/client';
 import { decryptBoardFields, decryptNoteFields, getSessionEncryptionKey } from '@/utils/encryption';
 import { isUrl } from '@/utils/text';
+import { assertSafeRemoteUrl } from '@/utils/ssrf';
 import * as S3 from '@aws-sdk/client-s3';
 import { s3Client } from '../storage/lib/s3Client';
 import JSZip from 'jszip';
@@ -29,6 +30,8 @@ async function addImageToZip(
 ): Promise<string> {
   try {
     if (isUrl(imageUrl)) {
+      // Prevent SSRF: never fetch URLs that resolve to internal addresses.
+      await assertSafeRemoteUrl(imageUrl);
       const res = await fetch(imageUrl);
       if (!res.ok) return imageUrl;
       const buffer = Buffer.from(await res.arrayBuffer());

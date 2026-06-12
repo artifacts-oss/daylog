@@ -13,8 +13,14 @@ const ENC_PREFIX = 'enc:';
 function getMasterKeyBuffer(): Buffer {
   const hex = process.env.ENCRYPTION_MASTER_KEY;
   if (!hex) throw new Error('ENCRYPTION_MASTER_KEY env var is not set');
-  const padded = hex.padEnd(64, '0').slice(0, 64);
-  return Buffer.from(padded, 'hex');
+  // Require a full-entropy 256-bit key. Padding a short key with zeros or
+  // truncating a long one silently weakens the master key (CWE-326).
+  if (!/^[0-9a-fA-F]{64}$/.test(hex)) {
+    throw new Error(
+      'ENCRYPTION_MASTER_KEY must be exactly 64 hexadecimal characters (32 bytes)',
+    );
+  }
+  return Buffer.from(hex, 'hex');
 }
 
 export function generateEncryptionSalt(): string {
@@ -194,17 +200,19 @@ export async function reEncryptAll(
 
   await prisma.$transaction([
     ...boards.map((board) => {
-      const reEncrypted = encryptBoardFields(decryptBoardFields(board, oldKey), newKey);
+      const title = reEncrypt(board.title);
+      const description = board.description != null ? reEncrypt(board.description) : board.description;
       return prisma.board.update({
         where: { id: board.id },
-        data: { title: reEncrypted.title, description: reEncrypted.description },
+        data: { title, description },
       });
     }),
     ...notes.map((note) => {
-      const reEncrypted = encryptNoteFields(decryptNoteFields(note, oldKey), newKey);
+      const title = reEncrypt(note.title);
+      const content = note.content != null ? reEncrypt(note.content) : note.content;
       return prisma.note.update({
         where: { id: note.id },
-        data: { title: reEncrypted.title, content: reEncrypted.content },
+        data: { title, content },
       });
     }),
     ...noteChanges.map((nc) =>

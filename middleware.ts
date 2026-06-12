@@ -23,8 +23,9 @@ function isPublicPath(pathname: string): boolean {
     return true;
   }
   if (
-    pathname.startsWith('/login/otp/') || 
-    pathname.startsWith('/share/') || 
+    pathname.startsWith('/login/otp/') ||
+    pathname.startsWith('/login/reset/') ||
+    pathname.startsWith('/share/') ||
     pathname.startsWith('/api/v1/share/')
   ) {
     return true;
