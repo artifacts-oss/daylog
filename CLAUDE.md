@@ -9,9 +9,11 @@ npm run dev       # Start development server (http://localhost:3000)
 npm run build     # Build for production
 npm start         # Start production server
 npm run lint      # Run ESLint
-npm run test      # Run all Vitest tests
-npm run coverage  # Generate test coverage reports
+npm run test      # Run Vitest in WATCH mode (stays running)
+npm run coverage  # Run all tests once with coverage (vitest run --coverage)
 ```
+
+`npm run test` watches; for a one-shot run use `npx vitest run` (or `npm run coverage`).
 
 Run a single test file:
 ```bash
@@ -27,14 +29,21 @@ npx prisma generate       # Regenerate Prisma client after schema changes
 
 ## Architecture
 
-**daylog** is a self-hosted, multi-user notes and boards application. Built with Next.js 15 App Router, Prisma + PostgreSQL, and Tailwind CSS.
+**daylog** is a self-hosted, multi-user notes and boards application. Built with Next.js 15 App Router (React 19), Prisma + PostgreSQL, Redis, and Tailwind CSS v4. Runtime depends on **both** PostgreSQL and Redis — `lib/redis.ts` throws at import if `REDIS_URL` is unset.
+
+Mutations are handled by a mix of **Next.js Server Actions** (e.g. `updateNote`) and **REST API routes** under `/app/api/v1/`. When adding a mutation, check which pattern the surrounding feature already uses.
 
 ### Route Structure
 
-- `/app/(authenticated)/` — Protected routes (boards, notes, profiles, admin). The `(authenticated)` route group wraps all pages that require a logged-in session.
-- `/app/api/v1/` — REST API endpoints for auth, storage, images, sharing, and locale.
+- `/app/(authenticated)/` — Protected route group (boards, notes, dashboard, profile, admin, billing, community, shared). Wraps all pages requiring a logged-in session.
+- `/app/(marketing)/` — Public marketing route group.
+- `/app/api/v1/` — REST endpoints: `auth`, `notes`, `storage`, `images`, `share`, `locale`, `backup`, `billing`, `webhooks/stripe`.
 - `/app/login/`, `/app/register/` — Unauthenticated pages; `/register/init` creates the first admin user.
 - `/app/share/[token]/` — Public share view (no auth required).
+
+### Middleware
+
+`middleware.ts` runs on every request and is the first line of routing/security: it applies general rate limiting (via `utils/rateLimit`), resolves the locale cookie (`i18n/config`), and gates auth by maintaining the `PUBLIC_PATHS` allowlist. It also rewrites server-side fetches to `INTERNAL_APP_URL` to avoid SSL errors behind a reverse proxy. New public/unauthenticated routes must be added to its allowlist.
 
 ### Data Models (Prisma)
 
@@ -58,7 +67,21 @@ Session-based auth using secure cookies (SameSite=Lax). Key flows:
 - Rate limiting on login with automatic account locking
 - Password reset and email verification via Nodemailer
 
-Auth logic lives in `/lib/` (crypto, TOTP, rate limiting) and the API routes under `/app/api/v1/auth/`.
+Auth and security primitives live in `/utils/` (`crypto`, `totp`, `csrf`, `rateLimit`, `encryption`, `ssrf`) and the API routes under `/app/api/v1/auth/`. `config/security.ts` (`SECURITY_CONFIG`) centralizes password policy, session expiry, rate-limit windows, and MFA constants — change security tunables there, not inline.
+
+`utils/ssrf.ts` guards outbound fetches (e.g. Unsplash, remote images) against SSRF; route any new server-side fetch of user-supplied URLs through it.
+
+### Field Encryption
+
+Opt-in AES-256-GCM encryption of board/note content (`utils/encryption.ts`). A PBKDF2 key derived from the user's password is wrapped and stored on the `Session` record; helpers like `getSessionEncryptionKey`, `decryptField`, and `isEncrypted` gate access. Content is encrypted at rest in the DB but always operated on as plaintext in memory (see collaboration below).
+
+### Real-time Collaboration
+
+`lib/noteCollaboration.ts` powers multi-user live editing (`CollabEditor`) over **Redis pub/sub + SSE**. Each note is a "room"; clients exchange plaintext diffs (diff-match-patch) and presence. Each SSE connection needs its own Redis subscriber (`createSubscriber()`), since a subscribed ioredis connection cannot issue normal commands. Rooms always work on plaintext — decryption happens on load, and persistence back to the DB (with encryption) goes through the `updateNote` server action.
+
+### Billing
+
+Stripe-based billing: API under `/app/api/v1/billing` and `/app/api/v1/webhooks/stripe`, UI under `/app/(authenticated)/billing`.
 
 ### Component Patterns
 
@@ -68,9 +91,9 @@ Auth logic lives in `/lib/` (crypto, TOTP, rate limiting) and the API routes und
 
 ### Testing
 
-Vitest with jsdom. The test setup (`vitest.setup.ts`) mocks next-intl, localStorage, and Radix UI globals. Prisma uses a singleton pattern for test isolation.
+Vitest with jsdom (config in `vitest.config.mts`). The test setup (`vitest.setup.ts`) mocks next-intl, localStorage, and Radix UI globals. Prisma uses a singleton pattern for test isolation. Tests also emit a `sonar-report.xml` via `vitest-sonar-reporter` for SonarCloud.
 
-Tests live alongside source files or in `__tests__/` directories. Coverage excludes API routes, test files, icons, and Prisma-generated files (see `vitest.config.ts`).
+Tests live alongside source files or in `__tests__/`/`utils/test`. Coverage excludes route handlers (`**/route.ts`), test files, JS files, icons, and `prisma/**`.
 
 Never use `any` in tests or any other code. If a suitable type does not already exist, create one.
 

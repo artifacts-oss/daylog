@@ -23,6 +23,13 @@ If you want to use the stable version of daylog, you can find it [here](https://
 - **Unsplash integration:** daylog includes a built-in image search feature using Unsplash, allowing you to easily find and insert images into your notes.
 - **2FA:** daylog includes a built-in 2FA feature, allowing you to add an extra layer of security to your account.
 - **S3 integration:** daylog includes a built-in s3 integration feature, allowing you to store your notes and boards uploaded images in a cloud storage service.
+- **Real-time collaboration:** Multiple users can edit the same note live, with presence indicators showing who's editing.
+- **Field encryption:** Opt-in AES-256-GCM encryption for your board and note content, with the key derived from your password.
+- **Version history:** Every note change is tracked, so you can browse past versions and comment on them.
+- **Public sharing:** Share notes via public links with optional password protection, expiry dates, and view tracking.
+- **Shared boards:** Share boards with other users and collaborate within a community space.
+- **Internationalization:** Available in English, Spanish, French, and German.
+- **Billing:** Built-in Stripe billing for paid plans.
 
 ### Preview
 
@@ -75,7 +82,17 @@ docker run -d \
 postgres:16
 ```
 
-3. **Run daylog container:**
+3. **Run a redis container:**
+
+```bash
+docker run -d \
+--name daylog-redis \
+--network daylog-net \
+-v daylog_redis:/data \
+redis:7-alpine
+```
+
+4. **Run daylog container:**
 
 ```bash
 docker run -d \
@@ -84,6 +101,7 @@ docker run -d \
  -p 3000:3000 \
  -v daylog_storage:/app/storage \
  -e DATABASE_URL=postgresql://postgres:postgres@daylog-db:5432/daylog?schema=public \
+ -e REDIS_URL=redis://daylog-redis:6379 \
  -e ENVIRONMENT=production \
  -e STORAGE_PATH=/app/storage \
  davidartifacts/daylog:latest
@@ -107,7 +125,7 @@ npm install
 ```
 
 3. **Set up environment variables:**
-   Copy `.env.example` and setup your own variables. **Important:** by default daylog uses PostgreSQL, you can change your conection string to any other database engine supported by Prisma ORM. You can follow their [guide](https://www.prisma.io/docs/orm/reference/connection-urls) to achieve this step.
+   Copy `.env.example` and setup your own variables. **Important:** by default daylog uses PostgreSQL, you can change your conection string to any other database engine supported by Prisma ORM. You can follow their [guide](https://www.prisma.io/docs/orm/reference/connection-urls) to achieve this step. daylog also requires a **Redis** instance for real-time collaboration — set `REDIS_URL` (e.g. `redis://localhost:6379`).
 
 4. **Initialize the Prisma database:**
 
@@ -158,10 +176,10 @@ Check the `.env` file to see the available environment variables.
 
 - [x] Improve grammar 📖
 - [x] Enhance MD editor 🖊
-- [ ] Improve user security (data encryption, account recovery, email verification) 🔐
+- [x] Improve user security (data encryption, account recovery, email verification) 🔐
 - [x] Create breadcrumbs navigation 🚢
-- [ ] Create public link sharing option ✉
-- [ ] Create shared boards 📰
+- [x] Create public link sharing option ✉
+- [x] Create shared boards 📰
 - [x] Improve production deployment instructions 🛠
 - [ ] And many more cool features in the future 🚀...
 
