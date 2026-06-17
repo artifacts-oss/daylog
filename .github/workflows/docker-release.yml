@@ -22,7 +22,7 @@ jobs:
           RELEASE_TAG="${{ github.event.release.tag_name }}"
           RELEASE_VERSION="${RELEASE_TAG#v}"
 
-          npm version "$RELEASE_VERSION" --no-git-tag-version
+          npm version "$RELEASE_VERSION" --no-git-tag-version --allow-same-version
           echo "✅ package.json version updated to $RELEASE_VERSION"
 
       - name: Commit and push package version update
