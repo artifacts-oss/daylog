@@ -35,9 +35,9 @@ Mutations are handled by a mix of **Next.js Server Actions** (e.g. `updateNote`)
 
 ### Route Structure
 
-- `/app/(authenticated)/` — Protected route group (boards, notes, dashboard, profile, admin, billing, community, shared). Wraps all pages requiring a logged-in session.
+- `/app/(authenticated)/` — Protected route group (boards, notes, dashboard, profile, admin, community, shared). Wraps all pages requiring a logged-in session.
 - `/app/(marketing)/` — Public marketing route group.
-- `/app/api/v1/` — REST endpoints: `auth`, `notes`, `storage`, `images`, `share`, `locale`, `backup`, `billing`, `webhooks/stripe`.
+- `/app/api/v1/` — REST endpoints: `auth`, `notes`, `storage`, `images`, `share`, `locale`, `backup`.
 - `/app/login/`, `/app/register/` — Unauthenticated pages; `/register/init` creates the first admin user.
 - `/app/share/[token]/` — Public share view (no auth required).
 
@@ -79,9 +79,6 @@ Opt-in AES-256-GCM encryption of board/note content (`utils/encryption.ts`). A P
 
 `lib/noteCollaboration.ts` powers multi-user live editing (`CollabEditor`) over **Redis pub/sub + SSE**. Each note is a "room"; clients exchange plaintext diffs (diff-match-patch) and presence. Each SSE connection needs its own Redis subscriber (`createSubscriber()`), since a subscribed ioredis connection cannot issue normal commands. Rooms always work on plaintext — decryption happens on load, and persistence back to the DB (with encryption) goes through the `updateNote` server action.
 
-### Billing
-
-Stripe-based billing: API under `/app/api/v1/billing` and `/app/api/v1/webhooks/stripe`, UI under `/app/(authenticated)/billing`.
 
 ### Component Patterns
 

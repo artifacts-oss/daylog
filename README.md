@@ -29,11 +29,32 @@ If you want to use the stable version of daylog, you can find it [here](https://
 - **Public sharing:** Share notes via public links with optional password protection, expiry dates, and view tracking.
 - **Shared boards:** Share boards with other users and collaborate within a community space.
 - **Internationalization:** Available in English, Spanish, French, and German.
-- **Billing:** Built-in Stripe billing for paid plans.
 
-### Preview
+### Demos
 
-![daylog_preview](resources/preview.webp)
+**Boards** — organize notes by context, project, or as folders.
+
+https://github.com/artifacts-oss/daylog/raw/main/resources/demos/boards.webm
+
+**Notes** — plain text or Markdown, with images and favorites.
+
+https://github.com/artifacts-oss/daylog/raw/main/resources/demos/notes.webm
+
+**Real-time collaboration** — multiple users editing the same note live, with presence.
+
+https://github.com/artifacts-oss/daylog/raw/main/resources/demos/collaboration.webm
+
+**Field encryption** — opt-in AES-256-GCM encryption for your content.
+
+https://github.com/artifacts-oss/daylog/raw/main/resources/demos/encryption.webm
+
+**Public sharing** — share notes via public links with password, expiry, and view tracking.
+
+https://github.com/artifacts-oss/daylog/raw/main/resources/demos/sharing.webm
+
+**Unsplash integration** — search and insert cover images without leaving the editor.
+
+https://github.com/artifacts-oss/daylog/raw/main/resources/demos/unsplash.webm
 
 ### Production Installation (Docker Compose)
 
