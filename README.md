@@ -95,7 +95,7 @@ You can keep the default values or you can change them.
 3. **Run docker compose:**
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
 ### Production Installation (Docker Hub)
