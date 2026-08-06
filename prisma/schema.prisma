@@ -15,39 +15,40 @@ datasource db {
 }
 
 model User {
-  id                  Int             @id @default(autoincrement())
-  email               String          @unique
-  password            String
-  secret              String?
-  mfa                 Boolean         @default(false)
-  name                String?
-  role                String          @default("user") // or admin (Don't Use enum in order to be sqlite compatible).
-  terms               String          @default("pending")
-  boards              Board[]
-  sessions            Session[]
-  noteChanges         NoteChange[]
-  changeComments      ChangeComment[]
-  sortNotesBy         String?         @default("created_desc") // created_desc, created_asc, title_asc, title_desc
-  sortBoardsBy        String?         @default("created_desc")
-  failedAttempts      Int?            @default(0)
-  lockUntil           DateTime?
-  mfaCode             String?
-  mfaCodeSentAt       DateTime?
-  encryptionEnabled   Boolean         @default(false)
-  encryptionSalt      String?
-  encryptedDataLocked Boolean         @default(false)
-  passwordResetToken  String?
+  id                   Int              @id @default(autoincrement())
+  email                String           @unique
+  password             String
+  secret               String?
+  mfa                  Boolean          @default(false)
+  name                 String?
+  profileImage         String?
+  role                 String           @default("user") // or admin (Don't Use enum in order to be sqlite compatible).
+  terms                String           @default("pending")
+  boards               Board[]
+  sessions             Session[]
+  noteChanges          NoteChange[]
+  changeComments       ChangeComment[]
+  sortNotesBy          String?          @default("created_desc") // created_desc, created_asc, title_asc, title_desc
+  sortBoardsBy         String?          @default("created_desc")
+  failedAttempts       Int?             @default(0)
+  lockUntil            DateTime?
+  mfaCode              String?
+  mfaCodeSentAt        DateTime?
+  encryptionEnabled    Boolean          @default(false)
+  encryptionSalt       String?
+  encryptedDataLocked  Boolean          @default(false)
+  passwordResetToken   String?
   passwordResetExpires DateTime?
-  createdShares       Share[]         @relation("CreatedShares")
-  receivedShares      ShareRecipient[]
+  createdShares        Share[]          @relation("CreatedShares")
+  receivedShares       ShareRecipient[]
 }
 
 model Session {
-  id            String   @id
-  userId        Int
-  expiresAt     DateTime
-  encryptedKey  String?
-  user          User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  id           String   @id
+  userId       Int
+  expiresAt    DateTime
+  encryptedKey String?
+  user         User     @relation(references: [id], fields: [userId], onDelete: Cascade)
 }
 
 model Board {
@@ -102,8 +103,8 @@ model NoteChange {
   noteId          Int
   user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId          Int
-  diffPatch       String          // Stores the diff in diff-match-patch format
-  previousContent String?         // Content before the change (for validation)
+  diffPatch       String // Stores the diff in diff-match-patch format
+  previousContent String? // Content before the change (for validation)
   comments        ChangeComment[]
   createdAt       DateTime        @default(now())
 }
@@ -120,17 +121,17 @@ model ChangeComment {
 
 model Share {
   id                String           @id @default(cuid())
-  entityType        String           // "BOARD" or "NOTE"
+  entityType        String // "BOARD" or "NOTE"
   entityId          Int
-  password          String?          // Hashed password
+  password          String? // Hashed password
   expiresAt         DateTime?
   oneTime           Boolean          @default(false)
   viewCount         Int              @default(0)
   scope             String           @default("PUBLIC") // "PUBLIC" | "ALL" | "SPECIFIC"
-  canEdit           Boolean          @default(false)    // Allow recipients to edit (SPECIFIC scope only)
+  canEdit           Boolean          @default(false) // Allow recipients to edit (SPECIFIC scope only)
   sharedBy          Int?
-  snapshot          String?          // JSON snapshot of decrypted content
-  snapshotUpdatedAt DateTime?        // When the snapshot was last refreshed
+  snapshot          String? // JSON snapshot of decrypted content
+  snapshotUpdatedAt DateTime? // When the snapshot was last refreshed
   creator           User?            @relation("CreatedShares", fields: [sharedBy], references: [id], onDelete: SetNull)
   recipients        ShareRecipient[]
   views             ShareView[]
@@ -156,7 +157,7 @@ model ShareView {
   id        Int      @id @default(autoincrement())
   shareId   String
   share     Share    @relation(fields: [shareId], references: [id], onDelete: Cascade)
-  viewerId  String   // Hashed IP + UA for unique tracking
+  viewerId  String // Hashed IP + UA for unique tracking
   createdAt DateTime @default(now())
 
   @@index([shareId])

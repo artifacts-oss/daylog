@@ -28,6 +28,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import UserAvatar from '@/components/UserAvatar';
 
 type PresenceUser = {
   userId: number;
@@ -439,12 +440,13 @@ export default function Editor({
                     {presenceUsers.map((user) => (
                       <Tooltip key={user.userId}>
                         <TooltipTrigger asChild>
-                          <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white ring-2 ring-background select-none cursor-default"
-                            style={{ backgroundColor: user.color }}
-                          >
-                            {user.userName.charAt(0).toUpperCase()}
-                          </div>
+                          <UserAvatar
+                            name={user.userName}
+                            imageSrc={`/api/v1/users/${user.userId}/avatar`}
+                            className="h-7 w-7 ring-2 ring-background"
+                            fallbackClassName="text-[11px] font-bold text-white"
+                            fallbackStyle={{ backgroundColor: user.color }}
+                          />
                         </TooltipTrigger>
                         <TooltipContent>{user.userName}</TooltipContent>
                       </Tooltip>

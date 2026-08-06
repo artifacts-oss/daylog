@@ -6,6 +6,13 @@ export const ProfileFormSchema = z.object({
     .min(2, { message: 'Name must be at least 2 characters long.' })
     .trim(),
   email: z.string().email({ message: 'Please enter a valid email.' }).trim(),
+  profileImage: z.string().refine(
+    (value) => !value || Math.floor((value.slice(value.indexOf(',') + 1).length * 3) / 4) <= 1_000_000,
+    { message: 'Profile image is too large.' },
+  ).refine(
+    (value) => !value || /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value),
+    { message: 'Please select a valid image.' },
+  ).nullable(),
 });
 
 export const PasswordFormSchema = z.object({
@@ -64,6 +71,7 @@ export type ProfileFormState =
       errors?: {
         name?: string[];
         email?: string[];
+        profileImage?: string[];
       };
       message?: string;
     }

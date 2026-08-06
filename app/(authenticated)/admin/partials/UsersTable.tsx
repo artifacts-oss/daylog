@@ -44,6 +44,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import UserAvatar from '@/components/UserAvatar';
 
 export default function UsersTable({
   currentUserId,
@@ -51,6 +52,7 @@ export default function UsersTable({
   currentUserId: number;
 }) {
   const t = useTranslations('UsersTable');
+  const tRole = useTranslations('Roles');
   const tNav = useTranslations('Navigation');
   const [users, setUsers] = useState<SafeUser[] | null>();
   const [loading, setLoading] = useState(true);
@@ -103,10 +105,14 @@ export default function UsersTable({
               >
                 <TableCell className="py-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors font-semibold">
-                      {u.name?.charAt(0).toUpperCase() ||
-                        u.email.charAt(0).toUpperCase()}
-                    </div>
+                    <UserAvatar
+                      name={u.name}
+                      email={u.email}
+                      userId={u.id}
+                      profileImage={u.profileImage}
+                      className="h-10 w-10"
+                      fallbackClassName="bg-primary/10 font-semibold text-primary group-hover:bg-primary group-hover:text-primary-foreground"
+                    />
                     <div className="flex flex-col overflow-hidden">
                       <span className="font-medium text-foreground truncate">
                         {u.name || t('unnamedUser')}
@@ -136,7 +142,7 @@ export default function UsersTable({
                     ) : (
                       <UserCircleIcon className="h-3.5 w-3.5" />
                     )}
-                    {u.role.charAt(0).toUpperCase() + u.role.slice(1)}
+                    {tRole(u.role)}
                   </span>
                 </TableCell>
                 <TableCell className="py-4 text-right">

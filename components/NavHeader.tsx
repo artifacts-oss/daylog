@@ -4,8 +4,7 @@ import Link from 'next/link';
 import NavThemeToggle from './NavThemeToggle';
 import NavSearch from './NavSearch';
 import LocaleSwitcher from './LocaleSwitcher';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { getUserInitials } from '@/lib/utils';
+import UserAvatar from './UserAvatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,12 +29,11 @@ interface NavHeaderProps {
 
 export default function NavHeader({ user }: NavHeaderProps) {
   const t = useTranslations('Navigation');
+  const tRole = useTranslations('Roles');
 
   if (!user) {
     return null;
   }
-
-  const initials = getUserInitials(user?.name);
 
   return (
     <header className="hidden md:flex flex-shrink-0 items-center justify-between h-20 px-6 border-b border-border bg-background">
@@ -48,17 +46,20 @@ export default function NavHeader({ user }: NavHeaderProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-muted transition-colors outline-none">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="text-xs bg-primary text-primary-foreground font-bold">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                name={user.name}
+                email={user.email}
+                userId={user.id}
+                profileImage={user.profileImage}
+                className="h-8 w-8"
+                fallbackClassName="bg-primary text-xs font-bold text-primary-foreground"
+              />
               <div className="flex flex-col text-left">
                 <span className="text-[16px] font-[500] text-foreground">
                   {user?.name}
                 </span>
                 <span className="text-[12px] font-[500] uppercase text-muted-foreground/70">
-                  {user?.role}
+                  {tRole(user.role)}
                 </span>
               </div>
             </button>

@@ -4,6 +4,7 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import NavThemeToggle from '@/components/NavThemeToggle';
 import MDEditor from '@uiw/react-md-editor';
+import UserAvatar from '@/components/UserAvatar';
 
 interface SharedNoteViewProps {
   note: {
@@ -14,6 +15,7 @@ interface SharedNoteViewProps {
     boards: {
       user: {
         name: string | null;
+        profileImage?: string | null;
       } | null;
     } | null;
   };
@@ -25,7 +27,7 @@ export default function SharedNoteView({ note, token }: SharedNoteViewProps) {
 
   const getSharedImageUrl = (originalPath: string | null) => {
     if (!originalPath) return '';
-    if (originalPath.startsWith('http')) return originalPath;
+    if (originalPath.startsWith('http') || originalPath.startsWith('data:')) return originalPath;
     // Ensure path is absolute for our proxy
     const path = originalPath.startsWith('/')
       ? originalPath
@@ -72,9 +74,12 @@ export default function SharedNoteView({ note, token }: SharedNoteViewProps) {
           </h1>
 
           <div className="flex items-center gap-4">
-            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center font-bold text-xs">
-              {note.boards?.user?.name?.[0] || 'U'}
-            </div>
+            <UserAvatar
+              name={note.boards?.user?.name}
+              profileImage={getSharedImageUrl(note.boards?.user?.profileImage ?? null)}
+              className="h-10 w-10"
+              fallbackClassName="text-xs font-bold"
+            />
             <div className="flex flex-col">
               <span className="text-sm font-bold text-foreground">
                 {note.boards?.user?.name || 'Unknown'}

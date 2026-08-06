@@ -16,6 +16,7 @@ import PageHeader from './PageHeader';
 import Placeholder from './Placeholder';
 import TimeDiff from './TimeDiff';
 import NavSidebar from './NavSidebar';
+import UserAvatar from './UserAvatar';
 import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
 vi.mock('next-intl/server', () => ({
@@ -189,6 +190,11 @@ describe('Component Tests', () => {
       <NavHeader user={{ id: 1, name: 'Test User', role: 'user' } as User} />,
     );
     expect(container).toBeInTheDocument();
+  });
+
+  it('renders up to two user initials', () => {
+    render(<UserAvatar name="Alexis Quinn" />);
+    expect(screen.getByText('AQ')).toBeInTheDocument();
   });
 
   it('renders NavBar component', () => {

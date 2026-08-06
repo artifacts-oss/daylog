@@ -1,9 +1,6 @@
 'use server';
 
-import {
-  getCurrentSession,
-  validateSessionToken,
-} from '@/app/login/lib/actions';
+import { getCurrentSession } from '@/app/login/lib/actions';
 import { deleteSessionTokenCookie } from '@/app/login/lib/cookies';
 import { prisma } from '@/prisma/client';
 import { hashPassword, verifyPassword } from '@/utils/crypto';
@@ -47,23 +44,28 @@ import {
 import { createAndVerifyTransporter } from '@/utils/email';
 import { User } from '@/prisma/generated/client';
 import { SECURITY_CONFIG } from '@/config/security';
+import { removeFile, saveBase64File } from '@/utils/storage';
+import { getTranslations } from 'next-intl/server';
 
 export async function updateProfile(
   state: ProfileFormState,
   formData: FormData
 ) {
+  const t = await getTranslations('ProfileActions');
   const data = {
     id: Number(formData.get('id')),
     name: formData.get('name'),
     email: formData.get('email'),
+    profileImage: formData.get('profileImage') || null,
   };
+  const profileImageChanged = formData.get('profileImageChanged') === 'true';
 
   const result = ProfileFormSchema.safeParse(data);
 
   if (!result.success) {
     return {
       errors: result.error.flatten().fieldErrors,
-      data: data,
+      data: { name: data.name, email: data.email },
       success: false,
     };
   }
@@ -72,7 +74,7 @@ export async function updateProfile(
 
   if (!user || (user.id !== data.id && user.role !== 'admin')) {
     return {
-      message: 'Not allowed',
+      message: t('notAllowed'),
       success: false,
     };
   }
@@ -87,48 +89,51 @@ export async function updateProfile(
     });
     if (existentUser) {
       return {
-        message: 'Email already exists.',
+        message: t('emailExists'),
         success: false,
       };
     }
 
-    await prisma.user.update({
+    const currentProfile = profileImageChanged
+      ? await prisma.user.findUnique({ where: { id: data.id }, select: { profileImage: true } })
+      : null;
+    const storedProfileImage = profileImageChanged && result.data.profileImage
+      ? saveBase64File(result.data.profileImage)
+      : null;
+
+    try {
+      await prisma.user.update({
       where: { id: data.id },
       data: {
         name: result.data.name,
         email: result.data.email,
+        ...(profileImageChanged && { profileImage: storedProfileImage }),
       },
-    });
-
-    // If the user is updating their own profile, revalidate the session
-    if (user.id === data.id) {
-      const cookieStore = await cookies();
-      const token = cookieStore.get('session')?.value ?? null;
-      if (token !== null) {
-        await validateSessionToken(token); // revalidate the session
-      }
-    } else {
-      return {
-        data: result.data,
-        success: true,
-      };
+      });
+    } catch (error) {
+      if (storedProfileImage) removeFile(storedProfileImage);
+      throw error;
     }
+
+    if (profileImageChanged) removeFile(currentProfile?.profileImage);
+
   } catch (e) {
     console.error(e);
     return {
-      data: result.data,
-      message: 'An error occurred while updating your account.',
+      data: { name: result.data.name, email: result.data.email },
+      message: t('profileUpdateError'),
+      success: false,
     };
   }
 
-  revalidatePath(`/profile/${data.id}`);
-  return redirect(`/profile/${data.id}`);
+  return { success: true, message: t('profileUpdated') };
 }
 
 export async function updatePassword(
   state: PasswordFormState,
   formData: FormData
 ) {
+  const t = await getTranslations('ProfileActions');
   const data = {
     id: Number(formData.get('id')),
     current: formData.get('current'),
@@ -140,14 +145,14 @@ export async function updatePassword(
 
   if (!user) {
     return {
-      message: 'Unauthorized',
+      message: t('unauthorized'),
       success: false,
     };
   }
 
   if (user.id !== data.id && user.role !== 'admin') {
     return {
-      message: 'Access denied',
+      message: t('accessDenied'),
       success: false,
     };
   }
@@ -180,7 +185,7 @@ export async function updatePassword(
 
     if (result.data.password !== result.data.confirm) {
       return {
-        message: 'Passwords do not match.',
+        message: t('passwordsMismatch'),
         data: {
           password: result.data.password,
         },
@@ -198,7 +203,7 @@ export async function updatePassword(
       !isCurrentPasswordValid
     ) {
       return {
-        message: 'Current password is incorrect.',
+        message: t('currentPasswordIncorrect'),
         data: {
           password: result.data.password,
         },
@@ -248,18 +253,19 @@ export async function updatePassword(
 
     return {
       success: true,
-      message: 'Password updated successfully.',
+      message: t('passwordUpdated'),
     };
   } catch (e) {
     console.error(e);
     return {
       data: result.data,
-      message: 'An error occurred while updating your password.',
+      message: t('passwordUpdateError'),
     };
   }
 }
 
 export async function backupData(state: BackupFormState, formData: FormData) {
+  const t = await getTranslations('ProfileActions');
   const data = {
     userId: Number(formData.get('userId')),
   };
@@ -268,7 +274,7 @@ export async function backupData(state: BackupFormState, formData: FormData) {
 
   if (!result.success) {
     return {
-      message: 'Invalid user ID.',
+      message: t('invalidUserId'),
       success: false,
     };
   }
@@ -277,7 +283,7 @@ export async function backupData(state: BackupFormState, formData: FormData) {
 
   if (!user || user.id !== data.userId) {
     return {
-      message: 'Not allowed',
+      message: t('notAllowed'),
       success: false,
     };
   }
@@ -301,7 +307,7 @@ export async function backupData(state: BackupFormState, formData: FormData) {
 
     if (!user) {
       return {
-        message: 'User not found.',
+        message: t('userNotFound'),
         success: false,
       };
     }
@@ -331,7 +337,7 @@ export async function backupData(state: BackupFormState, formData: FormData) {
     console.error(e);
     return {
       data: result.data,
-      message: 'An error occurred while backing up data.',
+      message: t('backupError'),
     };
   }
 }
@@ -340,6 +346,7 @@ export async function deleteAccount(
   state: DeleteAccountFormState,
   formData: FormData
 ) {
+  const t = await getTranslations('ProfileActions');
   const data = {
     userId: Number(formData.get('userId')),
     password: formData.get('password'),
@@ -357,7 +364,7 @@ export async function deleteAccount(
   const { user } = await getCurrentSession();
   if (!user || (user.role !== 'admin' && user.id !== data.userId)) {
     return {
-      message: 'Not allowed',
+      message: t('notAllowed'),
       success: false,
     };
   }
@@ -376,7 +383,7 @@ export async function deleteAccount(
       !(await verifyPassword(result.data.password, targetUser.password))
     ) {
       return {
-        message: 'You are not allowed to perform this action.',
+        message: t('actionNotAllowed'),
         success: false,
       };
     }
@@ -392,7 +399,7 @@ export async function deleteAccount(
     console.error(e);
     return {
       data: result.data,
-      message: 'An error occurred while deleting your account.',
+      message: t('deleteAccountError'),
     };
   }
 
@@ -401,7 +408,7 @@ export async function deleteAccount(
     permanentRedirect('/login');
   } else {
     return {
-      message: 'User could not be delete.',
+      message: t('userDeleteError'),
       success: false,
     };
   }
@@ -412,6 +419,7 @@ export type SafeProfile = Pick<
   | 'id'
   | 'email'
   | 'name'
+  | 'profileImage'
   | 'role'
   | 'mfa'
   | 'terms'
@@ -433,6 +441,7 @@ export async function getProfile(userId: number): Promise<SafeProfile | null> {
       id: true,
       email: true,
       name: true,
+      profileImage: true,
       role: true,
       mfa: true,
       terms: true,
@@ -450,6 +459,7 @@ export async function getProfile(userId: number): Promise<SafeProfile | null> {
 }
 
 export async function updateMFA(state: UpdateMFAFormState, formData: FormData) {
+  const t = await getTranslations('ProfileActions');
   const data = {
     id: Number(formData.get('id')),
     secret: formData.get('secret'),
@@ -470,7 +480,7 @@ export async function updateMFA(state: UpdateMFAFormState, formData: FormData) {
 
   if (!user || (user.id !== data.id && user.role !== 'admin')) {
     return {
-      message: 'Not allowed',
+      message: t('notAllowed'),
       success: false,
     };
   }
@@ -478,7 +488,7 @@ export async function updateMFA(state: UpdateMFAFormState, formData: FormData) {
   if (!validateTOTP(result.data.secret, result.data.password)) {
     return {
       data: result.data,
-      message: 'OTP is not valid.',
+      message: t('otpInvalid'),
     };
   }
 
@@ -501,19 +511,19 @@ export async function updateMFA(state: UpdateMFAFormState, formData: FormData) {
 
     return {
       success: true,
-      message:
-        'MFA device has been updated successfully you can refresh this page.',
+      message: t('mfaUpdated'),
     };
   } catch (e) {
     console.error(e);
     return {
       data: result.data,
-      message: 'An error occurred while updating your MFA.',
+      message: t('mfaUpdateError'),
     };
   }
 }
 
 export async function deleteMFA(state: DeleteMFAFormState, formData: FormData) {
+  const t = await getTranslations('ProfileActions');
   const data = {
     id: Number(formData.get('id')),
     password: formData.get('password'),
@@ -555,7 +565,7 @@ export async function deleteMFA(state: DeleteMFAFormState, formData: FormData) {
     ) {
       return {
         data: result.data,
-        message: 'OTP is not valid.',
+        message: t('otpInvalid'),
       };
     }
 
@@ -571,13 +581,13 @@ export async function deleteMFA(state: DeleteMFAFormState, formData: FormData) {
 
     return {
       success: true,
-      message: 'Your device has been deleted you can refresh this page.',
+      message: t('mfaDeleted'),
     };
   } catch (e) {
     console.error(e);
     return {
       data: result.data,
-      message: 'An error occurred while deleting your MFA.',
+      message: t('mfaDeleteError'),
     };
   }
 }
@@ -631,6 +641,7 @@ export async function enableEncryption(
   state: EncryptionFormState,
   formData: FormData,
 ): Promise<EncryptionFormState> {
+  const t = await getTranslations('ProfileActions');
   const data = { password: formData.get('password') };
   const result = EncryptionFormSchema.safeParse(data);
   if (!result.success) {
@@ -638,18 +649,18 @@ export async function enableEncryption(
   }
 
   if (!process.env.ENCRYPTION_MASTER_KEY) {
-    return { message: 'Encryption is not configured on this server.', success: false };
+    return { message: t('encryptionNotConfigured'), success: false };
   }
 
   const { user } = await getCurrentSession();
-  if (!user) return { message: 'Unauthorized', success: false };
+  if (!user) return { message: t('unauthorized'), success: false };
 
   try {
     const record = await prisma.user.findUnique({ where: { id: user.id } });
-    if (!record) return { message: 'User not found.', success: false };
+    if (!record) return { message: t('userNotFound'), success: false };
 
     const isValid = await verifyPassword(result.data.password, record.password);
-    if (!isValid) return { message: 'Current password is incorrect.', success: false };
+    if (!isValid) return { message: t('currentPasswordIncorrect'), success: false };
 
     const salt = record.encryptionSalt ?? generateEncryptionSalt();
     const key = await deriveEncryptionKey(result.data.password, salt);
@@ -726,10 +737,10 @@ export async function enableEncryption(
     }
 
     revalidatePath(`/profile/${user.id}`);
-    return { success: true, message: 'Encryption enabled successfully.' };
+    return { success: true, message: t('encryptionEnabled') };
   } catch (e) {
     console.error(e);
-    return { message: 'An error occurred while enabling encryption.', success: false };
+    return { message: t('encryptionEnableError'), success: false };
   }
 }
 
@@ -737,6 +748,7 @@ export async function disableEncryption(
   state: EncryptionFormState,
   formData: FormData,
 ): Promise<EncryptionFormState> {
+  const t = await getTranslations('ProfileActions');
   const data = { password: formData.get('password') };
   const result = EncryptionFormSchema.safeParse(data);
   if (!result.success) {
@@ -744,16 +756,16 @@ export async function disableEncryption(
   }
 
   const { user } = await getCurrentSession();
-  if (!user) return { message: 'Unauthorized', success: false };
+  if (!user) return { message: t('unauthorized'), success: false };
 
   try {
     const record = await prisma.user.findUnique({ where: { id: user.id } });
-    if (!record) return { message: 'User not found.', success: false };
+    if (!record) return { message: t('userNotFound'), success: false };
 
     const isValid = await verifyPassword(result.data.password, record.password);
-    if (!isValid) return { message: 'Current password is incorrect.', success: false };
+    if (!isValid) return { message: t('currentPasswordIncorrect'), success: false };
 
-    if (!record.encryptionSalt) return { message: 'No encryption key found.', success: false };
+    if (!record.encryptionSalt) return { message: t('noEncryptionKey'), success: false };
 
     const key = await deriveEncryptionKey(result.data.password, record.encryptionSalt);
 
@@ -824,10 +836,10 @@ export async function disableEncryption(
     ]);
 
     revalidatePath(`/profile/${user.id}`);
-    return { success: true, message: 'Encryption disabled successfully.' };
+    return { success: true, message: t('encryptionDisabled') };
   } catch (e) {
     console.error(e);
-    return { message: 'An error occurred while disabling encryption.', success: false };
+    return { message: t('encryptionDisableError'), success: false };
   }
 }
 
@@ -835,6 +847,7 @@ export async function recoverEncryptedData(
   state: RecoverEncryptionFormState,
   formData: FormData,
 ): Promise<RecoverEncryptionFormState> {
+  const t = await getTranslations('ProfileActions');
   const data = { oldPassword: formData.get('oldPassword') };
   const result = RecoverEncryptionFormSchema.safeParse(data);
   if (!result.success) {
@@ -842,12 +855,12 @@ export async function recoverEncryptedData(
   }
 
   const { user } = await getCurrentSession();
-  if (!user) return { message: 'Unauthorized', success: false };
+  if (!user) return { message: t('unauthorized'), success: false };
 
   try {
     const record = await prisma.user.findUnique({ where: { id: user.id } });
     if (!record || !record.encryptionSalt) {
-      return { message: 'No encryption key found.', success: false };
+      return { message: t('noEncryptionKey'), success: false };
     }
 
     const oldKey = await deriveEncryptionKey(result.data.oldPassword, record.encryptionSalt);
@@ -877,7 +890,7 @@ export async function recoverEncryptedData(
         decryptField(probeField, oldKey);
       }
     } catch {
-      return { message: 'Old password is incorrect or data cannot be decrypted.', success: false };
+      return { message: t('oldPasswordOrDataIncorrect'), success: false };
     }
 
     const safeDecrypt = (value: string) => {
@@ -931,10 +944,10 @@ export async function recoverEncryptedData(
     ]);
 
     revalidatePath(`/profile/${user.id}`);
-    return { success: true, message: 'Data recovered successfully. You can now re-enable encryption.' };
+    return { success: true, message: t('dataRecovered') };
   } catch (e) {
     console.error(e);
-    return { message: 'An error occurred during recovery.', success: false };
+    return { message: t('recoveryError'), success: false };
   }
 }
 
@@ -942,8 +955,9 @@ export async function wipeEncryptedData(
   _state: EncryptionFormState,
   _formData: FormData,
 ): Promise<EncryptionFormState> {
+  const t = await getTranslations('ProfileActions');
   const { user } = await getCurrentSession();
-  if (!user) return { message: 'Unauthorized', success: false };
+  if (!user) return { message: t('unauthorized'), success: false };
 
   try {
     const boards = await prisma.board.findMany({
@@ -998,10 +1012,10 @@ export async function wipeEncryptedData(
     ]);
 
     revalidatePath(`/profile/${user.id}`);
-    return { success: true, message: 'Encrypted data wiped successfully.' };
+    return { success: true, message: t('encryptedDataWiped') };
   } catch (e) {
     console.error(e);
-    return { message: 'An error occurred while wiping data.', success: false };
+    return { message: t('wipeError'), success: false };
   }
 }
 

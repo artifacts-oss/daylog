@@ -40,6 +40,7 @@ export function generateFileFromBase64(base64String: string): {
 
 export function removeFile(filePath?: string | null) {
   try {
+    if (!filePath || filePath.startsWith('data:') || filePath.startsWith('http')) return true;
     if (filePath && fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     } else if (filePath?.startsWith('S3')) {

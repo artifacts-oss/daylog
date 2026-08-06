@@ -18,7 +18,7 @@ import {
   LanguageIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import UserAvatar from './UserAvatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +37,7 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 import { signout } from '@/app/(authenticated)/lib/actions';
-import { cn, getUserInitials } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { changeLocale } from '@/lib/locale';
 import { locales } from '@/i18n/config';
 import { useLocale, useTranslations } from 'next-intl';
@@ -51,6 +51,7 @@ interface NavSidebarProps {
 
 export default function NavSidebar({ user }: NavSidebarProps) {
   const t = useTranslations('Navigation');
+  const tRole = useTranslations('Roles');
   const tLocale = useTranslations('LocaleSwitcher');
   const tTheme = useTranslations('Theme');
   const { theme, setTheme } = useTheme();
@@ -80,8 +81,6 @@ export default function NavSidebar({ user }: NavSidebarProps) {
     setIsCollapsed(newState);
     localStorage.setItem('sidebar-collapsed', String(newState));
   };
-
-  const initials = getUserInitials(user?.name);
 
   if (!user) return null;
 
@@ -192,11 +191,14 @@ export default function NavSidebar({ user }: NavSidebarProps) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center p-0.5 rounded-full hover:bg-muted transition-all outline-none">
-                <Avatar className="h-8 w-8 border-2 border-primary/10">
-                  <AvatarFallback className="text-xs bg-primary text-primary-foreground font-bold">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  name={user.name}
+                  email={user.email}
+                  userId={user.id}
+                  profileImage={user.profileImage}
+                  className="h-8 w-8 border-2 border-primary/10"
+                  fallbackClassName="bg-primary text-xs font-bold text-primary-foreground"
+                />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -209,7 +211,7 @@ export default function NavSidebar({ user }: NavSidebarProps) {
                     {user?.name}
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
-                    {user?.role}
+                    {tRole(user.role)}
                   </span>
                 </div>
               </DropdownMenuLabel>

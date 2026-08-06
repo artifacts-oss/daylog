@@ -1,6 +1,12 @@
 import { User } from '@/prisma/generated/client';
 import { prismaMock } from '@/prisma/singleton';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('next-intl/server', async () => {
+  const { default: messages } = await import('@/messages/en.json');
+  return { getTranslations: async (namespace: 'AdminActions') =>
+    (key: keyof typeof messages.AdminActions) => messages[namespace][key] };
+});
 import {
   deleteUser,
   getSettings,

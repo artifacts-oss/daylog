@@ -106,6 +106,16 @@ export async function GET(
   }
 
   if (!actualFilePath) {
+    const creator = share.sharedBy
+      ? await prisma.user.findFirst({
+          where: { id: share.sharedBy, profileImage: { in: pathsToTry } },
+          select: { profileImage: true },
+        })
+      : null;
+    actualFilePath = creator?.profileImage ?? null;
+  }
+
+  if (!actualFilePath) {
     return Response.json(
       { error: 'Image not found in this share' },
       { status: 404 },

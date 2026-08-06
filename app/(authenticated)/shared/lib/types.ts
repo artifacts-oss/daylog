@@ -12,7 +12,7 @@ export interface SharedContent {
   scope: string;
   canEdit: boolean;
   snapshotUpdatedAt: Date | null;
-  recipients: { id: number; name: string | null; email: string }[];
+  recipients: { id: number; name: string | null; email: string; profileImage: string | null }[];
   metrics: {
     weekly: number;
     monthly: number;

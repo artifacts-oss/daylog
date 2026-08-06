@@ -1,6 +1,4 @@
 import { prismaMock } from '@/prisma/singleton';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   backupData,
@@ -14,6 +12,12 @@ import {
   updateProfile,
 } from './actions';
 import { User } from '@/prisma/generated/client';
+
+vi.mock('next-intl/server', async () => {
+  const { default: messages } = await import('@/messages/en.json');
+  return { getTranslations: async (namespace: 'ProfileActions') =>
+    (key: keyof typeof messages.ProfileActions) => messages[namespace][key] };
+});
 
 const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
@@ -30,6 +34,13 @@ const mocks = vi.hoisted(() => ({
   createAndVerifyTransporter: vi.fn().mockImplementation(() => ({
     sendMail: mocks.sendMail,
   })),
+  saveBase64File: vi.fn(() => 'storage/avatar.jpeg'),
+  removeFile: vi.fn(),
+}));
+
+vi.mock('@/utils/storage', () => ({
+  saveBase64File: mocks.saveBase64File,
+  removeFile: mocks.removeFile,
 }));
 
 vi.mock('next/navigation', () => ({
@@ -84,8 +95,12 @@ describe('Profile Actions', () => {
       formData.append('id', '1');
       formData.append('name', 'John Doe');
       formData.append('email', 'john@example.com');
+      formData.append('profileImage', 'data:image/jpeg;base64,YQ==');
+      formData.append('profileImageChanged', 'true');
 
-      prismaMock.user.findUnique.mockResolvedValue(null);
+      prismaMock.user.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ profileImage: 'storage/old.jpeg' } as User);
       prismaMock.user.update.mockResolvedValue({
         id: 1,
         name: 'John Doe',
@@ -108,9 +123,20 @@ describe('Profile Actions', () => {
 
       const result = await updateProfile({}, formData);
 
-      expect(result).toBeUndefined();
-      expect(revalidatePath).toHaveBeenCalledWith('/profile/1');
-      expect(redirect).toHaveBeenCalledWith('/profile/1');
+      expect(result).toEqual({
+        success: true,
+        message: 'Profile updated successfully.',
+      });
+      expect(prismaMock.user.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: {
+          name: 'John Doe',
+          email: 'john@example.com',
+          profileImage: 'storage/avatar.jpeg',
+        },
+      });
+      expect(mocks.saveBase64File).toHaveBeenCalledWith('data:image/jpeg;base64,YQ==');
+      expect(mocks.removeFile).toHaveBeenCalledWith('storage/old.jpeg');
     });
 
     it('should return error if form data is invalid', async () => {

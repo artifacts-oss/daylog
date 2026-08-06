@@ -7,6 +7,7 @@ import { getDiffSummary, getDiffPreview } from '@/utils/diff';
 import { truncateWord } from '@/utils/text';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
+import UserAvatar from '@/components/UserAvatar';
 
 type ChangeHistoryItemProps = {
   change: {
@@ -20,6 +21,7 @@ type ChangeHistoryItemProps = {
       id: number;
       name: string | null;
       email: string;
+      profileImage: string | null;
     };
     comments: Array<{
       id: number;
@@ -31,6 +33,7 @@ type ChangeHistoryItemProps = {
         id: number;
         name: string | null;
         email: string;
+        profileImage: string | null;
       };
     }>;
   };
@@ -66,12 +69,22 @@ export default function ChangeHistoryItem({
     <div className="bg-background rounded-[16px] border border-border p-3 shadow-sm relative overflow-hidden group transition-all duration-300 hover:shadow-md hover:border-foreground/20 shrink-0">
       <div className="flex flex-col mb-1">
         <div className="flex items-center justify-between gap-2 mb-0.5">
-          <strong
-            className="text-[13px] font-[800] tracking-tight text-foreground truncate"
-            title={change.user.name ?? change.user.email}
-          >
-            {truncateWord(change.user.name ?? change.user.email, 22)}
-          </strong>
+          <div className="flex min-w-0 items-center gap-2">
+            <UserAvatar
+              userId={change.user.id}
+              name={change.user.name}
+              email={change.user.email}
+              profileImage={change.user.profileImage}
+              className="h-6 w-6"
+              fallbackClassName="text-[9px] font-bold"
+            />
+            <strong
+              className="truncate text-[13px] font-[800] tracking-tight text-foreground"
+              title={change.user.name ?? change.user.email}
+            >
+              {truncateWord(change.user.name ?? change.user.email, 22)}
+            </strong>
+          </div>
           <div className="text-muted-foreground text-[10px] font-bold bg-muted/70 px-1.5 py-0.5 rounded inline-flex shrink-0 gap-1 items-center">
             <span className="text-green-600">+{diffSummary.additions}</span>
             <span className="opacity-40">/</span>

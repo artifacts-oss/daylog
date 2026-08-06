@@ -6,6 +6,7 @@ import { addChangeComment } from '../../lib/actions';
 import { truncateWord } from '@/utils/text';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
+import UserAvatar from '@/components/UserAvatar';
 
 type ChangeCommentsProps = {
   changeId: number;
@@ -19,6 +20,7 @@ type ChangeCommentsProps = {
       id: number;
       name: string | null;
       email: string;
+      profileImage: string | null;
     };
   }>;
   onRefresh: () => void;
@@ -75,6 +77,14 @@ export default function ChangeComments({
           className="relative group p-2.5 bg-secondary/30 rounded-lg border border-border/50 text-sm"
         >
           <div className="flex justify-between items-start gap-1.5">
+            <UserAvatar
+              userId={comment.user.id}
+              name={comment.user.name}
+              email={comment.user.email}
+              profileImage={comment.user.profileImage}
+              className="h-6 w-6"
+              fallbackClassName="text-[9px] font-bold"
+            />
             <div className="flex-1 min-w-0">
               <div className="flex flex-col mb-1">
                 <strong

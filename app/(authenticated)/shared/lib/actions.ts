@@ -298,7 +298,7 @@ export async function getSharesWithMetrics(): Promise<SharedContent[]> {
       createdAt: true,
       updatedAt: true,
       views: true,
-      recipients: { select: { user: { select: { id: true, name: true, email: true } } } },
+      recipients: { select: { user: { select: { id: true, name: true, email: true, profileImage: true } } } },
     },
     orderBy: { createdAt: 'desc' }
   });
@@ -549,13 +549,13 @@ export async function createOrUpdateSnapshot(shareId: string): Promise<void> {
   revalidatePath('/shared');
 }
 
-export async function getShareableUsers(): Promise<{ id: number; name: string | null; email: string }[]> {
+export async function getShareableUsers(): Promise<{ id: number; name: string | null; email: string; profileImage: string | null }[]> {
   const { user } = await getCurrentSession();
   if (!user) return [];
 
   const users = await prisma.user.findMany({
     where: { id: { not: user.id } },
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, profileImage: true },
     orderBy: { name: 'asc' },
   });
 

@@ -318,6 +318,16 @@ describe('Editor', () => {
       renderWithIntl(<Editor note={mockNote} presenceUsers={[]} />);
       expect(screen.queryByText('A')).not.toBeInTheDocument();
     });
+
+    it('shows the user name when hovering a presence avatar', async () => {
+      renderWithIntl(<Editor note={mockNote} presenceUsers={[
+        { userId: 1, userName: 'Alice', color: '#ff0000' },
+      ]} />);
+
+      fireEvent.pointerMove(screen.getByText('A').parentElement!);
+
+      expect(await screen.findByRole('tooltip', { name: 'Alice' })).toBeInTheDocument();
+    });
   });
 
   it('applies incoming remoteContent to the editor', async () => {

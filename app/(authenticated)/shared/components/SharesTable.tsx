@@ -38,6 +38,7 @@ import { Label } from '@/components/ui/label';
 import { AlertOctagon } from 'lucide-react';
 import { SharedContent } from '../lib/types';
 import { useLocale, useTranslations } from 'next-intl';
+import UserAvatar from '@/components/UserAvatar';
 
 export default function SharesTable({ shares }: { shares: SharedContent[] }) {
   const t = useTranslations('SharedTable');
@@ -372,9 +373,14 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
               <div className="flex flex-col divide-y divide-border">
                 {viewingRecipients?.recipients.map((r) => (
                   <div key={r.id} className="flex items-center gap-3 py-3">
-                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0 text-[11px] font-black text-muted-foreground">
-                      {(r.name || r.email).charAt(0).toUpperCase()}
-                    </div>
+                    <UserAvatar
+                      name={r.name}
+                      email={r.email}
+                      userId={r.id}
+                      profileImage={r.profileImage}
+                      className="h-8 w-8"
+                      fallbackClassName="text-[11px] font-black text-muted-foreground"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-foreground truncate">{r.name || r.email}</p>
                       {r.name && <p className="text-[11px] text-muted-foreground truncate">{r.email}</p>}

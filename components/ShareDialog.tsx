@@ -25,6 +25,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { createShare, getShareableUsers } from '@/app/(authenticated)/shared/lib/actions';
 import { useTranslations } from 'next-intl';
+import UserAvatar from '@/components/UserAvatar';
 
 interface ShareDialogProps {
   entityType: 'NOTE' | 'BOARD';
@@ -38,6 +39,7 @@ interface ShareableUser {
   id: number;
   name: string | null;
   email: string;
+  profileImage: string | null;
 }
 
 export default function ShareDialog({ entityType, entityId, trigger }: ShareDialogProps) {
@@ -306,11 +308,15 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                             }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-[11px] font-black ${
+                              <UserAvatar
+                                name={u.name}
+                                email={u.email}
+                                userId={u.id}
+                                profileImage={u.profileImage}
+                                className={`h-8 w-8 shrink-0 text-[11px] font-black ${
                                 isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                              }`}>
-                                {(u.name || u.email).charAt(0).toUpperCase()}
-                              </div>
+                              }`}
+                              />
                               <div className="min-w-0">
                                 <p className="text-sm font-bold leading-none truncate">{u.name || u.email}</p>
                                 {u.name && <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{u.email}</p>}

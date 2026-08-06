@@ -4,8 +4,9 @@ import { getCurrentSession } from '@/app/login/lib/actions';
 import { prisma } from '@/prisma/client';
 import { User } from '@/prisma/generated/client';
 import { SettingsFormState } from './definitions';
+import { getTranslations } from 'next-intl/server';
 
-export type SafeUser = Pick<User, 'id' | 'name' | 'email' | 'role'>;
+export type SafeUser = Pick<User, 'id' | 'name' | 'email' | 'role' | 'profileImage'>;
 
 export async function getUsers(): Promise<SafeUser[] | null> {
   const { user } = await getCurrentSession();
@@ -19,7 +20,7 @@ export async function getUsers(): Promise<SafeUser[] | null> {
   }
 
   const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true, role: true },
+    select: { id: true, name: true, email: true, role: true, profileImage: true },
   });
   return users;
 }
@@ -60,7 +61,7 @@ export async function setRole(
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: { role: role },
-    select: { id: true, name: true, email: true, role: true },
+    select: { id: true, name: true, email: true, role: true, profileImage: true },
   });
 
   return updatedUser;
@@ -106,13 +107,14 @@ export async function saveSettings(
   state: SettingsFormState,
   formData: FormData,
 ) {
+  const t = await getTranslations('AdminActions');
   const { user } = await getCurrentSession();
 
   if (!user || user.role !== 'admin') {
     return {
       success: false,
       data: null,
-      message: 'Access denied',
+      message: t('accessDenied'),
     };
   }
 
@@ -143,7 +145,7 @@ export async function saveSettings(
   return {
     success: true,
     data: settings,
-    message: 'Settings saved correctly.',
+    message: t('settingsSaved'),
   };
 }
 

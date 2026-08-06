@@ -341,7 +341,7 @@ export default function ImageSection({
               priority={false}
             />
             <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] opacity-100 lg:opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center p-4">
-              <div className="flex flex-col sm:flex-row gap-2 w-full max-w-xs">
+              <div className="flex w-full max-w-xs flex-col items-center justify-center gap-2 sm:flex-row">
                 <label className="cursor-pointer bg-background text-foreground h-10 px-4 rounded-xl flex items-center justify-center font-bold text-sm hover:bg-background/90 transition-colors shadow-lg shrink-0">
                   <PhotoIcon className="h-5 w-5 mr-2" />
                   {t('changeImage')}

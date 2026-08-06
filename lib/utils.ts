@@ -8,7 +8,8 @@ export function cn(...inputs: ClassValue[]) {
 export function getUserInitials(name?: string | null): string {
   if (!name) return '';
   return name
-    .split(' ')
+    .trim()
+    .split(/\s+/)
     .map((n) => n[0])
     .join('')
     .toUpperCase()

@@ -380,7 +380,7 @@ describe('getShareableUsers', () => {
     expect(result).toEqual(users);
     expect(prismaMock.user.findMany).toHaveBeenCalledWith({
       where: { id: { not: user.id } },
-      select: { id: true, name: true, email: true },
+      select: { id: true, name: true, email: true, profileImage: true },
       orderBy: { name: 'asc' },
     });
   });

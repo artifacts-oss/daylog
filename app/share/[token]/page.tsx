@@ -90,7 +90,7 @@ export default async function PublicSharePage({
   if (share.snapshot) {
     entity = JSON.parse(share.snapshot);
   } else {
-    const userSelect = { select: { name: true } };
+    const userSelect = { select: { name: true, profileImage: true } };
 
     if (share.entityType === 'NOTE') {
       entity = await prisma.note.findUnique({
@@ -109,6 +109,25 @@ export default async function PublicSharePage({
 
     if (!entity) return notFound();
     entity = maskEncryptedFields(entity as Record<string, unknown>);
+  }
+
+  // Snapshots may predate profile pictures; always attach the creator's current profile.
+  if (share.sharedBy && entity && typeof entity === 'object') {
+    const creator = await prisma.user.findUnique({
+      where: { id: share.sharedBy },
+      select: { name: true, profileImage: true },
+    });
+    if (creator) {
+      const record = entity as Record<string, unknown>;
+      if (share.entityType === 'NOTE') {
+        const boards = record.boards && typeof record.boards === 'object'
+          ? record.boards as Record<string, unknown>
+          : {};
+        record.boards = { ...boards, user: creator };
+      } else {
+        record.user = creator;
+      }
+    }
   }
 
   // Handle one-time view with atomic check
