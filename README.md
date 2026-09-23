@@ -50,7 +50,7 @@ If you want to use the stable version of daylog, you can find it [here](https://
 
 ### Demo
 
-A walkthrough of the full flow: creating a board, creating a note, editing the note, and sharing it — ending on the shared note's public page.
+A walkthrough of the full flow: creating a board, creating a note, editing the note, and sharing it, ending on the shared note's public page with password protection.
 
 https://github.com/user-attachments/assets/200c1a5f-0819-42dd-98b4-a6e1f067a365
 
