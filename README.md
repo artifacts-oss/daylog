@@ -52,7 +52,7 @@ If you want to use the stable version of daylog, you can find it [here](https://
 
 A walkthrough of daylog's main features — boards, notes, real-time collaboration, field encryption, public sharing, and Unsplash integration.
 
-<video src="resources/daylog_flow.mp4" controls width="100%"></video>
+[▶ Watch the demo](resources/daylog_flow.mp4)
 
 ### Production Installation (Docker Compose)
 
