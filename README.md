@@ -50,9 +50,9 @@ If you want to use the stable version of daylog, you can find it [here](https://
 
 ### Demo
 
-A walkthrough of daylog's main features — boards, notes, real-time collaboration, field encryption, public sharing, and Unsplash integration.
+A walkthrough of the full flow: creating a board, creating a note, editing the note, and sharing it — ending on the shared note's public page.
 
-<video src="resources/daylog_flow.mp4" controls width="100%"></video>
+[▶ Watch the demo](resources/daylog_flow.mp4)
 
 ### Production Installation (Docker Compose)
 
