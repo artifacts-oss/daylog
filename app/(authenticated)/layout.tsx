@@ -27,19 +27,21 @@ export default async function AuthenticatedLayout({
     // Most recently updated first: the quick-note default target.
     getBoards('updated_desc', 50),
   ]);
+  const boardOptions = (boards ?? []).map(({ id, title }) => ({ id, title }));
 
   return (
     <Page>
-      <NavSidebar user={user} update={update} quickLinks={{ favorites, recent }} />
+      <NavSidebar
+        user={user}
+        update={update}
+        quickLinks={{ favorites, recent }}
+        boards={boardOptions}
+      />
       <MainContent>
-        <NavHeader
-          user={user}
-          update={update}
-          boards={(boards ?? []).map(({ id, title }) => ({ id, title }))}
-        />
+<NavHeader user={user} update={update} />
         {children}
       </MainContent>
-      <QuickNote boards={(boards ?? []).map(({ id, title }) => ({ id, title }))} />
+      <QuickNote boards={boardOptions} />
     </Page>
   );
 }

@@ -17,8 +17,10 @@ import {
   MoonIcon,
   SunIcon,
   LanguageIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
+import NoteModalForm from '@/app/(authenticated)/boards/[id]/notes/components/NoteModalForm';
 import UserAvatar from './UserAvatar';
 import {
   DropdownMenu,
@@ -54,13 +56,20 @@ interface NavSidebarProps {
   user: User;
   update?: AvailableUpdate | null;
   quickLinks?: QuickLinks;
+  boards?: { id: number; title: string }[];
 }
 
-export default function NavSidebar({ user, update, quickLinks }: NavSidebarProps) {
+export default function NavSidebar({
+  user,
+  update,
+  quickLinks,
+  boards = [],
+}: NavSidebarProps) {
   const t = useTranslations('Navigation');
   const tRole = useTranslations('Roles');
   const tLocale = useTranslations('LocaleSwitcher');
   const tTheme = useTranslations('Theme');
+  const tNote = useTranslations('NoteModal');
   const { theme, setTheme } = useTheme();
   const locale = useLocale();
   const [mounted, setMounted] = useState(false);
@@ -146,6 +155,30 @@ export default function NavSidebar({ user, update, quickLinks }: NavSidebarProps
         </div>
 
         <div className="flex-1 flex flex-col py-6 overflow-y-auto overflow-x-hidden">
+          {boards.length > 0 && (
+            <div className={cn('mb-4', isCollapsed ? 'flex justify-center px-3' : 'px-4')}>
+              <NoteModalForm
+                modalId="quickNoteDesktop"
+                mode="create"
+                boardId={boards[0].id}
+                boards={boards}
+                trigger={
+                  <Button
+                    size={isCollapsed ? 'icon' : 'default'}
+                    title={tNote('quickNote')}
+                    className={cn(isCollapsed ? 'h-12 w-12 rounded-xl' : 'w-full gap-2')}
+                  >
+                    <PlusIcon className="h-5 w-5" />
+                    {isCollapsed ? (
+                      <span className="sr-only">{tNote('quickNote')}</span>
+                    ) : (
+                      tNote('quickNote')
+                    )}
+                  </Button>
+                }
+              />
+            </div>
+          )}
           <NavBar user={user} isCollapsed={isCollapsed} quickLinks={quickLinks} />
         </div>
       </motion.aside>
