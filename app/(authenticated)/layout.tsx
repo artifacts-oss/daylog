@@ -32,7 +32,11 @@ export default async function AuthenticatedLayout({
     <Page>
       <NavSidebar user={user} update={update} quickLinks={{ favorites, recent }} />
       <MainContent>
-        <NavHeader user={user} update={update} />
+        <NavHeader
+          user={user}
+          update={update}
+          boards={(boards ?? []).map(({ id, title }) => ({ id, title }))}
+        />
         {children}
       </MainContent>
       <QuickNote boards={(boards ?? []).map(({ id, title }) => ({ id, title }))} />

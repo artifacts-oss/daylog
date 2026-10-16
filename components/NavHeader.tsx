@@ -20,6 +20,9 @@ import {
 } from '@heroicons/react/24/outline';
 import { signout } from '@/app/(authenticated)/lib/actions';
 import { useTranslations } from 'next-intl';
+import { PlusIcon } from '@heroicons/react/24/outline';
+import { Button } from '@/components/ui/button';
+import NoteModalForm from '@/app/(authenticated)/boards/[id]/notes/components/NoteModalForm';
 
 import { User } from '@/prisma/generated/client';
 import type { AvailableUpdate } from '@/app/(authenticated)/lib/version';
@@ -28,11 +31,13 @@ import UpdateAvailableMenuItem, { UpdateBadge } from './UpdateAvailableMenuItem'
 interface NavHeaderProps {
   user: User;
   update?: AvailableUpdate | null;
+  boards?: { id: number; title: string }[];
 }
 
-export default function NavHeader({ user, update }: NavHeaderProps) {
+export default function NavHeader({ user, update, boards = [] }: NavHeaderProps) {
   const t = useTranslations('Navigation');
   const tRole = useTranslations('Roles');
+  const tNote = useTranslations('NoteModal');
 
   if (!user) {
     return null;
@@ -44,6 +49,20 @@ export default function NavHeader({ user, update }: NavHeaderProps) {
         <NavSearch />
       </div>
       <div className="flex items-center gap-2">
+        {boards.length > 0 && (
+          <NoteModalForm
+            modalId="quickNoteDesktop"
+            mode="create"
+            boardId={boards[0].id}
+            boards={boards}
+            trigger={
+              <Button size="sm" className="gap-2">
+                <PlusIcon className="h-4 w-4" />
+                {tNote('quickNote')}
+              </Button>
+            }
+          />
+        )}
         <LocaleSwitcher />
         <NavThemeToggle />
         <DropdownMenu>

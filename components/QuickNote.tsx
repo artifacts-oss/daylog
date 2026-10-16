@@ -45,7 +45,7 @@ export default function QuickNote({ boards }: QuickNoteProps) {
           ref={triggerRef}
           size="icon"
           title={`${t('quickNote')} (Alt+N)`}
-          className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg shadow-primary/20"
+          className="fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-lg shadow-primary/20 md:hidden"
         >
           <PlusIcon className="h-6 w-6" />
           <span className="sr-only">{t('quickNote')}</span>
