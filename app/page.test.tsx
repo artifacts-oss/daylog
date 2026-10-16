@@ -20,20 +20,11 @@ vi.mock('@/app/(authenticated)/lib/actions', () => ({
 }));
 
 vi.mock('@/app/(authenticated)/components/BoardsSection', () => ({
-  default: vi.fn(({ showFav }: { showFav: boolean }) => (
-    <div>
-      <div data-testid="BoardsSection">BoardsSection</div>
-      <div>showFav: {showFav.toString()}</div>
-    </div>
-  )),
+  default: vi.fn(() => <div data-testid="BoardsSection">BoardsSection</div>),
 }));
 
 vi.mock('@/app/(authenticated)/components/NotesSection', () => ({
   default: vi.fn(() => <div data-testid="NotesSection">NotesSection</div>),
-}));
-
-vi.mock('@/app/(authenticated)/components/BoardFavToggle', () => ({
-  default: vi.fn(() => <div>BoardFavSwitch</div>),
 }));
 
 vi.mock('next-intl/server', () => ({
@@ -41,7 +32,6 @@ vi.mock('next-intl/server', () => ({
     return (key: string, values?: Record<string, string | number>) => {
       if (key === 'breadcrumb') return 'Home';
       if (key === 'recentActivity') return 'recent activity';
-      if (key === 'favoriteActivity') return 'favorite activity';
       if (key === 'title') return `Welcome back, ${values?.name ?? ''}`;
       if (key === 'description') {
         return `You have ${values?.count ?? 0} active boards. Here is your ${values?.activity ?? 'recent activity'}.`;
@@ -85,7 +75,7 @@ describe('Home Page', () => {
       session: null,
     });
 
-    const result = await Home({ searchParams: Promise.resolve({}) });
+    const result = await Home();
 
     expect(result).toBeNull();
   });
@@ -93,38 +83,19 @@ describe('Home Page', () => {
   it('renders the home page if user is authenticated', async () => {
     mocks.getCurrentSession.mockResolvedValue(defaultUser);
 
-    render(await Home({ searchParams: Promise.resolve({}) }));
+    render(await Home());
 
     expect(screen.getByText('Welcome back, John Doe')).toBeInTheDocument();
   });
 
-  it('renders BoardFavSwitch when boards count is greater than 0', async () => {
-    mocks.getCurrentSession.mockResolvedValue(defaultUser);
-    mocks.getBoardsCount.mockResolvedValue(5);
-
-    render(await Home({ searchParams: Promise.resolve({ showFav: 'true' }) }));
-
-    expect(screen.getByText('BoardFavSwitch')).toBeInTheDocument();
-  });
-
-  it('does not render BoardFavSwitch when boards count is 0', async () => {
-    mocks.getCurrentSession.mockResolvedValue(defaultUser);
-    mocks.getBoardsCount.mockResolvedValue(0);
-
-    render(await Home({ searchParams: Promise.resolve({ showFav: 'false' }) }));
-
-    expect(screen.queryByText('BoardFavSwitch')).toBeNull();
-  });
-
-  it('passes showFav parameter correctly to the streamed sections', async () => {
+  it('renders the boards and notes sections', async () => {
     mocks.getCurrentSession.mockResolvedValue(defaultUser);
     mocks.getBoardsCount.mockResolvedValue(3);
 
-    render(await Home({ searchParams: Promise.resolve({ showFav: 'true' }) }));
+    render(await Home());
 
     expect(screen.getByTestId('BoardsSection')).toBeInTheDocument();
     expect(screen.getByTestId('NotesSection')).toBeInTheDocument();
-    expect(screen.getByText('showFav: true')).toBeInTheDocument();
   });
 
   it('passes the latest board image to PageHeader', async () => {
@@ -132,7 +103,7 @@ describe('Home Page', () => {
     mocks.getLatestBoardImage.mockResolvedValue('http://test.com/latest.png');
 
     const { container } = render(
-      await Home({ searchParams: Promise.resolve({}) }),
+      await Home(),
     );
 
     // Check if the image style is rendered in PageHeader

@@ -26,7 +26,8 @@
     "logout": "Se deconnecter",
     "you": "Vous",
     "favorites": "Favoris",
-    "recent": "Récents"
+    "recent": "Récents",
+    "seeMore": "Voir plus"
   },
   "Roles": {
     "admin": "Administrateur",
@@ -584,8 +585,7 @@
     "breadcrumb": "Accueil",
     "title": "Bon retour, {name}",
     "description": "Vous avez {count} tableau{count, plural, one {} other {x}} actif{count, plural, one {} other {s}}. Voici votre {activity}.",
-    "recentActivity": "activite recente",
-    "favoriteActivity": "activite favorite"
+    "recentActivity": "activite recente"
   },
   "HomeTabs": {
     "boardsTitle": "Vos tableaux",
@@ -600,10 +600,6 @@
     "emptyDescriptionRecent": "Votre espace de travail est calme. Commencez a capturer vos pensees en creant une nouvelle note dans l'un de vos tableaux.",
     "emptyDescriptionFavorite": "Vous n'avez encore marque aucune note comme favorite. Ajoutez une etoile a vos notes importantes pour les voir ici.",
     "getStarted": "Commencer"
-  },
-  "BoardFavSwitch": {
-    "recent": "Recents",
-    "favorites": "Favoris"
   },
   "Alerts": {
     "savedTitle": "Modifications enregistrees",

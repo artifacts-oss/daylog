@@ -3,7 +3,6 @@ import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
-import BoardFavSwitch from '@/app/(authenticated)/components/BoardFavToggle';
 import {
   getBoardsCount,
   getLatestBoardImage,
@@ -18,19 +17,12 @@ import {
 import { getImageUrlOrFile } from '@/utils/image';
 import { getTranslations } from 'next-intl/server';
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+export default async function Home() {
   const { user } = await getCurrentSession();
   if (user === null) {
     // This is now redundant but safe to keep as a double check
     return null;
   }
-
-  const { showFav = 'false' } = await searchParams;
-  const isShowFav = showFav === 'true';
 
   // Only the cheap header data is awaited here so the header renders right away.
   // Boards and Notes stream in independently via their own Suspense boundaries.
@@ -50,22 +42,16 @@ export default async function Home({
         imageUrl={getImageUrlOrFile(latestBoardImage ?? '')}
         description={t('description', {
           count: boardsCount,
-          activity: isShowFav ? t('favoriteActivity') : t('recentActivity'),
+          activity: t('recentActivity'),
         })}
-      >
-        {boardsCount > 0 && (
-          <div className="flex justify-end w-full md:w-auto">
-            <BoardFavSwitch showFavParam={isShowFav} />
-          </div>
-        )}
-      </PageHeader>
+      />
       <PageBody>
         <div className="space-y-12 py-4">
           <Suspense fallback={<BoardsSkeleton />}>
-            <BoardsSection showFav={isShowFav} />
+            <BoardsSection />
           </Suspense>
           <Suspense fallback={<NotesSkeleton />}>
-            <NotesSection showFav={isShowFav} />
+            <NotesSection />
           </Suspense>
         </div>
       </PageBody>

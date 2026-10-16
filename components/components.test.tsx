@@ -220,6 +220,25 @@ describe('Component Tests', () => {
     expect(screen.queryByText('Admin')).not.toBeInTheDocument();
   });
 
+  it('renders expanded quick links with see more in NavBar', () => {
+    renderWithIntl(
+      <NavBar
+        user={{ id: 1, role: 'user' } as User}
+        quickLinks={{
+          favorites: [{ type: 'note', title: 'My fav note', url: '/boards/1/notes/2' }],
+          recent: [{ type: 'board', title: 'My recent board', url: '/boards/3/notes' }],
+        }}
+      />,
+    );
+    expect(screen.getByText('My fav note').closest('a')).toHaveAttribute(
+      'href',
+      '/boards/1/notes/2',
+    );
+    expect(screen.getByText('My recent board')).toBeInTheDocument();
+    const seeMore = screen.getAllByText('See more').map((a) => a.getAttribute('href'));
+    expect(seeMore).toEqual(['/favorites', '/recent']);
+  });
+
   it('renders Loader component', () => {
     const { container } = render(<Loader caption="Loading..." />);
     expect(container).toBeInTheDocument();

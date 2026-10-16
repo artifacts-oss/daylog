@@ -26,7 +26,8 @@
     "logout": "Cerrar sesión",
     "you": "Tú",
     "favorites": "Favoritos",
-    "recent": "Recientes"
+    "recent": "Recientes",
+    "seeMore": "Ver más"
   },
   "Roles": {
     "admin": "Administrador",
@@ -583,8 +584,7 @@
     "breadcrumb": "Inicio",
     "title": "Bienvenido de nuevo, {name}",
     "description": "Tienes {count} tablero{count, plural, one {} other {s}} activo{count, plural, one {} other {s}}. Esta es tu actividad {activity}.",
-    "recentActivity": "reciente",
-    "favoriteActivity": "favorita"
+    "recentActivity": "reciente"
   },
   "HomeTabs": {
     "boardsTitle": "Tus tableros",
@@ -599,10 +599,6 @@
     "emptyDescriptionRecent": "Tu espacio esta en silencio. Empieza a capturar tus ideas creando una nota nueva en uno de tus tableros.",
     "emptyDescriptionFavorite": "Todavía no marcaste notas como favoritas. Destaca tus notas importantes para verlas aquí.",
     "getStarted": "Comenzar"
-  },
-  "BoardFavSwitch": {
-    "recent": "Recientes",
-    "favorites": "Favoritos"
   },
   "Alerts": {
     "savedTitle": "Cambios guardados",

@@ -3,7 +3,13 @@ import { prismaMock } from '@/prisma/singleton';
 import { redirect } from 'next/navigation';
 import { describe, expect, it, vi } from 'vitest';
 import { deleteSessionTokenCookie } from '../../login/lib/cookies';
-import { getBoardsCount, search, SearchResult, signout } from './actions';
+import {
+  getBoardsCount,
+  getTopItems,
+  search,
+  SearchResult,
+  signout,
+} from './actions';
 import { NoteWithBoards } from '../boards/[id]/notes/lib/types';
 
 const mocks = vi.hoisted(() => ({
@@ -133,5 +139,25 @@ describe('getBoardsCount', () => {
       where: { userId: 1 },
     });
     expect(count).toBe(5);
+  });
+});
+
+describe('getTopItems', () => {
+  it('merges favorite boards and notes, newest first, up to the limit', async () => {
+    mocks.getCurrentSession.mockResolvedValue({ user: { id: 1, role: 'user' } });
+    prismaMock.board.findMany.mockResolvedValue([
+      { id: 1, title: 'Old board', updatedAt: new Date('2026-01-01') },
+      { id: 2, title: 'New board', updatedAt: new Date('2026-03-01') },
+    ] as Board[]);
+    prismaMock.note.findMany.mockResolvedValue([
+      { id: 7, title: 'Mid note', boardsId: 1, updatedAt: new Date('2026-02-01') },
+    ] as NoteWithBoards[]);
+
+    const result = await getTopItems(true, 2);
+
+    expect(result).toEqual([
+      { type: 'board', title: 'New board', url: '/boards/2/notes' },
+      { type: 'note', title: 'Mid note', url: '/boards/1/notes/7' },
+    ]);
   });
 });

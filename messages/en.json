@@ -26,7 +26,8 @@
     "logout": "Log out",
     "you": "You",
     "favorites": "Favorites",
-    "recent": "Recent"
+    "recent": "Recent",
+    "seeMore": "See more"
   },
   "Roles": {
     "admin": "Admin",
@@ -583,8 +584,7 @@
     "breadcrumb": "Home",
     "title": "Welcome back, {name}",
     "description": "You have {count} active board{count, plural, one {} other {s}}. Here is your {activity}.",
-    "recentActivity": "recent activity",
-    "favoriteActivity": "favorite activity"
+    "recentActivity": "recent activity"
   },
   "HomeTabs": {
     "boardsTitle": "Your Boards",
@@ -599,10 +599,6 @@
     "emptyDescriptionRecent": "Your workspace is quiet. Start capturing your thoughts by creating a new note in one of your boards.",
     "emptyDescriptionFavorite": "You haven't marked any notes as favorites yet. Star your important notes to see them here.",
     "getStarted": "Get Started"
-  },
-  "BoardFavSwitch": {
-    "recent": "Recent",
-    "favorites": "Favorites"
   },
   "Alerts": {
     "savedTitle": "Saved changes",

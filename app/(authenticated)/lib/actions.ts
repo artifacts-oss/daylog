@@ -6,6 +6,8 @@ import { deleteSessionTokenCookie } from '../../login/lib/cookies';
 import { getCurrentSession } from '../../login/lib/actions';
 import { getCurrentSessionKey } from './encryptionKey';
 import { decryptBoardFields, decryptNoteFields } from '@/utils/encryption';
+import { getBoards } from '../boards/lib/actions';
+import { getNotes } from '../boards/[id]/notes/lib/actions';
 
 export async function signout() {
   const { user, session } = await getCurrentSession();
@@ -152,4 +154,38 @@ export async function getLatestBoardImage(): Promise<string | null> {
     select: { imageUrl: true },
   });
   return board?.imageUrl || null;
+}
+
+export type QuickLink = {
+  type: 'note' | 'board';
+  title: string;
+  url: string;
+};
+
+export async function getTopItems(
+  favorite: boolean,
+  limit = 5,
+): Promise<QuickLink[]> {
+  const [boards, notes] = await Promise.all([
+    getBoards('updated_desc', limit, favorite),
+    getNotes('updated_desc', limit, null, favorite),
+  ]);
+
+  return [
+    ...(boards ?? []).map((b) => ({
+      type: 'board' as const,
+      title: b.title,
+      url: `/boards/${b.id}/notes`,
+      updatedAt: b.updatedAt,
+    })),
+    ...(notes ?? []).map((n) => ({
+      type: 'note' as const,
+      title: n.title,
+      url: `/boards/${n.boardsId}/notes/${n.id}`,
+      updatedAt: n.updatedAt,
+    })),
+  ]
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+    .slice(0, limit)
+    .map(({ type, title, url }) => ({ type, title, url }));
 }

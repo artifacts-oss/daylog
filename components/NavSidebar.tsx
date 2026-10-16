@@ -45,14 +45,17 @@ import { useTheme } from 'next-themes';
 
 import { User } from '@/prisma/generated/client';
 import type { AvailableUpdate } from '@/app/(authenticated)/lib/version';
+import type { QuickLinks } from '@/components/NavBar';
+// '@/app/(authenticated)/lib/actions';
 import UpdateAvailableMenuItem, { UpdateBadge } from './UpdateAvailableMenuItem';
 
 interface NavSidebarProps {
   user: User;
   update?: AvailableUpdate | null;
+  quickLinks?: QuickLinks;
 }
 
-export default function NavSidebar({ user, update }: NavSidebarProps) {
+export default function NavSidebar({ user, update, quickLinks }: NavSidebarProps) {
   const t = useTranslations('Navigation');
   const tRole = useTranslations('Roles');
   const tLocale = useTranslations('LocaleSwitcher');
@@ -142,7 +145,7 @@ export default function NavSidebar({ user, update }: NavSidebarProps) {
         </div>
 
         <div className="flex-1 flex flex-col py-6 overflow-y-auto overflow-x-hidden">
-          <NavBar user={user} isCollapsed={isCollapsed} />
+          <NavBar user={user} isCollapsed={isCollapsed} quickLinks={quickLinks} />
         </div>
       </motion.aside>
 
@@ -173,7 +176,7 @@ export default function NavSidebar({ user, update }: NavSidebarProps) {
               </SheetTitle>
             </SheetHeader>
             <div className="flex-1 flex flex-col py-6 overflow-y-auto">
-              <NavBar user={user} />
+              <NavBar user={user} quickLinks={quickLinks} />
             </div>
           </SheetContent>
         </Sheet>
