@@ -24,7 +24,9 @@
     "myAccount": "Mon compte",
     "administration": "Administration",
     "logout": "Se deconnecter",
-    "you": "Vous"
+    "you": "Vous",
+    "favorites": "Favoris",
+    "recent": "Récents"
   },
   "Roles": {
     "admin": "Administrateur",
@@ -819,5 +821,13 @@
   "PasswordInput": {
     "show": "Afficher le mot de passe",
     "hide": "Masquer le mot de passe"
+  },
+  "FavoritesPage": {
+    "title": "Favoris",
+    "description": "Tous vos tableaux et notes favoris au même endroit."
+  },
+  "RecentPage": {
+    "title": "Récents",
+    "description": "Les tableaux et notes que vous avez modifiés récemment."
   }
 }

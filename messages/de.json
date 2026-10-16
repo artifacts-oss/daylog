@@ -24,7 +24,9 @@
     "myAccount": "Mein Konto",
     "administration": "Verwaltung",
     "logout": "Abmelden",
-    "you": "Du"
+    "you": "Du",
+    "favorites": "Favoriten",
+    "recent": "Zuletzt"
   },
   "Roles": {
     "admin": "Administrator",
@@ -819,5 +821,13 @@
   "PasswordInput": {
     "show": "Passwort anzeigen",
     "hide": "Passwort verbergen"
+  },
+  "FavoritesPage": {
+    "title": "Favoriten",
+    "description": "Alle deine Lieblingsboards und -notizen an einem Ort."
+  },
+  "RecentPage": {
+    "title": "Zuletzt bearbeitet",
+    "description": "Die Boards und Notizen, die du zuletzt bearbeitet hast."
   }
 }

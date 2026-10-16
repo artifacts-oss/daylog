@@ -7,6 +7,8 @@ import {
   ShieldCheckIcon,
   ShareIcon,
   GlobeAltIcon,
+  StarIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
@@ -41,6 +43,18 @@ export default function NavBar({ user, isCollapsed = false }: NavBarProps) {
       href: '/boards',
       icon: Squares2X2Icon,
       active: !isCommunityNote && (boardPattern.test(path) || notePattern.test(path)),
+    },
+    {
+      name: t('favorites'),
+      href: '/favorites',
+      icon: StarIcon,
+      active: path.startsWith('/favorites'),
+    },
+    {
+      name: t('recent'),
+      href: '/recent',
+      icon: ClockIcon,
+      active: path.startsWith('/recent'),
     },
     {
       name: t('shared'),
