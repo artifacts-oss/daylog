@@ -21,6 +21,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import { useTranslations } from 'next-intl';
 
 export default function Page() {
@@ -78,7 +79,7 @@ export default function Page() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={FAST}
         className="relative z-10 max-w-2xl mx-auto space-y-8"
       >
         <div className="flex items-center justify-between">
@@ -115,12 +116,12 @@ export default function Page() {
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-border/50">
-              {sections.map((section, index) => (
+              {sections.map((section) => (
                 <motion.div
                   key={section.title}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 + index * 0.05 }}
+                  transition={FAST}
                   className="p-8 hover:bg-primary/[0.01] transition-colors"
                 >
                   <div className="flex gap-5">

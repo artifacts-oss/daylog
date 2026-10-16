@@ -43,6 +43,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import { useTranslations } from 'next-intl';
 import UserAvatar from '@/components/UserAvatar';
 
@@ -94,13 +95,13 @@ export default function UsersTable({
         </TableHeader>
         <TableBody>
           <AnimatePresence mode="popLayout">
-            {users?.map((u, index) => (
+            {users?.map((u) => (
               <motion.tr
                 key={u.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2, delay: index * 0.05 }}
+                transition={FAST}
                 className="group border-b last:border-0 transition-colors hover:bg-muted/30"
               >
                 <TableCell className="py-4">

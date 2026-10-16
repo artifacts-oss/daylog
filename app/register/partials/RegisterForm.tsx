@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
 import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 
 export default function RegisterForm() {
   const [state, action, pending] = useActionState(signup, undefined);
@@ -133,7 +134,7 @@ export default function RegisterForm() {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
+        transition={FAST}
         className="text-center text-sm text-muted-foreground"
       >
         {t('signinPrompt')}{' '}

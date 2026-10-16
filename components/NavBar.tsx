@@ -17,6 +17,7 @@ import type { QuickLink } from '@/app/(authenticated)/lib/actions';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
@@ -105,7 +106,7 @@ export default function NavBar({
         <motion.div
           key={item.name}
           layout
-          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          transition={FAST}
           className="w-full"
         >
           <Link
@@ -123,7 +124,7 @@ export default function NavBar({
               <motion.div
                 layoutId="active-pill"
                 className="absolute inset-0 bg-primary rounded-xl shadow-lg shadow-primary/20"
-                transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+                transition={FAST}
               />
             )}
             <item.icon
@@ -139,7 +140,7 @@ export default function NavBar({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -10 }}
-                  transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  transition={FAST}
                   className="relative z-10 font-bold text-sm tracking-tight whitespace-nowrap"
                 >
                   {item.name}

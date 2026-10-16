@@ -25,14 +25,14 @@ export default async function BoardCard({ boardId }: BoardCardType) {
   const settings = await getSettings();
 
   return (
-    <div className="group relative aspect-[21/9] rounded-[20px] overflow-hidden border border-border bg-background hover:shadow-sm transition-all duration-500">
+    <div className="group relative aspect-[21/9] rounded-[20px] overflow-hidden border border-border bg-background hover:shadow-sm transition-all duration-200">
       {/* Clickable Background Layer */}
       <Link
         href={`/boards/${board.id}/notes`}
         className="absolute inset-0 z-0 overflow-hidden"
       >
         <div
-          className="w-full h-full transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full transition-transform duration-300 group-hover:scale-105"
           style={
             board.imageUrl
               ? {
@@ -46,7 +46,7 @@ export default async function BoardCard({ boardId }: BoardCardType) {
           }
         >
           {/* Elegant Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-200" />
         </div>
       </Link>
 
@@ -68,7 +68,7 @@ export default async function BoardCard({ boardId }: BoardCardType) {
             <div className="text-[10px] font-bold uppercase tracking-widest text-white/50">
               <TimeDiff updatedAt={board?.updatedAt} />
             </div>
-            <div className="flex items-center gap-1 pointer-events-auto max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 max-lg:translate-y-0 lg:translate-y-1 lg:group-hover:translate-y-0">
+            <div className="flex items-center gap-1 pointer-events-auto max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-150 max-lg:translate-y-0 lg:translate-y-1 lg:group-hover:translate-y-0">
               <BoardModalForm
                 board={board}
                 modalId={`edit-board-modal-${board.id}`}

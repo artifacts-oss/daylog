@@ -12,6 +12,7 @@ import { signin } from '../lib/actions';
 import { validateAllowRegistration } from '@/app/register/lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
@@ -98,7 +99,7 @@ export default function LoginForm() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={FAST}
           className="text-center text-sm text-muted-foreground"
         >
           {t('signupPrompt')}{' '}

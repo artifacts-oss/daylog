@@ -11,7 +11,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 
 type PageHeader = {
   title?: string | null;
@@ -40,10 +39,7 @@ export default function PageHeader({
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-10">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+        <div
           className="flex flex-col md:flex-row md:items-end md:justify-between gap-6"
         >
           <div className="flex-1 space-y-4 min-w-0">
@@ -97,16 +93,13 @@ export default function PageHeader({
           </div>
 
           {props.children && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.4 }}
+            <div
               className="flex items-center gap-1.5 sm:gap-3 bg-muted/50 p-1.5 rounded-[20px] border border-border backdrop-blur-sm self-start md:self-end w-full md:w-auto overflow-hidden"
             >
               {props.children}
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </div>
   );

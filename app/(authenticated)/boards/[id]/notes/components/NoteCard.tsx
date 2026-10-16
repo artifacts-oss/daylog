@@ -10,7 +10,6 @@ import NoteModalDelete from './NoteModalDelete';
 import NoteModalForm from './NoteModalForm';
 import { NoteWithBoards } from '../lib/types';
 import { cn } from '@/lib/utils';
-import { motion } from 'framer-motion';
 import ShareDialog from '@/components/ShareDialog';
 import { ShareIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
@@ -22,14 +21,7 @@ interface NoteCardProps {
 
 export default function NoteCard({ note, settings }: NoteCardProps) {
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-      className="group relative flex flex-col rounded-[20px] border border-border bg-background hover:shadow-sm hover:-translate-y-1 transition-all duration-500 overflow-hidden"
-    >
+    <div className="group relative flex flex-col rounded-[20px] border border-border bg-background hover:shadow-sm hover:-translate-y-1 transition-all duration-200 overflow-hidden">
       <Link
         href={`/boards/${note.boardsId}/notes/${note.id}`}
         className="absolute inset-0 z-10"
@@ -41,12 +33,12 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
         <div className="block relative aspect-video overflow-hidden">
           <Image
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             src={getImageUrlOrFile(note.imageUrl)}
             alt={note.title}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
         </div>
       )}
 
@@ -74,7 +66,7 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-1 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-300 max-lg:translate-x-0 lg:translate-x-2 lg:group-hover:translate-x-0">
+          <div className="flex items-center gap-1 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all duration-150 max-lg:translate-x-0 lg:translate-x-2 lg:group-hover:translate-x-0">
             <NoteModalForm
               note={note}
               boardId={note.boardsId!}
@@ -100,6 +92,6 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
       {note.favorite && (
         <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-yellow-400 shadow-[0_0_12px_rgba(250,204,21,0.6)]" />
       )}
-    </motion.div>
+    </div>
   );
 }

@@ -12,6 +12,7 @@ import {
 import ChangeHistoryItem from './ChangeHistoryItem';
 import DeleteHistoryModal from './DeleteHistoryModal';
 import { motion } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 
@@ -122,7 +123,7 @@ export default function ChangeHistorySidebar({
           width: 0,
           opacity: 0,
         }}
-        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+        transition={FAST}
         className="flex-shrink-0 flex flex-col overflow-hidden max-lg:!ml-0 max-lg:mb-6 lg:mb-0 self-start w-full lg:w-[340px] lg:mr-6"
       >
         <div className="w-full lg:w-[340px] rounded-[20px] bg-muted border border-border p-6 flex flex-col gap-6 shadow-sm h-fit max-h-[calc(100vh-120px)] overflow-hidden">
