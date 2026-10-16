@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
@@ -48,13 +49,13 @@ export default function AuthPageShell({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={FAST}
         className="relative z-10 w-full max-w-sm space-y-6"
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.5 }}
+          transition={FAST}
           className="text-center"
         >
           {logoHref ? <Link href={logoHref}>{logo}</Link> : logo}

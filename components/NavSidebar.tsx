@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -93,7 +94,7 @@ export default function NavSidebar({ user, update }: NavSidebarProps) {
       <motion.aside
         initial={false}
         animate={{ width: isCollapsed ? 80 : 240 }}
-        transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+        transition={FAST}
         className="hidden md:flex flex-col border-r border-border bg-background h-screen sticky top-0 z-50"
       >
         <div className="flex items-center justify-center h-20 border-b border-border relative transition-all duration-300">
@@ -103,7 +104,7 @@ export default function NavSidebar({ user, update }: NavSidebarProps) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+              transition={FAST}
               className="flex items-center justify-center"
             >
               <Link

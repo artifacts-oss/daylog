@@ -10,6 +10,8 @@ import { getCurrentSession } from '@/app/login/lib/actions';
 import BoardSortSelector from './components/BoardSortSelector';
 import { getBoards, getBoardsCount } from './lib/actions';
 import Link from 'next/link';
+import AnimatedList from '@/components/AnimatedList';
+import AnimatedItem from '@/components/AnimatedItem';
 import { Button } from '@/components/ui/button';
 import { getTranslations } from 'next-intl/server';
 
@@ -104,11 +106,13 @@ export default async function Boards({
               />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnimatedList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {boards.map((b) => (
-                <BoardCard key={b.id} boardId={b.id} />
+                <AnimatedItem key={b.id}>
+                  <BoardCard boardId={b.id} />
+                </AnimatedItem>
               ))}
-            </div>
+            </AnimatedList>
           )}
 
           {boards && boards.length > 0 && (

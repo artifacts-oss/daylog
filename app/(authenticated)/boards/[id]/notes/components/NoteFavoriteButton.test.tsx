@@ -60,4 +60,24 @@ describe('NoteFavoriteButton', () => {
       expect(mockRouterRefresh).toHaveBeenCalled();
     });
   });
+
+  it('fills the heart before the server responds and reverts if it fails', async () => {
+    let rejectUpdate: (e: Error) => void = () => {};
+    (updateNote as Mock).mockReturnValue(
+      new Promise((_, reject) => {
+        rejectUpdate = reject;
+      }),
+    );
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    render(<NoteFavoriteButton note={mockNote} />);
+
+    fireEvent.click(screen.getByRole('button'));
+    expect(await screen.findByTestId('filled-heart')).toBeInTheDocument();
+
+    rejectUpdate(new Error('network'));
+    await waitFor(() =>
+      expect(screen.queryByTestId('filled-heart')).not.toBeInTheDocument(),
+    );
+    expect(mockRouterRefresh).not.toHaveBeenCalled();
+  });
 });

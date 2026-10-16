@@ -11,6 +11,8 @@ import NoteModalForm from './components/NoteModalForm';
 import NoteSortSelector from './components/NoteSortSelector';
 import { getNotes, getNotesCount } from './lib/actions';
 import Link from 'next/link';
+import AnimatedList from '@/components/AnimatedList';
+import AnimatedItem from '@/components/AnimatedItem';
 import { Button } from '@/components/ui/button';
 import { getImageUrlOrFile } from '@/utils/image';
 import ShareDialog from '@/components/ShareDialog';
@@ -127,13 +129,13 @@ export default async function Notes({
               />
             </div>
           ) : (
-            <div className="masonry-container gap-6">
+            <AnimatedList className="masonry-container gap-6">
               {notes?.map((note) => (
-                <div key={note.id} className="masonry-item mb-6">
+                <AnimatedItem key={note.id} className="masonry-item mb-6">
                   <NoteCard note={note} settings={settings ?? undefined} />
-                </div>
+                </AnimatedItem>
               ))}
-            </div>
+            </AnimatedList>
           )}
 
           {notes && notes.length > 0 && (

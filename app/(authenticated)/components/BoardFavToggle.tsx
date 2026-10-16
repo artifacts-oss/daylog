@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useOptimistic, useTransition } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import { useTranslations } from 'next-intl';
 
 export default function BoardFavSwitch({
@@ -34,7 +35,7 @@ export default function BoardFavSwitch({
         <motion.div
           initial={false}
           animate={{ x: showFav ? '100%' : '0%' }}
-          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+          transition={FAST}
           className={cn(
             'absolute left-0 top-0 bottom-0 w-1/2 rounded-full shadow-sm border border-primary/5 transition-colors duration-300',
             showFav ? 'bg-accent-yellow' : 'bg-background',

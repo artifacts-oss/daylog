@@ -6,6 +6,7 @@ import UserModal from './UserModal';
 import UsersTable from './UsersTable';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FAST } from '@/lib/motion';
 import { UsersIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 import { SettingsType } from '../lib/actions';
 import { useTranslations } from 'next-intl';
@@ -47,11 +48,7 @@ export default function AdminTabs({
                 <motion.div
                   layoutId="activeTab"
                   className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"
-                  transition={{
-                    type: 'spring',
-                    stiffness: 380,
-                    damping: 30,
-                  }}
+                  transition={FAST}
                 />
               )}
             </button>
@@ -65,7 +62,7 @@ export default function AdminTabs({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            transition={FAST}
           >
             {activeTab === 'users' && (
               <div className="space-y-6">
