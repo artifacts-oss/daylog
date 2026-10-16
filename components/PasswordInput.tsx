@@ -17,10 +17,10 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       <div className="relative">
         <Input
           ref={ref}
+          {...props}
           type={isVisible ? 'text' : 'password'}
           // pr-10 last so a caller's px-* can't push text under the toggle
           className={cn(className, 'pr-10')}
-          {...props}
         />
         <button
           type="button"
