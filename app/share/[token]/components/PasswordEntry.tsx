@@ -7,8 +7,9 @@ import PasswordInput from '@/components/PasswordInput';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 
 /**
- * Renders a shared content password form, verifies access for the token,
- * and refreshes the route after successful verification.
+ * Renders password verification for the share identified by token, using error
+ * as the initial feedback. Refreshes the route on success; invalid passwords
+ * show verification feedback, while caught errors show a generic error message.
  */
 export default function PasswordEntry({
   token,

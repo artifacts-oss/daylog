@@ -8,6 +8,11 @@ import { cn } from '@/lib/utils';
 
 export type PasswordInputProps = Omit<InputProps, 'type'>;
 
+/**
+ * Renders an initially masked input with a translated show/hide toggle.
+ * Forwards the ref and input props to the input; className styles the input,
+ * with right padding reserved for the toggle. Requires a next-intl provider.
+ */
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
   ({ className, ...props }, ref) => {
     const t = useTranslations('PasswordInput');

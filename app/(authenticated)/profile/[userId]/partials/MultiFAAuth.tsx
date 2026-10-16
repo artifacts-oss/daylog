@@ -173,6 +173,10 @@ const ModalDelete = ({ profile }: ProfileInfoType) => {
   );
 };
 
+/**
+ * Renders MFA setup with a generated secret, QR code, and verification code form.
+ * The secret can be revealed or copied and is submitted with the profile ID.
+ */
 const ModalUpdate = ({ profile }: ProfileInfoType) => {
   const t = useTranslations('MFA');
   const [url, setUrl] = useState<string>('');

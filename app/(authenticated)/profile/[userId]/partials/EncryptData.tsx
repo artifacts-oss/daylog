@@ -74,6 +74,7 @@ export default function EncryptData({ profile, masterKeyConfigured = false }: Pr
   );
 }
 
+/** Renders a dialog to enable encryption using the profile's account password. */
 const EnableModal = ({ profile }: Props) => {
   const t = useTranslations('EncryptData');
   const [open, setOpen] = useState(false);
@@ -151,6 +152,7 @@ const EnableModal = ({ profile }: Props) => {
   );
 };
 
+/** Renders a dialog to disable encryption using the profile's account password. */
 const DisableModal = ({ profile }: Props) => {
   const t = useTranslations('EncryptData');
   const [open, setOpen] = useState(false);
@@ -229,6 +231,10 @@ const DisableModal = ({ profile }: Props) => {
   );
 };
 
+/**
+ * Renders recovery and deletion dialogs for the profile's locked encrypted data.
+ * Recovery submits the old password; deletion requires no password in this form.
+ */
 const LockedBanner = ({ profile }: Props) => {
   const t = useTranslations('EncryptData');
   const [recoverOpen, setRecoverOpen] = useState(false);

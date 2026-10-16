@@ -17,7 +17,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 /**
- * Renders initial admin registration with validation errors and signup feedback.
+ * Renders initial administrator signup with validation feedback and a login link
+ * on success.
  */
 export default function InitRegisterForm() {
   const t = useTranslations('InitRegisterPage');

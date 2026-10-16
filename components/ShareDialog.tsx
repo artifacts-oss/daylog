@@ -44,8 +44,9 @@ interface ShareableUser {
 }
 
 /**
- * Renders sharing controls for a note or board, including audience selection
- * and optional password, expiry, and one-time access for public links.
+ * Renders share creation for a note or board, with an optional custom trigger.
+ * Public links support a password, expiration, and one-time viewing; specific
+ * recipients can receive edit access to notes. Closing resets the share options.
  */
 export default function ShareDialog({ entityType, entityId, trigger }: ShareDialogProps) {
   const t = useTranslations('ShareDialog');

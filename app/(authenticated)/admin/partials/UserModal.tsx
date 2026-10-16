@@ -19,9 +19,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 
-/**
- * Renders the admin user creation dialog and refreshes the page after signup.
- */
+/** Renders a user creation dialog and reloads the page after successful signup. */
 export default function UserModal() {
   const t = useTranslations('UserModal');
   const [state, action, pending] = useActionState(signup, undefined);
