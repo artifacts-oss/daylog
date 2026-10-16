@@ -156,7 +156,7 @@ export default function NavSidebar({
 
         <div className="flex-1 flex flex-col py-6 overflow-y-auto overflow-x-hidden">
           {boards.length > 0 && (
-            <div className={cn('mb-4', isCollapsed ? 'flex justify-center px-3' : 'px-4')}>
+            <div className={cn('mb-2', isCollapsed ? 'flex justify-center px-3' : 'px-4')}>
               <NoteModalForm
                 modalId="quickNoteDesktop"
                 mode="create"
