@@ -69,7 +69,7 @@ export default function NavSidebar({
   const tRole = useTranslations('Roles');
   const tLocale = useTranslations('LocaleSwitcher');
   const tTheme = useTranslations('Theme');
-  const tNote = useTranslations('NoteModal');
+  const tNote = useTranslations('NotesPage');
   const { theme, setTheme } = useTheme();
   const locale = useLocale();
   const [mounted, setMounted] = useState(false);
@@ -166,17 +166,17 @@ export default function NavSidebar({
                   <Button
                     variant="ghost"
                     size={isCollapsed ? 'icon' : 'default'}
-                    title={tNote('quickNote')}
+                    title={tNote('newNote')}
                     className={cn(
                       'rounded-xl border border-dashed border-muted-foreground/50 text-muted-foreground hover:bg-accent hover:text-foreground font-bold text-sm tracking-tight transition-all duration-300',
-                      isCollapsed ? 'h-12 w-12' : 'w-full h-auto justify-start gap-3 px-3 py-2.5',
+                      isCollapsed ? 'h-12 w-12' : 'w-full h-auto justify-start gap-3 px-3 py-1.5',
                     )}
                   >
                     <PlusIcon className="h-5 w-5" />
                     {isCollapsed ? (
-                      <span className="sr-only">{tNote('quickNote')}</span>
+                      <span className="sr-only">{tNote('newNote')}</span>
                     ) : (
-                      tNote('quickNote')
+                      tNote('newNote')
                     )}
                   </Button>
                 }
