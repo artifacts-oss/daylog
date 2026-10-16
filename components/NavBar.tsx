@@ -7,6 +7,8 @@ import {
   ShieldCheckIcon,
   ShareIcon,
   GlobeAltIcon,
+  StarIcon,
+  ClockIcon,
   DocumentTextIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
@@ -53,6 +55,23 @@ export default function NavBar({
       icon: Squares2X2Icon,
       active: !isCommunityNote && (boardPattern.test(path) || notePattern.test(path)),
     },
+    // Collapsed sidebar hides the quick-link accordions, so expose their pages as icons.
+    ...(isCollapsed
+      ? [
+          {
+            name: t('favorites'),
+            href: '/favorites',
+            icon: StarIcon,
+            active: path.startsWith('/favorites'),
+          },
+          {
+            name: t('recent'),
+            href: '/recent',
+            icon: ClockIcon,
+            active: path.startsWith('/recent'),
+          },
+        ]
+      : []),
     {
       name: t('shared'),
       href: '/shared',

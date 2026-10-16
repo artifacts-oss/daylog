@@ -220,6 +220,16 @@ describe('Component Tests', () => {
     expect(screen.queryByText('Admin')).not.toBeInTheDocument();
   });
 
+  it('shows favorites and recent nav icons only when collapsed', () => {
+    const user = { id: 1, role: 'user' } as User;
+    const { rerender } = renderWithIntl(<NavBar user={user} />);
+    expect(document.querySelector('a[href="/favorites"]')).toBeNull();
+
+    rerender(<NavBar user={user} isCollapsed />);
+    expect(document.querySelector('a[href="/favorites"]')).not.toBeNull();
+    expect(document.querySelector('a[href="/recent"]')).not.toBeNull();
+  });
+
   it('renders expanded quick links with see more in NavBar', () => {
     renderWithIntl(
       <NavBar
