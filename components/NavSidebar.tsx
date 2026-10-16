@@ -163,22 +163,23 @@ export default function NavSidebar({
                 boardId={boards[0].id}
                 boards={boards}
                 trigger={
-                  <Button
-                    variant="ghost"
-                    size={isCollapsed ? 'icon' : 'default'}
+                  <button
+                    type="button"
                     title={tNote('newNote')}
                     className={cn(
-                      'rounded-xl border border-dashed border-muted-foreground/50 text-muted-foreground hover:bg-accent hover:text-foreground font-bold text-sm tracking-tight transition-all duration-300',
-                      isCollapsed ? 'h-12 w-12' : 'w-full h-auto justify-start gap-3 px-3 py-1.5',
+                      'group relative flex items-center rounded-xl border border-dashed border-muted-foreground/50 text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-300 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
+                      isCollapsed ? 'justify-center h-12 w-12' : 'w-full gap-3 px-3 py-[9px]', // 9px + 1px border = py-2.5 of nav links
                     )}
                   >
-                    <PlusIcon className="h-5 w-5" />
+                    <PlusIcon className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
                     {isCollapsed ? (
                       <span className="sr-only">{tNote('newNote')}</span>
                     ) : (
-                      tNote('newNote')
+                      <span className="font-bold text-sm tracking-tight whitespace-nowrap">
+                        {tNote('newNote')}
+                      </span>
                     )}
-                  </Button>
+                  </button>
                 }
               />
             </div>
