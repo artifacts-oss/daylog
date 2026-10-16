@@ -5,7 +5,7 @@ import { useActionState } from 'react';
 import { updatePassword } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import PasswordInput from '@/components/PasswordInput';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -50,9 +50,8 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
             {profile.id === userId && (
               <div className="space-y-2 relative pb-4">
                 <Label htmlFor="current">{t('currentLabel')}</Label>
-                <Input
+                <PasswordInput
                   id="current"
-                  type="password"
                   name="current"
                   placeholder={t('currentPlaceholder')}
                 />
@@ -65,9 +64,8 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
             )}
             <div className="space-y-2 relative pb-4">
               <Label htmlFor="password">{t('newLabel')}</Label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 name="password"
                 defaultValue={state?.data?.password?.toString()}
                 placeholder={t('newPlaceholder')}
@@ -80,9 +78,8 @@ export default function UpdatePass({ userId, profile }: UpdatePassType) {
             </div>
             <div className="space-y-2 relative pb-4">
               <Label htmlFor="confirm">{t('confirmLabel')}</Label>
-              <Input
+              <PasswordInput
                 id="confirm"
-                type="password"
                 name="confirm"
                 placeholder={t('confirmPlaceholder')}
               />

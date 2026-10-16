@@ -12,7 +12,7 @@ import {
 } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import PasswordInput from '@/components/PasswordInput';
 import {
   Dialog,
   DialogContent,
@@ -103,10 +103,9 @@ const EnableModal = ({ profile }: Props) => {
                 </p>
                 <div className="space-y-2">
                   <Label htmlFor="enc-enable-password">{t('passwordLabel')}</Label>
-                  <Input
+                  <PasswordInput
                     id="enc-enable-password"
                     name="password"
-                    type="password"
                     placeholder={t('passwordPlaceholder')}
                     className="h-[48px] rounded-[12px]"
                     required
@@ -182,10 +181,9 @@ const DisableModal = ({ profile }: Props) => {
                 </p>
                 <div className="space-y-2">
                   <Label htmlFor="enc-disable-password">{t('passwordLabel')}</Label>
-                  <Input
+                  <PasswordInput
                     id="enc-disable-password"
                     name="password"
-                    type="password"
                     placeholder={t('passwordPlaceholder')}
                     className="h-[48px] rounded-[12px]"
                     required
@@ -290,10 +288,9 @@ const LockedBanner = ({ profile }: Props) => {
                 </p>
                 <div className="space-y-2">
                   <Label htmlFor="old-password">{t('oldPasswordLabel')}</Label>
-                  <Input
+                  <PasswordInput
                     id="old-password"
                     name="oldPassword"
-                    type="password"
                     placeholder={t('oldPasswordPlaceholder')}
                     className="h-[48px] rounded-[12px]"
                     required

@@ -814,5 +814,9 @@
   },
   "NoteDetailPage": {
     "updatedAt": "Última actualización el {date} a las {time}"
+  },
+  "PasswordInput": {
+    "show": "Mostrar contraseña",
+    "hide": "Ocultar contraseña"
   }
 }

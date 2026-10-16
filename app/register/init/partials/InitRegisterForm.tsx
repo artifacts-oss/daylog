@@ -1,16 +1,15 @@
 'use client';
 
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import { signupInit } from '../lib/actions';
 import Link from 'next/link';
 import FormField from '@/components/FormField';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import PasswordInput from '@/components/PasswordInput';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   ExclamationTriangleIcon,
@@ -20,7 +19,6 @@ import {
 export default function InitRegisterForm() {
   const t = useTranslations('InitRegisterPage');
   const [state, action, pending] = useActionState(signupInit, undefined);
-  const [isShowPassword, setIsShowPassword] = useState(false);
   const passwordErrors = state?.errors?.password;
 
   return (
@@ -89,30 +87,14 @@ export default function InitRegisterForm() {
               />
               <div className="space-y-1">
                 <Label htmlFor="password">{t('passwordLabel')}</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={isShowPassword ? 'text' : 'password'}
-                    name="password"
-                    defaultValue={state?.data?.password?.toString()}
-                    placeholder={t('passwordPlaceholder')}
-                    autoComplete="off"
-                    className={
-                      passwordErrors ? 'border-destructive pr-10' : 'pr-10'
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                    onClick={() => setIsShowPassword(!isShowPassword)}
-                  >
-                    {isShowPassword ? (
-                      <EyeSlashIcon className="h-4 w-4" />
-                    ) : (
-                      <EyeIcon className="h-4 w-4" />
-                    )}
-                  </button>
-                </div>
+                <PasswordInput
+                  id="password"
+                  name="password"
+                  defaultValue={state?.data?.password?.toString()}
+                  placeholder={t('passwordPlaceholder')}
+                  autoComplete="off"
+                  className={passwordErrors ? 'border-destructive' : ''}
+                />
                 {passwordErrors && (
                   <div className="space-y-0.5">
                     {passwordErrors.map((err, i) => (

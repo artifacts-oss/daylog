@@ -2,18 +2,14 @@
 
 import OTPInputWrapper from '@/components/OTPInputWrapper';
 import { generateTOTPSecret, generateTOTPUrl } from '@/utils/totp';
-import {
-  EyeIcon,
-  EyeSlashIcon,
-  DevicePhoneMobileIcon,
-} from '@heroicons/react/24/outline';
+import { DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
 import { QRCodeSVG } from 'qrcode.react';
 import { AlertOctagon } from 'lucide-react';
 import { useActionState, useEffect, useState } from 'react';
 import { deleteMFA, sendOTP, updateMFA, type SafeProfile } from '../lib/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import PasswordInput from '@/components/PasswordInput';
 import {
   Dialog,
   DialogContent,
@@ -182,7 +178,6 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
   const [url, setUrl] = useState<string>('');
   const [secret, setSecret] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [isShowPassword, setIsShowPassword] = useState(false);
   const [open, setOpen] = useState(false);
   const [state, action, pending] = useActionState(updateMFA, undefined);
 
@@ -235,24 +230,12 @@ const ModalUpdate = ({ profile }: ProfileInfoType) => {
                 <div className="space-y-3">
                   <Label>{t('step2')}</Label>
                   <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Input
+                    <div className="flex-1">
+                      <PasswordInput
                         readOnly
-                        type={isShowPassword ? 'text' : 'password'}
                         value={secret}
-                        className="h-[48px] rounded-[12px] border-border/60 bg-secondary/5 pr-12 font-mono text-sm tracking-widest"
+                        className="h-[48px] rounded-[12px] border-border/60 bg-secondary/5 font-mono text-sm tracking-widest"
                       />
-                      <button
-                        type="button"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                        onClick={() => setIsShowPassword(!isShowPassword)}
-                      >
-                        {isShowPassword ? (
-                          <EyeSlashIcon className="h-5 w-5" />
-                        ) : (
-                          <EyeIcon className="h-5 w-5" />
-                        )}
-                      </button>
                     </div>
                     <Button
                       type="button"

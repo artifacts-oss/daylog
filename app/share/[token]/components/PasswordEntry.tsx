@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import PasswordInput from '@/components/PasswordInput';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 
 export default function PasswordEntry({
@@ -58,8 +58,7 @@ export default function PasswordEntry({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Input
-              type="password"
+            <PasswordInput
               placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}

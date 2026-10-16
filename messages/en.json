@@ -814,5 +814,9 @@
   },
   "NoteDetailPage": {
     "updatedAt": "Last updated on {date} at {time}"
+  },
+  "PasswordInput": {
+    "show": "Show password",
+    "hide": "Hide password"
   }
 }
