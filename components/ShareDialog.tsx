@@ -43,6 +43,10 @@ interface ShareableUser {
   profileImage: string | null;
 }
 
+/**
+ * Renders sharing controls for a note or board, including audience selection
+ * and optional password, expiry, and one-time access for public links.
+ */
 export default function ShareDialog({ entityType, entityId, trigger }: ShareDialogProps) {
   const t = useTranslations('ShareDialog');
   const [isOpen, setIsOpen] = useState(false);

@@ -25,6 +25,10 @@ type UpdatePassType = {
   };
 };
 
+/**
+ * Renders the profile password change form, requesting the current password
+ * when the signed-in user is updating their own profile.
+ */
 export default function UpdatePass({ userId, profile }: UpdatePassType) {
   const t = useTranslations('UpdatePassword');
   const [state, action, pending] = useActionState(updatePassword, undefined);

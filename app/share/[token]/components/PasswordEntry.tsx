@@ -6,6 +6,10 @@ import { Button } from '@/components/ui/button';
 import PasswordInput from '@/components/PasswordInput';
 import { LockClosedIcon } from '@heroicons/react/24/outline';
 
+/**
+ * Renders a shared content password form, verifies access for the token,
+ * and refreshes the route after successful verification.
+ */
 export default function PasswordEntry({
   token,
   error,

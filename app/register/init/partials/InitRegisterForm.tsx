@@ -16,6 +16,9 @@ import {
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 
+/**
+ * Renders initial admin registration with validation errors and signup feedback.
+ */
 export default function InitRegisterForm() {
   const t = useTranslations('InitRegisterPage');
   const [state, action, pending] = useActionState(signupInit, undefined);

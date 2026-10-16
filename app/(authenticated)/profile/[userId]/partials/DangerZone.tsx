@@ -26,6 +26,9 @@ type BackupType = {
   };
 };
 
+/**
+ * Renders account deletion controls with password confirmation for the profile.
+ */
 export default function DangerZone({ profile }: BackupType) {
   const t = useTranslations('DangerZone');
   const [open, setOpen] = useState(false);

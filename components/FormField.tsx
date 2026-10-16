@@ -15,6 +15,10 @@ type FormFieldProps = {
   className?: string;
 };
 
+/**
+ * Renders a labeled input with validation feedback, using visibility controls
+ * when the field type is password.
+ */
 export default function FormField({
   label,
   name,

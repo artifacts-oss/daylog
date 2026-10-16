@@ -16,6 +16,9 @@ import {
 import { KeyIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 
+/**
+ * Renders the password reset form for the route token with submission feedback.
+ */
 export default function Page({
   params,
 }: {
