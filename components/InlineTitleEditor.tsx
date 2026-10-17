@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
@@ -15,8 +15,14 @@ export default function InlineTitleEditor({
   const t = useTranslations('InlineTitle');
   const [value, setValue] = useState(title);
   const [saved, setSaved] = useState(title);
+  // Escape blurs the input; that blur must not save the canceled edit.
+  const canceled = useRef(false);
 
   const save = async () => {
+    if (canceled.current) {
+      canceled.current = false;
+      return;
+    }
     const newTitle = value.trim();
     if (!newTitle) {
       setValue(saved);
@@ -44,6 +50,7 @@ export default function InlineTitleEditor({
       onKeyDown={(e) => {
         if (e.key === 'Enter' && !e.nativeEvent.isComposing) e.currentTarget.blur();
         if (e.key === 'Escape') {
+          canceled.current = true;
           setValue(saved);
           e.currentTarget.blur();
         }

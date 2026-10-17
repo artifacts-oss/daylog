@@ -54,4 +54,17 @@ describe('InlineTitleEditor', () => {
     expect(input).toHaveFocus();
     expect(mocks.renameNote).not.toHaveBeenCalled();
   });
+
+  it('does not save the canceled title on Escape', () => {
+    renderWithIntl(<InlineTitleEditor title="Old" onRename={mocks.renameNote} />);
+    const input = screen.getByLabelText('Title');
+
+    input.focus();
+    fireEvent.change(input, { target: { value: 'New' } });
+    fireEvent.keyDown(input, { key: 'Escape' });
+    fireEvent.blur(input);
+
+    expect(input).toHaveValue('Old');
+    expect(mocks.renameNote).not.toHaveBeenCalled();
+  });
 });
