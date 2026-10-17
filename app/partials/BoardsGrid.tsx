@@ -57,6 +57,22 @@ export default function BoardsGrid({ boards, showFav = false }: BoardsGridProps)
         animate="show"
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
       >
+        <motion.div variants={itemVars}>
+          <Link
+            href="/boards?openNew=true"
+            className="flex flex-col items-center justify-center aspect-[2.5/1] rounded-2xl border-2 border-dashed border-muted transition-all duration-300 hover:border-primary hover:bg-primary/5 group"
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
+                <PlusIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+              </div>
+              <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">
+                {t('createBoard')}
+              </span>
+            </div>
+          </Link>
+        </motion.div>
+
         {boards.map((board) => (
           <motion.div key={board.id} variants={itemVars}>
             <Link
@@ -90,22 +106,6 @@ export default function BoardsGrid({ boards, showFav = false }: BoardsGridProps)
             </Link>
           </motion.div>
         ))}
-
-        <motion.div variants={itemVars}>
-          <Link
-            href="/boards?openNew=true"
-            className="flex flex-col items-center justify-center aspect-[2.5/1] rounded-2xl border-2 border-dashed border-muted transition-all duration-300 hover:border-primary hover:bg-primary/5 group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
-                <PlusIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
-              </div>
-              <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">
-                {t('createBoard')}
-              </span>
-            </div>
-          </Link>
-        </motion.div>
       </motion.div>
     </section>
   );

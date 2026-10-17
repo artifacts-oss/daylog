@@ -8,6 +8,7 @@ import Link from 'next/link';
 import NoteFavoriteButton from './NoteFavoriteButton';
 import NoteModalDelete from './NoteModalDelete';
 import NoteModalForm from './NoteModalForm';
+import NoteModalMove from './NoteModalMove';
 import { NoteWithBoards } from '../lib/types';
 import { cn } from '@/lib/utils';
 import ShareDialog from '@/components/ShareDialog';
@@ -83,6 +84,7 @@ export default function NoteCard({ note, settings }: NoteCardProps) {
                 </Button>
               }
             />
+            <NoteModalMove note={note} />
             <NoteModalDelete note={note} />
             <NoteFavoriteButton note={note} />
           </div>

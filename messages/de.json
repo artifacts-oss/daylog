@@ -177,6 +177,15 @@
     "deleting": "Wird gelöscht...",
     "confirm": "Löschen bestätigen"
   },
+  "NoteMove": {
+    "move": "Notiz verschieben",
+    "title": "Notiz verschieben",
+    "boardLabel": "Zielboard",
+    "placeholder": "Board auswählen",
+    "cancel": "Abbrechen",
+    "moving": "Wird verschoben...",
+    "confirm": "Verschieben"
+  },
   "AdminPage": {
     "title": "Konfiguration",
     "description": "Verwalte deine Benutzer und Einstellungen"

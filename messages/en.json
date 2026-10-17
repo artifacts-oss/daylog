@@ -177,6 +177,15 @@
     "deleting": "Deleting...",
     "confirm": "Confirm Delete"
   },
+  "NoteMove": {
+    "move": "Move note",
+    "title": "Move note",
+    "boardLabel": "Destination board",
+    "placeholder": "Select a board",
+    "cancel": "Cancel",
+    "moving": "Moving...",
+    "confirm": "Move"
+  },
   "AdminPage": {
     "title": "Configuration",
     "description": "Manage your users and preferences"

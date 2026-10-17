@@ -177,6 +177,15 @@
     "deleting": "Eliminando...",
     "confirm": "Confirmar eliminación"
   },
+  "NoteMove": {
+    "move": "Mover nota",
+    "title": "Mover nota",
+    "boardLabel": "Tablero de destino",
+    "placeholder": "Selecciona un tablero",
+    "cancel": "Cancelar",
+    "moving": "Moviendo...",
+    "confirm": "Mover"
+  },
   "AdminPage": {
     "title": "Configuración",
     "description": "Administra tus usuarios y preferencias"

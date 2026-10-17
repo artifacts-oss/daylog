@@ -76,32 +76,6 @@ export default async function Notes({
         <div className="flex items-center gap-1.5 sm:gap-3 w-full">
           <ShareDialog entityType="BOARD" entityId={boardId} />
           <NoteSortSelector sortingParam={currentSort} boardId={boardId} />
-          <NoteModalForm
-            boardId={boardId}
-            modalId="new-note-modal"
-            mode="create"
-            open={openNewNote}
-            isUnsplashAllowed={settings?.allowUnsplash}
-            trigger={
-              <Button
-                id="new-note-button"
-                className="flex-1 sm:flex-none sm:w-auto rounded-xl px-3 sm:px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-primary-foreground shrink-0"
-              >
-                <PlusIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">{t('newNote')}</span>
-                <span className="sm:hidden">{t('newShort')}</span>
-                <div className="hidden lg:flex items-center gap-1 ml-2 opacity-50 text-[10px] font-bold uppercase tracking-widest">
-                  <kbd className="min-w-[2rem] h-5 inline-flex items-center justify-center px-1 bg-background/20 rounded tracking-normal leading-none">
-                    Alt
-                  </kbd>
-                  <span>+</span>
-                  <kbd className="w-5 h-5 inline-flex items-center justify-center bg-background/20 rounded tracking-normal leading-none">
-                    N
-                  </kbd>
-                </div>
-              </Button>
-            }
-          />
         </div>
       </PageHeader>
 
@@ -119,6 +93,7 @@ export default async function Notes({
               <NoteModalForm
                 boardId={boardId}
                 modalId="new-note-modal-empty"
+                open={openNewNote}
                 mode="create"
                 isUnsplashAllowed={settings?.allowUnsplash}
                 trigger={
@@ -130,6 +105,31 @@ export default async function Notes({
             </div>
           ) : (
             <AnimatedList className="masonry-container gap-6">
+              <AnimatedItem className="masonry-item mb-6">
+                <NoteModalForm
+                  boardId={boardId}
+                  modalId="new-note-modal"
+                  mode="create"
+                  open={openNewNote}
+                  isUnsplashAllowed={settings?.allowUnsplash}
+                  trigger={
+                    <button
+                      id="new-note-button"
+                      type="button"
+                      className="flex w-full min-h-[148px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-muted transition-all duration-300 hover:border-primary hover:bg-primary/5 group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
+                          <PlusIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">
+                          {t('newNote')}
+                        </span>
+                      </div>
+                    </button>
+                  }
+                />
+              </AnimatedItem>
               {notes?.map((note) => (
                 <AnimatedItem key={note.id} className="masonry-item mb-6">
                   <NoteCard note={note} settings={settings ?? undefined} />

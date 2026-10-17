@@ -12,6 +12,7 @@ import {
   getNotes,
   getNotesCount,
   getPictures,
+  moveNote,
   saveImage,
   savePicture,
   updateNote,
@@ -142,6 +143,25 @@ describe('Note Actions', () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith(
       `/boards/${note.boardsId}/notes`,
     );
+  });
+
+  it('should move a note to another board owned by the user', async () => {
+    prismaMock.note.findFirst.mockResolvedValue({ id: 1, boardsId: 1 } as Note);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 2 } as Board);
+
+    expect(await moveNote(1, 2)).toBe(true);
+    expect(prisma.note.update).toHaveBeenCalledWith({
+      where: { id: 1 },
+      data: { boardsId: 2 },
+    });
+  });
+
+  it('should not move a note to a board the user does not own', async () => {
+    prismaMock.note.findFirst.mockResolvedValue({ id: 1, boardsId: 1 } as Note);
+    prismaMock.board.findFirst.mockResolvedValue(null);
+
+    expect(await moveNote(1, 99)).toBe(false);
+    expect(prisma.note.update).not.toHaveBeenCalled();
   });
 
   it('should delete a note', async () => {

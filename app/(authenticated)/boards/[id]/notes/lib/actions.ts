@@ -118,6 +118,25 @@ export async function updateNote(note: Note): Promise<Note | null> {
   return updatedNote;
 }
 
+export async function moveNote(noteId: number, boardId: number): Promise<boolean> {
+  const { user } = await getCurrentSession();
+
+  if (!user) {
+    return false;
+  }
+
+  // Both the note's current board and the target board must belong to the user.
+  const note = await prisma.note.findFirst({ where: { id: noteId, boards: { userId: user.id } } });
+  const target = await prisma.board.findFirst({ where: { id: boardId, userId: user.id } });
+  if (!note || !target) return false;
+
+  await prisma.note.update({ where: { id: noteId }, data: { boardsId: boardId } });
+
+  revalidatePath(`/boards/${note.boardsId}/notes`);
+  revalidatePath(`/boards/${boardId}/notes`);
+  return true;
+}
+
 export async function deleteNote(note: Note): Promise<Note | null> {
   const { user } = await getCurrentSession();
 

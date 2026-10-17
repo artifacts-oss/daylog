@@ -53,31 +53,6 @@ export default async function Boards({
       >
         <div className="flex items-center gap-1.5 sm:gap-3 w-full">
           <BoardSortSelector sortingParam={currentSort} />
-          <BoardModalForm
-            mode="create"
-            open={openNewBoard}
-            modalId="new-board-modal"
-            isUnsplashAllowed={settings?.allowUnsplash}
-            trigger={
-              <Button
-                id="new-board-button"
-                className="flex-1 sm:flex-none sm:w-auto rounded-xl px-3 sm:px-6 gap-2 bg-primary hover:bg-primary/90 transition-all font-bold text-primary-foreground shrink-0"
-              >
-                <PlusIcon className="h-5 w-5" />
-                <span className="hidden sm:inline">{t('newBoard')}</span>
-                <span className="sm:hidden">{t('newShort')}</span>
-                <div className="hidden lg:flex items-center gap-1 ml-2 opacity-50 text-[10px] font-bold uppercase tracking-widest">
-                  <kbd className="min-w-[2rem] h-5 inline-flex items-center justify-center px-1 bg-background/20 rounded tracking-normal leading-none">
-                    Alt
-                  </kbd>
-                  <span>+</span>
-                  <kbd className="w-5 h-5 inline-flex items-center justify-center bg-background/20 rounded tracking-normal leading-none">
-                    N
-                  </kbd>
-                </div>
-              </Button>
-            }
-          />
         </div>
       </PageHeader>
 
@@ -97,6 +72,7 @@ export default async function Boards({
               <BoardModalForm
                 mode="create"
                 modalId="new-board-modal-empty"
+                open={openNewBoard}
                 isUnsplashAllowed={settings?.allowUnsplash}
                 trigger={
                   <Button className="rounded-xl px-8 font-bold transition-all text-primary-foreground">
@@ -107,6 +83,30 @@ export default async function Boards({
             </div>
           ) : (
             <AnimatedList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <AnimatedItem>
+                <BoardModalForm
+                  mode="create"
+                  open={openNewBoard}
+                  modalId="new-board-modal"
+                  isUnsplashAllowed={settings?.allowUnsplash}
+                  trigger={
+                    <button
+                      id="new-board-button"
+                      type="button"
+                      className="flex w-full flex-col items-center justify-center aspect-[21/9] rounded-[20px] border-2 border-dashed border-muted transition-all duration-300 hover:border-primary hover:bg-primary/5 group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full bg-muted group-hover:bg-primary/10 transition-colors">
+                          <PlusIcon className="h-5 w-5 text-muted-foreground group-hover:text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary">
+                          {t('newBoard')}
+                        </span>
+                      </div>
+                    </button>
+                  }
+                />
+              </AnimatedItem>
               {boards.map((b) => (
                 <AnimatedItem key={b.id}>
                   <BoardCard boardId={b.id} />
