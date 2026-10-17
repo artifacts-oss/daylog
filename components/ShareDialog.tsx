@@ -241,6 +241,10 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
                       <Input
                         type="datetime-local"
                         value={expiresAt}
+                        // The browser reports '' until date and time are both set, so prefill 23:59 and let the user adjust the day.
+                        onFocus={() => {
+                          if (!expiresAt) setExpiresAt(`${new Date().toLocaleDateString('sv-SE')}T23:59`);
+                        }}
                         onChange={(e) => setExpiresAt(e.target.value)}
                         className="h-10 rounded-xl border-border bg-muted/30 focus:bg-background transition-all text-sm"
                       />
