@@ -40,6 +40,7 @@ const mocks = vi.hoisted(() => ({
   uploadFileS3: vi.fn(),
   existsSync: vi.fn(),
   revalidatePath: vi.fn(),
+  getCurrentSessionKey: vi.fn(),
 }));
 
 vi.mock('@/app/api/v1/storage/lib/s3Storage', () => ({
@@ -63,6 +64,10 @@ vi.mock('@/utils/storage', () => ({
     ext: 'jpg',
     contentLength: 6,
   }),
+}));
+
+vi.mock('@/app/(authenticated)/lib/encryptionKey', () => ({
+  getCurrentSessionKey: mocks.getCurrentSessionKey,
 }));
 
 vi.mock('next/cache', () => ({
@@ -174,6 +179,15 @@ describe('Note Actions', () => {
       data: { title: 'New' },
     });
     expect(await renameNote(1, '   ')).toBe(false);
+  });
+
+  it('should not rename a note in plaintext when the encryption key is unavailable', async () => {
+    mocks.getCurrentSession.mockResolvedValue({ user: { ...user, encryptionEnabled: true } });
+    mocks.getCurrentSessionKey.mockResolvedValue(null);
+    prismaMock.note.findFirst.mockResolvedValue({ id: 1, boardsId: 1 } as Note);
+
+    expect(await renameNote(1, 'New')).toBe(false);
+    expect(prisma.note.update).not.toHaveBeenCalled();
   });
 
   it('should not rename a note the user does not own', async () => {

@@ -35,6 +35,11 @@ const mocks = vi.hoisted(() => ({
   })),
   uploadFileS3: vi.fn(),
   revalidatePath: vi.fn(),
+  getCurrentSessionKey: vi.fn(),
+}));
+
+vi.mock('@/app/(authenticated)/lib/encryptionKey', () => ({
+  getCurrentSessionKey: mocks.getCurrentSessionKey,
 }));
 
 vi.mock('next/cache', () => ({
@@ -111,6 +116,14 @@ describe('Board Actions', () => {
     prismaMock.board.updateMany.mockResolvedValue({ count: 0 });
     expect(await renameBoard(2, 'New')).toBe(false);
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it('should not rename a board in plaintext when the encryption key is unavailable', async () => {
+    mocks.getCurrentSession.mockResolvedValue({ user: { ...user, encryptionEnabled: true } });
+    mocks.getCurrentSessionKey.mockResolvedValue(null);
+
+    expect(await renameBoard(1, 'New')).toBe(false);
+    expect(prismaMock.board.updateMany).not.toHaveBeenCalled();
   });
 
   it('should delete a board', async () => {

@@ -127,6 +127,7 @@ export async function renameNote(noteId: number, title: string): Promise<boolean
   if (!note) return false;
 
   const key = user.encryptionEnabled ? await getCurrentSessionKey() : null;
+  if (user.encryptionEnabled && !key) return false;
   await prisma.note.update({
     where: { id: noteId },
     data: { title: key ? encryptField(newTitle, key) : newTitle },

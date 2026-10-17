@@ -60,6 +60,7 @@ export async function renameBoard(boardId: number, title: string): Promise<boole
   if (!user || !newTitle) return false;
 
   const key = user.encryptionEnabled ? await getCurrentSessionKey() : null;
+  if (user.encryptionEnabled && !key) return false;
   const { count } = await prisma.board.updateMany({
     where: { id: boardId, userId: user.id },
     data: { title: key ? encryptField(newTitle, key) : newTitle },
