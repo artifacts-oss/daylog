@@ -1,7 +1,7 @@
 'use client';
 
 import { truncateWord } from '@/utils/text';
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, ReactNode } from 'react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -14,6 +14,7 @@ import Link from 'next/link';
 
 type PageHeader = {
   title?: string | null;
+  titleSlot?: ReactNode; // replaces the title text, e.g. an inline editor
   description?: string | null;
   imageUrl?: string | null;
   breadcrumbs?: Array<{ name: string; href: string }>;
@@ -76,7 +77,9 @@ export default function PageHeader({
                 className="text-3xl md:text-4xl lg:text-[42px] font-[800] tracking-tight text-foreground leading-[0.95] break-words"
                 title={props.title ?? ''}
               >
-                {props.title ? (
+                {props.titleSlot ? (
+                  props.titleSlot
+                ) : props.title ? (
                   truncateWord(props.title, 50)
                 ) : (
                   <span className="text-muted-foreground/70 animate-pulse">

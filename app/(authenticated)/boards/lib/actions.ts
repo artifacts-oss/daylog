@@ -8,7 +8,7 @@ import { saveAndGetImageFile } from '@/utils/file';
 import getSorting from '@/utils/sorting';
 import { removeFile } from '@/utils/storage';
 import { isBase64, isUrl } from '@/utils/text';
-import { encryptBoardFields, decryptBoardFields } from '@/utils/encryption';
+import { encryptBoardFields, decryptBoardFields, encryptField } from '@/utils/encryption';
 
 import fs from 'fs';
 
@@ -51,6 +51,19 @@ export async function updateBoard(board: Board): Promise<Board | null> {
   });
 
   return key ? decryptBoardFields(updatedBoard, key) : updatedBoard;
+}
+
+export async function renameBoard(boardId: number, title: string): Promise<boolean> {
+  const { user } = await getCurrentSession();
+  const newTitle = title.trim();
+  if (!user || !newTitle) return false;
+
+  const key = user.encryptionEnabled ? await getCurrentSessionKey() : null;
+  const { count } = await prisma.board.updateMany({
+    where: { id: boardId, userId: user.id },
+    data: { title: key ? encryptField(newTitle, key) : newTitle },
+  });
+  return count > 0;
 }
 
 export async function deleteBoard(board: Board): Promise<Board | null> {

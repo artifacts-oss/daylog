@@ -4,7 +4,8 @@ import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
-import { getNote, getEditShareForNote, getNoteForRecipient } from '../lib/actions';
+import { getNote, getEditShareForNote, getNoteForRecipient, renameNote } from '../lib/actions';
+import InlineTitleEditor from '@/components/InlineTitleEditor';
 import CollabEditor from './components/CollabEditor';
 import { prisma } from '@/prisma/client';
 import { getImageUrlOrFile } from '@/utils/image';
@@ -67,6 +68,14 @@ export default async function NotePage({
     <PageContainer>
       <PageHeader
         title={note?.title}
+        titleSlot={
+          board.userId === user.id && !canEditViaShare ? (
+            <InlineTitleEditor
+              title={note.title}
+              onRename={renameNote.bind(null, note.id)}
+            />
+          ) : undefined
+        }
         description={
           note?.updatedAt
             ? t('updatedAt', {

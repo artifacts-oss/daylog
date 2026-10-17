@@ -20,6 +20,7 @@ vi.mock('../lib/actions', () => ({
   getNote: mocks.getNote,
   getEditShareForNote: vi.fn().mockResolvedValue(null),
   getNoteForRecipient: vi.fn().mockResolvedValue(null),
+  renameNote: vi.fn(),
 }));
 
 vi.mock('@/app/login/lib/actions', () => ({

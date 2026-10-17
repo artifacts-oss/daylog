@@ -27,6 +27,7 @@ vi.mock('@/app/login/lib/actions', () => ({
 
 vi.mock('@/app/(authenticated)/boards/lib/actions', () => ({
   getBoard: mocks.getBoard,
+  renameBoard: vi.fn(),
 }));
 
 vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({

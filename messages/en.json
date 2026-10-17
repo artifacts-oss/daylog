@@ -760,6 +760,10 @@
       "unexpectedError": "An error occurred while creating your account."
     }
   },
+  "InlineTitle": {
+    "titleLabel": "Title",
+    "titlePlaceholder": "Title"
+  },
   "NoteEditor": {
     "pictures": "Pictures",
     "picturesHelp": "Click to insert an image into the editor at your cursor position.",
@@ -835,5 +839,42 @@
   "RecentPage": {
     "title": "Recent",
     "description": "The boards and notes you edited most recently."
+  },
+  "HomeDashboard": {
+    "continueTitle": "Pick up where you left off",
+    "continueOpen": "Open note",
+    "statsTitle": "Your summary",
+    "statNotesWeek": "Notes this week",
+    "statNotesTotal": "Total notes",
+    "statInBoards": "in {count} board{count, plural, one {} other {s}}",
+    "statEditsWeek": "Edits (7 days)",
+    "statShareViews": "Share views",
+    "statViewsWeek": "+{count} this week",
+    "activityTitle": "Activity",
+    "activityRange": "Last 12 months",
+    "activitySummary": "{total, plural, one {# edit} other {# edits}} · current streak: {streak, plural, one {# day} other {# days}}",
+    "activityDay": "{day}: {count, plural, one {# edit} other {# edits}}",
+    "onThisDayTitle": "On this day",
+    "monthsAgo": "{count, plural, one {# month ago} other {# months ago}}",
+    "yearsAgo": "{count, plural, one {# year ago} other {# years ago}}",
+    "forgottenTitle": "Forgotten notes",
+    "forgottenRange": "90+ days",
+    "review": "Review",
+    "expiringTitle": "Shares about to expire",
+    "entityNote": "Note",
+    "entityBoard": "Board",
+    "expiringViews": "{count, plural, one {# view} other {# views}}",
+    "continueEmpty": "You have no notes yet. Create one in any board to see it here.",
+    "onThisDayEmpty": "None of your notes were created on this day in past months or years.",
+    "forgottenEmpty": "Nothing forgotten: every note was edited in the last 90 days.",
+    "expiringEmpty": "No shares expire in the next 7 days.",
+    "statViewsLive": "Views in the last 7 days",
+    "streakDays": "{count, plural, one {# day} other {# days}}",
+    "streakLabel": "Current streak",
+    "yearEdits": "{count, plural, one {# edit} other {# edits}} this year",
+    "legendLess": "Less",
+    "legendMore": "More",
+    "onThisDayCount": "{count, plural, one {# memory} other {# memories}}",
+    "expiringRange": "7 days"
   }
 }

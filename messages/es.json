@@ -760,6 +760,10 @@
       "unexpectedError": "Ocurrió un error al crear tu cuenta."
     }
   },
+  "InlineTitle": {
+    "titleLabel": "Título",
+    "titlePlaceholder": "Título"
+  },
   "NoteEditor": {
     "pictures": "Imágenes",
     "picturesHelp": "Haz clic para insertar una imagen en el editor en la posición del cursor.",
@@ -835,5 +839,42 @@
   "RecentPage": {
     "title": "Recientes",
     "description": "Los tableros y notas que editaste más recientemente."
+  },
+  "HomeDashboard": {
+    "continueTitle": "Continúa donde lo dejaste",
+    "continueOpen": "Abrir nota",
+    "statsTitle": "Tu resumen",
+    "statNotesWeek": "Notas esta semana",
+    "statNotesTotal": "Notas totales",
+    "statInBoards": "en {count} tablero{count, plural, one {} other {s}}",
+    "statEditsWeek": "Ediciones (7 días)",
+    "statShareViews": "Vistas de shares",
+    "statViewsWeek": "+{count} esta semana",
+    "activityTitle": "Actividad",
+    "activityRange": "Últimos 12 meses",
+    "activitySummary": "{total, plural, one {# edición} other {# ediciones}} · racha actual: {streak, plural, one {# día} other {# días}}",
+    "activityDay": "{day}: {count, plural, one {# edición} other {# ediciones}}",
+    "onThisDayTitle": "Un día como hoy",
+    "monthsAgo": "{count, plural, one {Hace # mes} other {Hace # meses}}",
+    "yearsAgo": "{count, plural, one {Hace # año} other {Hace # años}}",
+    "forgottenTitle": "Notas olvidadas",
+    "forgottenRange": "+90 días",
+    "review": "Revisar",
+    "expiringTitle": "Compartidos por vencer",
+    "entityNote": "Nota",
+    "entityBoard": "Tablero",
+    "expiringViews": "{count, plural, one {# vista} other {# vistas}}",
+    "continueEmpty": "Aún no tienes notas. Crea una en cualquier tablero para verla aquí.",
+    "onThisDayEmpty": "Ninguna de tus notas se creó un día como hoy en meses o años anteriores.",
+    "forgottenEmpty": "Nada olvidado: todas tus notas se editaron en los últimos 90 días.",
+    "expiringEmpty": "Ningún share vence en los próximos 7 días.",
+    "statViewsLive": "Vistas en los últimos 7 días",
+    "streakDays": "{count, plural, one {# día} other {# días}}",
+    "streakLabel": "Racha actual",
+    "yearEdits": "{count, plural, one {# edición} other {# ediciones}} en el año",
+    "legendLess": "Menos",
+    "legendMore": "Más",
+    "onThisDayCount": "{count, plural, one {# recuerdo} other {# recuerdos}}",
+    "expiringRange": "7 días"
   }
 }

@@ -9,6 +9,7 @@ import {
   getBoard,
   getBoards,
   getBoardsCount,
+  renameBoard,
   saveImage,
   setUserBoardsSort,
   updateBoard,
@@ -87,6 +88,20 @@ describe('Board Actions', () => {
       where: { id: board.id, userId: user.id },
       data: { ...updatedBoard },
     });
+  });
+
+  it('should rename an owned board and reject empty titles', async () => {
+    prismaMock.board.updateMany.mockResolvedValue({ count: 1 });
+
+    expect(await renameBoard(1, '  New  ')).toBe(true);
+    expect(prismaMock.board.updateMany).toHaveBeenCalledWith({
+      where: { id: 1, userId: user.id },
+      data: { title: 'New' },
+    });
+    expect(await renameBoard(1, '   ')).toBe(false);
+
+    prismaMock.board.updateMany.mockResolvedValue({ count: 0 });
+    expect(await renameBoard(2, 'New')).toBe(false);
   });
 
   it('should delete a board', async () => {

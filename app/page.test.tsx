@@ -19,13 +19,22 @@ vi.mock('@/app/(authenticated)/lib/actions', () => ({
   getLatestBoardImage: mocks.getLatestBoardImage,
 }));
 
-vi.mock('@/app/(authenticated)/components/BoardsSection', () => ({
-  default: vi.fn(() => <div data-testid="BoardsSection">BoardsSection</div>),
+const { sectionNames } = vi.hoisted(() => ({
+  sectionNames: [
+    'ContinueSection',
+    'StatsSection',
+    'ActivitySection',
+    'OnThisDaySection',
+    'ForgottenSection',
+    'ExpiringSharesSection',
+  ],
 }));
 
-vi.mock('@/app/(authenticated)/components/NotesSection', () => ({
-  default: vi.fn(() => <div data-testid="NotesSection">NotesSection</div>),
-}));
+vi.mock('@/app/(authenticated)/components/HomeSections', () =>
+  Object.fromEntries(
+    sectionNames.map((name) => [name, () => <div data-testid={name}>{name}</div>]),
+  ),
+);
 
 vi.mock('next-intl/server', () => ({
   getTranslations: vi.fn(async () => {
@@ -88,14 +97,13 @@ describe('Home Page', () => {
     expect(screen.getByText('Welcome back, John Doe')).toBeInTheDocument();
   });
 
-  it('renders the boards and notes sections', async () => {
+  it('renders every dashboard section', async () => {
     mocks.getCurrentSession.mockResolvedValue(defaultUser);
     mocks.getBoardsCount.mockResolvedValue(3);
 
     render(await Home());
 
-    expect(screen.getByTestId('BoardsSection')).toBeInTheDocument();
-    expect(screen.getByTestId('NotesSection')).toBeInTheDocument();
+    sectionNames.forEach((name) => expect(screen.getByTestId(name)).toBeInTheDocument());
   });
 
   it('passes the latest board image to PageHeader', async () => {

@@ -5,7 +5,8 @@ import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
 import { PlusIcon, FaceSmileIcon } from '@heroicons/react/24/outline';
-import { getBoard } from '@/app/(authenticated)/boards/lib/actions';
+import InlineTitleEditor from '@/components/InlineTitleEditor';
+import { getBoard, renameBoard } from '@/app/(authenticated)/boards/lib/actions';
 import NoteCard from './components/NoteCard';
 import NoteModalForm from './components/NoteModalForm';
 import NoteSortSelector from './components/NoteSortSelector';
@@ -64,6 +65,12 @@ export default async function Notes({
     <PageContainer>
       <PageHeader
         title={board?.title}
+        titleSlot={
+          <InlineTitleEditor
+            title={board.title}
+            onRename={renameBoard.bind(null, boardId)}
+          />
+        }
         description={t('description', {
           count: notesCount,
           date: new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(board.updatedAt),

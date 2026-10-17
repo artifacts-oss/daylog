@@ -118,6 +118,24 @@ export async function updateNote(note: Note): Promise<Note | null> {
   return updatedNote;
 }
 
+export async function renameNote(noteId: number, title: string): Promise<boolean> {
+  const { user } = await getCurrentSession();
+  const newTitle = title.trim();
+  if (!user || !newTitle) return false;
+
+  const note = await prisma.note.findFirst({ where: { id: noteId, boards: { userId: user.id } } });
+  if (!note) return false;
+
+  const key = user.encryptionEnabled ? await getCurrentSessionKey() : null;
+  await prisma.note.update({
+    where: { id: noteId },
+    data: { title: key ? encryptField(newTitle, key) : newTitle },
+  });
+
+  revalidatePath(`/boards/${note.boardsId}/notes`);
+  return true;
+}
+
 export async function moveNote(noteId: number, boardId: number): Promise<boolean> {
   const { user } = await getCurrentSession();
 

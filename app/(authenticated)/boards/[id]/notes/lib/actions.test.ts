@@ -13,6 +13,7 @@ import {
   getNotesCount,
   getPictures,
   moveNote,
+  renameNote,
   saveImage,
   savePicture,
   updateNote,
@@ -161,6 +162,24 @@ describe('Note Actions', () => {
     prismaMock.board.findFirst.mockResolvedValue(null);
 
     expect(await moveNote(1, 99)).toBe(false);
+    expect(prisma.note.update).not.toHaveBeenCalled();
+  });
+
+  it('should rename an owned note and reject empty titles', async () => {
+    prismaMock.note.findFirst.mockResolvedValue({ id: 1, boardsId: 1 } as Note);
+
+    expect(await renameNote(1, '  New  ')).toBe(true);
+    expect(prisma.note.update).toHaveBeenCalledWith({
+      where: { id: 1 },
+      data: { title: 'New' },
+    });
+    expect(await renameNote(1, '   ')).toBe(false);
+  });
+
+  it('should not rename a note the user does not own', async () => {
+    prismaMock.note.findFirst.mockResolvedValue(null);
+
+    expect(await renameNote(1, 'New')).toBe(false);
     expect(prisma.note.update).not.toHaveBeenCalled();
   });
 

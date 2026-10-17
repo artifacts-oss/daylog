@@ -761,6 +761,10 @@
       "unexpectedError": "Une erreur s'est produite lors de la creation de votre compte."
     }
   },
+  "InlineTitle": {
+    "titleLabel": "Titre",
+    "titlePlaceholder": "Titre"
+  },
   "NoteEditor": {
     "pictures": "Images",
     "picturesHelp": "Cliquez pour inserer une image dans l'editeur a la position du curseur.",
@@ -836,5 +840,42 @@
   "RecentPage": {
     "title": "Récents",
     "description": "Les tableaux et notes que vous avez modifiés récemment."
+  },
+  "HomeDashboard": {
+    "continueTitle": "Reprenez là où vous en étiez",
+    "continueOpen": "Ouvrir la note",
+    "statsTitle": "Votre résumé",
+    "statNotesWeek": "Notes cette semaine",
+    "statNotesTotal": "Total des notes",
+    "statInBoards": "dans {count} tableau{count, plural, one {} other {x}}",
+    "statEditsWeek": "Modifications (7 jours)",
+    "statShareViews": "Vues des partages",
+    "statViewsWeek": "+{count} cette semaine",
+    "activityTitle": "Activité",
+    "activityRange": "12 derniers mois",
+    "activitySummary": "{total, plural, one {# modification} other {# modifications}} · série en cours : {streak, plural, one {# jour} other {# jours}}",
+    "activityDay": "{day} : {count, plural, one {# modification} other {# modifications}}",
+    "onThisDayTitle": "Il y a un jour comme aujourd’hui",
+    "monthsAgo": "Il y a {count} mois",
+    "yearsAgo": "{count, plural, one {Il y a # an} other {Il y a # ans}}",
+    "forgottenTitle": "Notes oubliées",
+    "forgottenRange": "90+ jours",
+    "review": "Revoir",
+    "expiringTitle": "Partages bientôt expirés",
+    "entityNote": "Note",
+    "entityBoard": "Tableau",
+    "expiringViews": "{count, plural, one {# vue} other {# vues}}",
+    "continueEmpty": "Vous n’avez pas encore de notes. Créez-en une dans un tableau pour la voir ici.",
+    "onThisDayEmpty": "Aucune de vos notes n’a été créée un jour comme aujourd’hui les mois ou années précédents.",
+    "forgottenEmpty": "Rien d’oublié : toutes vos notes ont été modifiées ces 90 derniers jours.",
+    "expiringEmpty": "Aucun partage n’expire dans les 7 prochains jours.",
+    "statViewsLive": "Vues des 7 derniers jours",
+    "streakDays": "{count, plural, one {# jour} other {# jours}}",
+    "streakLabel": "Série actuelle",
+    "yearEdits": "{count, plural, one {# modification} other {# modifications}} cette année",
+    "legendLess": "Moins",
+    "legendMore": "Plus",
+    "onThisDayCount": "{count, plural, one {# souvenir} other {# souvenirs}}",
+    "expiringRange": "7 jours"
   }
 }
