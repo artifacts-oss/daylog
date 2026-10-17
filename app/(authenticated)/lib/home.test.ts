@@ -116,6 +116,15 @@ describe('getActivityHeatmap', () => {
     expect((await getActivityHeatmap())?.streak).toBe(2);
   });
 
+  it('queries from the first day of the rendered grid', async () => {
+    prismaMock.$queryRaw.mockResolvedValue([]);
+
+    await getActivityHeatmap();
+
+    const since = prismaMock.$queryRaw.mock.calls[0][2];
+    expect(since).toEqual(new Date('2025-10-12T00:00:00Z'));
+  });
+
   it('has no streak after a gap', async () => {
     prismaMock.$queryRaw.mockResolvedValue(rows(['2026-10-10']));
 

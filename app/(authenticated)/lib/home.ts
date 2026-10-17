@@ -3,6 +3,7 @@
 import { getCurrentSession } from '@/app/login/lib/actions';
 import { prisma } from '@/prisma/client';
 import { decryptBoardFields, decryptNoteFields } from '@/utils/encryption';
+import { getHeatmapStart } from '@/utils/heatmap';
 import { removeMarkdownTags } from '@/utils/text';
 import { getNotes, getNotesCount } from '../boards/[id]/notes/lib/actions';
 import { getBoardsCount } from './actions';
@@ -12,7 +13,6 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const FORGOTTEN_AFTER_DAYS = 90;
 const EXPIRING_WITHIN_DAYS = 7;
 const SNIPPET_LENGTH = 180;
-const HEATMAP_DAYS = 365;
 
 export type ContinueNote = {
   id: number;
@@ -135,7 +135,8 @@ export async function getActivityHeatmap(): Promise<HeatmapData | null> {
   const { user } = await getCurrentSession();
   if (!user) return null;
 
-  const since = new Date(Date.now() - HEATMAP_DAYS * DAY_MS);
+  // Same window as the grid ActivitySection renders, so every cell and the total cover one period.
+  const since = new Date(getHeatmapStart(new Date()));
   const rows = await prisma.$queryRaw<{ day: Date; count: number }[]>`
     SELECT date_trunc('day', "createdAt") AS day, count(*)::int AS count
     FROM "NoteChange"

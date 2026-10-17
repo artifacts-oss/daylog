@@ -11,6 +11,7 @@ import {
 import TimeDiff from '@/components/TimeDiff';
 import { cn } from '@/lib/utils';
 import { stringToColor } from '@/utils/color';
+import { DAY_MS, HEATMAP_WEEKS, getHeatmapStart } from '@/utils/heatmap';
 import { getImageUrlOrFile } from '@/utils/image';
 import {
   getActivityHeatmap,
@@ -21,8 +22,6 @@ import {
   getOnThisDay,
 } from '@/app/(authenticated)/lib/home';
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-const HEATMAP_WEEKS = 53;
 
 const noteUrl = (n: { id: number; boardsId: number | null }) =>
   `/boards/${n.boardsId}/notes/${n.id}`;
@@ -207,12 +206,7 @@ export async function ActivitySection() {
 
   // Columns are weeks starting on Sunday, ending with the current (partial) week. All in UTC to match the query.
   const now = new Date();
-  const today = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-  );
-  const start = today - ((HEATMAP_WEEKS - 1) * 7 + now.getUTCDay()) * DAY_MS;
+  const start = getHeatmapStart(now);
   const cells = Array.from(
     { length: (HEATMAP_WEEKS - 1) * 7 + now.getUTCDay() + 1 },
     (_, i) => {
