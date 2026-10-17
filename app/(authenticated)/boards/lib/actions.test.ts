@@ -141,7 +141,19 @@ describe('Board Actions', () => {
     expect(prismaMock.board.findMany).toHaveBeenCalledWith({
       where: { userId: user.id },
       take: 10,
+      skip: 0,
       orderBy: getSorting('created_desc'),
+    });
+  });
+
+  it('should skip boards already loaded', async () => {
+    prismaMock.board.findMany.mockResolvedValue([board as Board]);
+    await getBoards('title_asc', 100, false, 100);
+    expect(prismaMock.board.findMany).toHaveBeenCalledWith({
+      where: { userId: user.id },
+      take: 100,
+      skip: 100,
+      orderBy: getSorting('title_asc'),
     });
   });
 
@@ -152,6 +164,7 @@ describe('Board Actions', () => {
     expect(prismaMock.board.findMany).toHaveBeenCalledWith({
       where: { userId: user.id, favorite: true },
       take: undefined,
+      skip: undefined,
       orderBy: getSorting('created_desc'),
     });
   });

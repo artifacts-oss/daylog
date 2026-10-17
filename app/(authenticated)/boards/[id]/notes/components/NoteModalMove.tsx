@@ -25,6 +25,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+const PAGE_SIZE = 100;
+
+// Pages through every board so destinations beyond the first page stay selectable.
+async function getAllBoards() {
+  const all: { id: number; title: string }[] = [];
+  for (;;) {
+    const page = (await getBoards('title_asc', PAGE_SIZE, false, all.length)) ?? [];
+    all.push(...page);
+    if (page.length < PAGE_SIZE) return all;
+  }
+}
+
 type NoteModalMoveType = {
   note: Note;
 };
@@ -41,8 +53,7 @@ export default function NoteModalMove({ note }: NoteModalMoveType) {
     setOpen(value);
     if (!value) return;
     setTargetBoardId(null);
-    // shortcut: first 100 boards by title, add search if users have more
-    setBoards((await getBoards('title_asc', 100)) ?? []);
+    setBoards(await getAllBoards());
   }
 
   async function onMove() {

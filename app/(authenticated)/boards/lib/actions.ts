@@ -104,6 +104,7 @@ export async function getBoards(
   sort: string,
   perPage: number = 10,
   favorite = false,
+  skip = 0,
 ): Promise<Board[] | null> {
   const { user } = await getCurrentSession();
 
@@ -116,6 +117,7 @@ export async function getBoards(
     where: { userId: user?.id, ...(favorite ? { favorite: true } : {}) },
     // ponytail: favorites are few, return them all instead of paginating
     take: favorite ? undefined : perPage,
+    skip: favorite ? undefined : skip,
     orderBy: sorting,
   });
 
