@@ -41,4 +41,17 @@ describe('InlineTitleEditor', () => {
 
     await waitFor(() => expect(input).toHaveValue('Old'));
   });
+
+  it('ignores Enter while an IME composition is active', () => {
+    mocks.renameNote.mockResolvedValue(true);
+    renderWithIntl(<InlineTitleEditor title="Old" onRename={mocks.renameNote} />);
+    const input = screen.getByLabelText('Title');
+
+    input.focus();
+    fireEvent.change(input, { target: { value: 'New' } });
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+
+    expect(input).toHaveFocus();
+    expect(mocks.renameNote).not.toHaveBeenCalled();
+  });
 });

@@ -42,7 +42,7 @@ export default function InlineTitleEditor({
       onChange={(e) => setValue(e.target.value)}
       onBlur={save}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') e.currentTarget.blur();
+        if (e.key === 'Enter' && !e.nativeEvent.isComposing) e.currentTarget.blur();
         if (e.key === 'Escape') {
           setValue(saved);
           e.currentTarget.blur();
