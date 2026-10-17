@@ -1,5 +1,5 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import InlineTitleEditor from './InlineTitleEditor';
 import { renderWithIntl } from '@/utils/test/renderWithIntl';
 
@@ -13,6 +13,8 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('InlineTitleEditor', () => {
+  afterEach(cleanup);
+
   it('renames on blur and refreshes; ignores empty titles', async () => {
     mocks.renameNote.mockResolvedValue(true);
     renderWithIntl(<InlineTitleEditor title="Old" onRename={mocks.renameNote} />);
@@ -27,5 +29,16 @@ describe('InlineTitleEditor', () => {
     fireEvent.blur(input);
     await waitFor(() => expect(mocks.renameNote).toHaveBeenCalledWith('New'));
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
+  });
+
+  it('restores the saved title when the rename rejects', async () => {
+    mocks.renameNote.mockRejectedValue(new Error('network'));
+    renderWithIntl(<InlineTitleEditor title="Old" onRename={mocks.renameNote} />);
+    const input = screen.getByLabelText('Title');
+
+    fireEvent.change(input, { target: { value: 'New' } });
+    fireEvent.blur(input);
+
+    await waitFor(() => expect(input).toHaveValue('Old'));
   });
 });

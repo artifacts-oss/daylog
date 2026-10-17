@@ -24,12 +24,16 @@ export default function InlineTitleEditor({
     }
     if (newTitle === saved) return;
     setValue(newTitle);
-    if (await onRename(newTitle)) {
-      setSaved(newTitle);
-      router.refresh();
-    } else {
-      setValue(saved);
+    try {
+      if (await onRename(newTitle)) {
+        setSaved(newTitle);
+        router.refresh();
+        return;
+      }
+    } catch {
+      // fall through: restore the saved title so the user can retry
     }
+    setValue(saved);
   };
 
   return (
