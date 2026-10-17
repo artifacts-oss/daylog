@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { getCurrentSession } from '@/app/login/lib/actions';
 import { getCurrentSessionKey } from '@/app/(authenticated)/lib/encryptionKey';
 import { prisma } from '@/prisma/client';
@@ -63,7 +64,11 @@ export async function renameBoard(boardId: number, title: string): Promise<boole
     where: { id: boardId, userId: user.id },
     data: { title: key ? encryptField(newTitle, key) : newTitle },
   });
-  return count > 0;
+  if (count === 0) return false;
+
+  revalidatePath(`/boards/${boardId}/notes`);
+  revalidatePath('/boards');
+  return true;
 }
 
 export async function deleteBoard(board: Board): Promise<Board | null> {

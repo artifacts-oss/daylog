@@ -34,6 +34,11 @@ const mocks = vi.hoisted(() => ({
     enableS3: false,
   })),
   uploadFileS3: vi.fn(),
+  revalidatePath: vi.fn(),
+}));
+
+vi.mock('next/cache', () => ({
+  revalidatePath: mocks.revalidatePath,
 }));
 
 vi.mock('@/app/api/v1/storage/lib/s3Storage', () => ({
@@ -98,10 +103,14 @@ describe('Board Actions', () => {
       where: { id: 1, userId: user.id },
       data: { title: 'New' },
     });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/boards/1/notes');
+    expect(mocks.revalidatePath).toHaveBeenCalledWith('/boards');
     expect(await renameBoard(1, '   ')).toBe(false);
 
+    mocks.revalidatePath.mockClear();
     prismaMock.board.updateMany.mockResolvedValue({ count: 0 });
     expect(await renameBoard(2, 'New')).toBe(false);
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 
   it('should delete a board', async () => {
