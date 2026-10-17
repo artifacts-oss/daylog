@@ -83,7 +83,7 @@ export async function ContinueSection() {
     >
       <div
         className={cn(
-          'relative flex min-h-32 sm:min-h-52 items-end p-5 sm:w-1/3',
+          'relative flex min-h-32 shrink-0 items-end p-5 sm:min-h-52 sm:w-1/3 sm:max-w-64',
           note.imageUrl && 'bg-black',
         )}
         style={
@@ -110,16 +110,16 @@ export async function ContinueSection() {
           {t('continueTitle')}
         </span>
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-7">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 p-7">
         <span className="text-[12px] font-medium uppercase tracking-wider text-muted-foreground">
           {note.boardTitle && `${note.boardTitle} · `}
           <TimeDiff updatedAt={note.updatedAt} />
         </span>
-        <h3 className="text-2xl font-extrabold tracking-tight line-clamp-2">
+        <h3 className="text-2xl font-extrabold tracking-tight line-clamp-2 break-words">
           {note.title}
         </h3>
         {note.snippet && (
-          <p className="text-muted-foreground leading-relaxed line-clamp-2">
+          <p className="text-muted-foreground leading-relaxed line-clamp-2 break-all">
             {note.snippet}
           </p>
         )}

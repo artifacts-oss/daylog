@@ -12,7 +12,7 @@ import { getCurrentSessionKey } from './encryptionKey';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const FORGOTTEN_AFTER_DAYS = 90;
 const EXPIRING_WITHIN_DAYS = 7;
-const SNIPPET_LENGTH = 180;
+const SNIPPET_LENGTH = 30;
 
 export type ContinueNote = {
   id: number;
@@ -76,7 +76,10 @@ function plainTitle(title: string, key: Buffer | null) {
 }
 
 function snippetOf(content: string | null) {
-  return removeMarkdownTags(content ?? '').slice(0, SNIPPET_LENGTH);
+  const plain = removeMarkdownTags(content ?? '');
+  return plain.length > SNIPPET_LENGTH
+    ? `${plain.slice(0, SNIPPET_LENGTH)}…`
+    : plain;
 }
 
 export async function getContinueNote(): Promise<ContinueNote | null> {
