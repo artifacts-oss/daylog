@@ -193,6 +193,12 @@
   color: var(--color-primary-foreground);
 }
 
+/* The textarea sits over the highlighted <pre>; an opaque selection would hide the text beneath it */
+body .w-md-editor-text-input::selection {
+  background-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  color: transparent;
+}
+
 body .w-md-editor-text-pre > code,
 body .w-md-editor-text-input {
   font-size: 16px !important;
