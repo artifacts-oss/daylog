@@ -4,9 +4,10 @@ import PageBody from '@/components/PageBody';
 import PageContainer from '@/components/PageContainer';
 import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
-import { PlusIcon, FaceSmileIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, FaceSmileIcon, TrashIcon } from '@heroicons/react/24/outline';
 import InlineTitleEditor from '@/components/InlineTitleEditor';
 import { getBoard, renameBoard } from '@/app/(authenticated)/boards/lib/actions';
+import BoardModalDelete from '@/app/(authenticated)/boards/components/BoardModalDelete';
 import NoteCard from './components/NoteCard';
 import NoteModalForm from './components/NoteModalForm';
 import NoteSortSelector from './components/NoteSortSelector';
@@ -53,6 +54,7 @@ export default async function Notes({
   const _boardShare = await getEntityPublicShare('BOARD', boardId);
   const tNav = await getTranslations('Navigation');
   const t = await getTranslations('NotesPage');
+  const tDelete = await getTranslations('BoardDelete');
   const locale = await getLocale();
 
   const breadcrumbs = [
@@ -83,6 +85,16 @@ export default async function Notes({
         <div className="flex items-center gap-1.5 sm:gap-3 w-full">
           <ShareDialog entityType="BOARD" entityId={boardId} />
           <NoteSortSelector sortingParam={currentSort} boardId={boardId} />
+          <BoardModalDelete
+            board={board}
+            redirectTo="/boards"
+            trigger={
+              <Button variant="outline" className="h-12 w-12 px-0 rounded-xl bg-background/50 backdrop-blur-sm border-border hover:bg-muted transition-all shrink-0 shadow-sm">
+                <TrashIcon className="h-4 w-4 text-destructive shrink-0" />
+                <span className="sr-only">{tDelete('delete')}</span>
+              </Button>
+            }
+          />
         </div>
       </PageHeader>
 

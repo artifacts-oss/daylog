@@ -2,7 +2,7 @@
 
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ type ConfirmDeleteModalProps = {
   onDelete: () => Promise<unknown>;
   triggerClassName?: string;
   triggerIconClassName?: string;
+  trigger?: ReactNode;
 };
 
 export default function ConfirmDeleteModal({
@@ -30,6 +31,7 @@ export default function ConfirmDeleteModal({
   onDelete,
   triggerClassName = 'h-8 w-8',
   triggerIconClassName = 'h-4 w-4',
+  trigger,
 }: ConfirmDeleteModalProps) {
   const t = useTranslations(namespace);
   const router = useRouter();
@@ -47,10 +49,12 @@ export default function ConfirmDeleteModal({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className={triggerClassName}>
-          <TrashIcon className={triggerIconClassName} />
-          <span className="sr-only">{t('delete')}</span>
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="icon" className={triggerClassName}>
+            <TrashIcon className={triggerIconClassName} />
+            <span className="sr-only">{t('delete')}</span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="p-10 max-w-[480px]">
         <DialogHeader className="mb-6">

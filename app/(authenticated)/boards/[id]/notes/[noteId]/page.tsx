@@ -6,9 +6,12 @@ import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
 import { getNote, getEditShareForNote, getNoteForRecipient, renameNote } from '../lib/actions';
 import InlineTitleEditor from '@/components/InlineTitleEditor';
+import NoteModalDelete from '../components/NoteModalDelete';
 import CollabEditor from './components/CollabEditor';
 import { prisma } from '@/prisma/client';
 import { getImageUrlOrFile } from '@/utils/image';
+import { Button } from '@/components/ui/button';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import ShareDialog from '@/components/ShareDialog';
 import { getEntityPublicShare } from '@/app/(authenticated)/shared/lib/actions';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -28,6 +31,7 @@ export default async function NotePage({
   const tNav = await getTranslations('Navigation');
   const tNotes = await getTranslations('NotesPage');
   const t = await getTranslations('NoteDetailPage');
+  const tDelete = await getTranslations('NoteDelete');
   const locale = await getLocale();
 
   // If user isn't the owner, check if they have a canEdit share for this note
@@ -97,6 +101,18 @@ export default async function NotePage({
       >
         <div className="flex items-center gap-1.5 sm:gap-3">
           <ShareDialog entityType="NOTE" entityId={note.id} />
+          {board.userId === user.id && !canEditViaShare && (
+            <NoteModalDelete
+              note={note}
+              redirectTo={`/boards/${board.id}/notes`}
+              trigger={
+                <Button variant="outline" className="h-12 w-12 px-0 rounded-xl bg-background/50 backdrop-blur-sm border-border hover:bg-muted transition-all shrink-0 shadow-sm">
+                  <TrashIcon className="h-4 w-4 text-destructive shrink-0" />
+                  <span className="sr-only">{tDelete('delete')}</span>
+                </Button>
+              }
+            />
+          )}
         </div>
       </PageHeader>
       <PageBody>

@@ -15,6 +15,7 @@ vi.mock('next/navigation', () => ({
 
 describe('BoardModalDelete', () => {
   const mockRouterRefresh = vi.fn();
+  const mockRouterPush = vi.fn();
 
   beforeAll(() => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -34,6 +35,7 @@ describe('BoardModalDelete', () => {
     vi.clearAllMocks();
     (useRouter as Mock).mockReturnValue({
       refresh: mockRouterRefresh,
+      push: mockRouterPush,
     });
   });
 
@@ -71,6 +73,17 @@ describe('BoardModalDelete', () => {
     await waitFor(() => {
       expect(deleteBoard).toHaveBeenCalledWith(mockBoard);
       expect(mockRouterRefresh).toHaveBeenCalled();
+    });
+  });
+
+  it('redirects after deleting when redirectTo is set', async () => {
+    render(<BoardModalDelete board={mockBoard} redirectTo="/boards" />);
+    fireEvent.click(screen.getByRole('button', { name: "Delete board" }));
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm Delete' }));
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith('/boards');
     });
   });
 });

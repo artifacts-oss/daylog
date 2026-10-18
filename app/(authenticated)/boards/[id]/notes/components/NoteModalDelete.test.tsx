@@ -15,6 +15,7 @@ vi.mock('next/navigation', () => ({
 
 describe('NoteModalDelete', () => {
   const mockRouterRefresh = vi.fn();
+  const mockRouterPush = vi.fn();
 
   beforeAll(() => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -34,6 +35,7 @@ describe('NoteModalDelete', () => {
     vi.clearAllMocks();
     (useRouter as Mock).mockReturnValue({
       refresh: mockRouterRefresh,
+      push: mockRouterPush,
     });
   });
 
@@ -71,6 +73,17 @@ describe('NoteModalDelete', () => {
     await waitFor(() => {
       expect(deleteNote).toHaveBeenCalledWith(mockNote);
       expect(mockRouterRefresh).toHaveBeenCalled();
+    });
+  });
+
+  it('redirects after deleting when redirectTo is set', async () => {
+    render(<NoteModalDelete note={mockNote} redirectTo="/boards/1/notes" />);
+    fireEvent.click(screen.getByRole('button', { name: "Delete note" }));
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Confirm Delete' }));
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith('/boards/1/notes');
     });
   });
 });

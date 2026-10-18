@@ -63,6 +63,12 @@ vi.mock('@/components/ShareDialog', () => ({
   default: vi.fn(() => <div data-testid="share-dialog" />),
 }));
 
+vi.mock('../components/NoteModalDelete', () => ({
+  default: vi.fn(({ redirectTo }: { redirectTo: string }) => (
+    <div data-testid="note-delete" data-redirect-to={redirectTo} />
+  )),
+}));
+
 vi.mock('./components/Editor', () => ({
   default: vi.fn(({ note, isOwner }: { note: Note; isOwner: boolean }) => (
     <div data-testid="note" data-is-owner={isOwner.toString()}>
@@ -108,6 +114,10 @@ describe('Note Page', () => {
 
     expect(screen.getByTestId('note')).toBeInTheDocument();
     expect(screen.getByTestId('note')).toHaveAttribute('data-is-owner', 'true');
+    expect(screen.getByTestId('note-delete')).toHaveAttribute(
+      'data-redirect-to',
+      '/boards/1/notes',
+    );
 
     const headerProps = vi.mocked(PageHeader).mock.calls[0][0];
     expect(headerProps.breadcrumbs).toEqual([
