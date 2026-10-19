@@ -20,6 +20,7 @@ type ConfirmDeleteModalProps = {
   namespace: string;
   entityTitle: string;
   onDelete: () => Promise<unknown>;
+  onSuccess?: () => void;
   triggerClassName?: string;
   triggerIconClassName?: string;
   trigger?: ReactNode;
@@ -29,6 +30,7 @@ export default function ConfirmDeleteModal({
   namespace,
   entityTitle,
   onDelete,
+  onSuccess,
   triggerClassName = 'h-8 w-8',
   triggerIconClassName = 'h-4 w-4',
   trigger,
@@ -41,9 +43,10 @@ export default function ConfirmDeleteModal({
   const handleDeleteClick = async () => {
     setDeleting(true);
     await onDelete();
-    router.refresh();
     setDeleting(false);
     setOpen(false);
+    if (onSuccess) onSuccess();
+    else router.refresh();
   };
 
   return (

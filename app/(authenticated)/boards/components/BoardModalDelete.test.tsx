@@ -84,6 +84,7 @@ describe('BoardModalDelete', () => {
 
     await waitFor(() => {
       expect(mockRouterPush).toHaveBeenCalledWith('/boards');
+      expect(mockRouterRefresh).not.toHaveBeenCalled();
     });
   });
 });

@@ -84,6 +84,7 @@ describe('NoteModalDelete', () => {
 
     await waitFor(() => {
       expect(mockRouterPush).toHaveBeenCalledWith('/boards/1/notes');
+      expect(mockRouterRefresh).not.toHaveBeenCalled();
     });
   });
 });
