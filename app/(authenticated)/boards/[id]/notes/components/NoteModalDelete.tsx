@@ -21,7 +21,7 @@ export default function NoteModalDelete({ note, redirectTo, trigger }: NoteModal
       entityTitle={note.title}
       trigger={trigger}
       onDelete={() => deleteNote(note)}
-      onSuccess={redirectTo ? () => router.push(redirectTo) : undefined}
+      onSuccess={redirectTo ? () => router.replace(redirectTo) : undefined}
     />
   );
 }
