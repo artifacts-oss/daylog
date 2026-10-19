@@ -22,7 +22,7 @@ export default function NoteModalDelete({ note, redirectTo, trigger }: NoteModal
       trigger={trigger}
       onDelete={async () => {
         await deleteNote(note);
-        if (redirectTo) router.push(redirectTo);
+        if (redirectTo) router.replace(redirectTo);
       }}
     />
   );

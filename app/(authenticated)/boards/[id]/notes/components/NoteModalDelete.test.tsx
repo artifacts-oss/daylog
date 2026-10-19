@@ -15,7 +15,7 @@ vi.mock('next/navigation', () => ({
 
 describe('NoteModalDelete', () => {
   const mockRouterRefresh = vi.fn();
-  const mockRouterPush = vi.fn();
+  const mockRouterReplace = vi.fn();
 
   beforeAll(() => {
     window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -35,7 +35,7 @@ describe('NoteModalDelete', () => {
     vi.clearAllMocks();
     (useRouter as Mock).mockReturnValue({
       refresh: mockRouterRefresh,
-      push: mockRouterPush,
+      replace: mockRouterReplace,
     });
   });
 
@@ -83,7 +83,7 @@ describe('NoteModalDelete', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Confirm Delete' }));
 
     await waitFor(() => {
-      expect(mockRouterPush).toHaveBeenCalledWith('/boards/1/notes');
+      expect(mockRouterReplace).toHaveBeenCalledWith('/boards/1/notes');
     });
   });
 });

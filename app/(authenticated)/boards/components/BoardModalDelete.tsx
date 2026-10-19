@@ -21,7 +21,7 @@ export default function BoardModalDelete({ board, redirectTo, trigger }: BoardMo
       entityTitle={board.title}
       onDelete={async () => {
         await deleteBoard(board);
-        if (redirectTo) router.push(redirectTo);
+        if (redirectTo) router.replace(redirectTo);
       }}
       trigger={trigger}
       triggerClassName="h-8 w-8 text-white hover:text-white hover:bg-white/10"
