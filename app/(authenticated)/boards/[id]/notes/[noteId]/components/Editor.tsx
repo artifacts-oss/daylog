@@ -112,8 +112,8 @@ export default function Editor({
         }
       }
     });
-    loadPictures();
-    loadAttachments();
+    void loadPictures();
+    void loadAttachments();
   }, [note.id, loadPictures, loadAttachments]);
 
   // Sync local state only when the user navigates to a *different* note
@@ -154,7 +154,7 @@ export default function Editor({
 
       // Set a new timer
       debounceTimerRef.current = setTimeout(() => {
-        updateNoteHandler(content);
+        void updateNoteHandler(content);
         callback();
       }, 1000); // Waits for 1 second of inactivity before saving
     },
@@ -611,12 +611,12 @@ const PicturePreview = ({
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            onDelete();
+            void onDelete();
           }
         }}
         onClick={(e) => {
           e.stopPropagation();
-          onDelete();
+          void onDelete();
         }}
         title={deleteLabel}
       >

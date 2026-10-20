@@ -44,7 +44,7 @@ export function removeFile(filePath?: string | null) {
     if (filePath && fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     } else if (filePath?.startsWith('S3')) {
-      deleteFileS3(filePath);
+      deleteFileS3(filePath).catch((error) => console.error(error));
     }
     return true;
   } catch (error) {

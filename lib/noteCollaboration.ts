@@ -89,7 +89,7 @@ export async function getOrInitRoom(
   if (existing && Object.keys(existing).length > 0) {
     return {
       content: existing.content ?? '',
-      revision: parseInt(existing.revision ?? '0', 10),
+      revision: Number.parseInt(existing.revision ?? '0', 10),
     };
   }
 
@@ -105,7 +105,7 @@ export async function getOrInitRoom(
   const final = await redis.hgetall(key);
   return {
     content: final.content ?? content,
-    revision: parseInt(final.revision ?? '0', 10),
+    revision: Number.parseInt(final.revision ?? '0', 10),
   };
 }
 
@@ -116,7 +116,7 @@ export async function getRoomState(
   if (!data || Object.keys(data).length === 0) return null;
   return {
     content: data.content ?? '',
-    revision: parseInt(data.revision ?? '0', 10),
+    revision: Number.parseInt(data.revision ?? '0', 10),
   };
 }
 

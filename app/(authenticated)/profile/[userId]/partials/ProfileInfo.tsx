@@ -65,7 +65,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
     const cropper = new Cropper(image, { template: cropperTemplate });
     const cropperImage = cropper.getCropperImage();
     const selection = cropper.getCropperSelection();
-    cropperImage?.$ready().then(() => {
+    void cropperImage?.$ready().then(() => {
       const imageRect = cropperImage.getBoundingClientRect();
       const selectionRect = selection?.getBoundingClientRect();
       if (selectionRect) {

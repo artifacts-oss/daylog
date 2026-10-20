@@ -69,9 +69,9 @@ export default function BoardModalForm({
     setSubmiting(true);
 
     if (mode === 'create') {
-      createBoardHandler(data);
+      void createBoardHandler(data);
     } else {
-      updateBoardHandler(data);
+      void updateBoardHandler(data);
     }
 
     setSubmiting(false);

@@ -93,7 +93,7 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
 
   const copyLink = (id: string) => {
     const url = `${window.location.origin}/share/${id}`;
-    navigator.clipboard.writeText(url);
+    void navigator.clipboard.writeText(url);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };

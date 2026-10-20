@@ -26,8 +26,8 @@ export default async function NotePage({
     return null;
   }
   const { id, noteId } = await params;
-  let board = await getBoard(parseInt(id));
-  let note = await getNote(parseInt(noteId));
+  let board = await getBoard(Number.parseInt(id));
+  let note = await getNote(Number.parseInt(noteId));
   const tNav = await getTranslations('Navigation');
   const tNotes = await getTranslations('NotesPage');
   const t = await getTranslations('NoteDetailPage');
@@ -37,10 +37,10 @@ export default async function NotePage({
   // If user isn't the owner, check if they have a canEdit share for this note
   let canEditViaShare = false;
   if (!note) {
-    const editShare = await getEditShareForNote(parseInt(noteId));
+    const editShare = await getEditShareForNote(Number.parseInt(noteId));
     if (editShare) {
-      note = await getNoteForRecipient(parseInt(noteId));
-      board = board ?? await getBoardForNoteRecipient(parseInt(noteId));
+      note = await getNoteForRecipient(Number.parseInt(noteId));
+      board = board ?? await getBoardForNoteRecipient(Number.parseInt(noteId));
       canEditViaShare = true;
     }
   }

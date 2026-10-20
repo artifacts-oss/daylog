@@ -12,12 +12,12 @@ import { useTranslations } from 'next-intl';
 export default function OTPLogin() {
   const t = useTranslations('OTPPage');
   const params = useParams();
-  const userId = parseInt(params?.userId as string);
+  const userId = Number.parseInt(params?.userId as string);
   const [mfa, setMfa] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (userId) {
-      getUserMFA(userId).then(setMfa);
+      void getUserMFA(userId).then(setMfa);
     }
   }, [userId]);
 

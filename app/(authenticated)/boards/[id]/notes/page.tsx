@@ -33,7 +33,7 @@ export default async function Notes({
     return null;
   }
   const { id } = await params;
-  const boardId = parseInt(id);
+  const boardId = Number.parseInt(id);
   const {
     sort = user.sortNotesBy || 'created_desc',
     perPage = 12,
@@ -46,7 +46,7 @@ export default async function Notes({
   }
 
   const currentSort = sort as string;
-  const currentPerPage = parseInt(perPage as string);
+  const currentPerPage = Number.parseInt(perPage as string);
   const openNewNote = openNew === 'true';
   const notesCount = await getNotesCount(boardId);
   const notes = await getNotes(currentSort, currentPerPage, boardId);

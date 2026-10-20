@@ -40,8 +40,8 @@ export async function POST(
   }
 
   const { noteId: noteIdStr } = await params;
-  const noteId = parseInt(noteIdStr);
-  if (isNaN(noteId)) {
+  const noteId = Number.parseInt(noteIdStr);
+  if (Number.isNaN(noteId)) {
     return Response.json({ error: 'Invalid note ID' }, { status: 400 });
   }
 

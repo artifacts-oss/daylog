@@ -15,8 +15,8 @@ export async function GET(req: NextRequest) {
   const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY;
 
   const keyword = req.nextUrl.searchParams.get('keyword') || 'nature';
-  const page = parseInt(req.nextUrl.searchParams.get('page') || '1', 10);
-  const p_page = parseInt(req.nextUrl.searchParams.get('per_page') || '12', 10);
+  const page = Number.parseInt(req.nextUrl.searchParams.get('page') || '1', 10);
+  const p_page = Number.parseInt(req.nextUrl.searchParams.get('per_page') || '12', 10);
   const url = `https://api.unsplash.com/search/photos?query=${keyword}&page=${page}&per_page=${p_page}&orientation=landscape`;
 
   const response = await fetch(url, {

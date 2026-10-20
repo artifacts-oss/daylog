@@ -24,7 +24,7 @@ export function processSharedMarkdown(
   token: string,
 ): string {
   if (!content) return '';
-  return content.replace(/(!?)\[([^\]]*)\]\(([^)]*)\)/g, (match, prefix, label, url) => {
+  return content.replace(/(!?)\[([^[\]]*)\]\(([^()]*)\)/g, (match, prefix, label, url) => {
     let rewritten = url;
 
     if (url.includes('/api/v1/images?filePath=')) {

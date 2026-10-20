@@ -8,7 +8,7 @@ import {
   resolveLocale,
 } from '@/i18n/config';
 
-const PUBLIC_FILE = /^(?!\/\.(?!well-known\/)).*\.(.*)$/;
+const PUBLIC_FILE = /^(?!\/\.(?!well-known\/))[^.]*\./;
 
 const PUBLIC_PATHS = [
   '/login',

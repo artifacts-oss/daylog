@@ -65,7 +65,7 @@ export default function UsersTable({
   };
 
   useEffect(() => {
-    loadData();
+    void loadData();
   }, []);
 
   const handleClickRole = async (userId: number, role: string) => {

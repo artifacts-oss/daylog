@@ -239,7 +239,7 @@ export default function ImageSection({
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
-                    fetchImages(e.currentTarget.value, 1);
+                    void fetchImages(e.currentTarget.value, 1);
                   }
                 }}
                 onChange={(e) => debounceSearch(e.target.value, 1)}
