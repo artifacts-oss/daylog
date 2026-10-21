@@ -169,3 +169,22 @@ export async function publishEvent(noteId: number, event: CollabEvent): Promise<
 export function formatSSE(event: string, data: Record<string, unknown>): string {
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
 }
+
+// Owner of the note's board, or a SPECIFIC-scope share recipient with canEdit.
+export async function hasEditAccess(noteId: number, userId: number): Promise<boolean> {
+  const asOwner = await prisma.note.findFirst({
+    where: { id: noteId, boards: { userId } },
+  });
+  if (asOwner) return true;
+
+  const asEditRecipient = await prisma.share.findFirst({
+    where: {
+      entityType: 'NOTE',
+      entityId: noteId,
+      canEdit: true,
+      scope: 'SPECIFIC',
+      recipients: { some: { userId } },
+    },
+  });
+  return !!asEditRecipient;
+}

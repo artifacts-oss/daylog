@@ -92,6 +92,12 @@ export const uploadRateLimiter = new RateLimiter(
   30 * 1000 // 30 seconds
 );
 
+export const aiRateLimiter = new RateLimiter(
+  SECURITY_CONFIG.RATE_LIMIT.AI.WINDOW_MS,
+  SECURITY_CONFIG.RATE_LIMIT.AI.MAX_REQUESTS,
+  60 * 1000 // 1 minute
+);
+
 /**
  * Gets client IP from request
  */

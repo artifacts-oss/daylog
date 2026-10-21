@@ -20,6 +20,7 @@ import {
   PhotoIcon,
   XMarkIcon,
   PaperClipIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FAST } from '@/lib/motion';
 import ChangeHistorySidebar from './ChangeHistorySidebar';
 import AttachmentSidebar from './AttachmentSidebar';
+import AiSidebar from './AiSidebar';
 import { History } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -52,6 +54,7 @@ type NoteEditorType = {
   onContentChange?: (content: string) => void;
   onCursorLineChange?: (line: number) => void;
   presenceUsers?: PresenceUser[];
+  aiEnabled?: boolean;
 };
 
 export default function Editor({
@@ -63,6 +66,7 @@ export default function Editor({
   onContentChange,
   onCursorLineChange,
   presenceUsers,
+  aiEnabled,
 }: NoteEditorType) {
   const router = useRouter();
   const t = useTranslations('NoteEditor');
@@ -84,6 +88,7 @@ export default function Editor({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAttachmentsOpen, setIsAttachmentsOpen] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [isAiOpen, setIsAiOpen] = useState(false);
   const [sidebarRefreshKey, setSidebarRefreshKey] = useState(0);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -262,6 +267,27 @@ export default function Editor({
     const newContent = leftContent + `[${fileName}](${fileUrl})` + rightContent;
 
     setMarkdown(newContent);
+  };
+
+  // AI works on the selection if there is one, otherwise on the whole note
+  const getAiSource = () => {
+    const textarea = document.querySelector(
+      '.w-md-editor-text-input',
+    ) as HTMLTextAreaElement | null;
+    const start = textarea?.selectionStart ?? 0;
+    const end = textarea?.selectionEnd ?? 0;
+    if (start !== end) {
+      return { text: markdown.substring(start, end), start, end };
+    }
+    return { text: markdown, start: 0, end: markdown.length };
+  };
+
+  // shortcut: offsets come from when the AI request started; concurrent collab edits may shift them.
+  const handleAiInsert = (text: string, start: number, end: number) => {
+    const separator = start === end && start > 0 ? '\n\n' : '';
+    setMarkdown(
+      markdown.substring(0, start) + separator + text + markdown.substring(end),
+    );
   };
 
   const handleFileChange = async (
@@ -453,6 +479,39 @@ export default function Editor({
           )}
         </AnimatePresence>
 
+        {/* Sidebar for AI assistant */}
+        <AnimatePresence>
+          {isAiOpen && (
+            <motion.div
+              layout
+              initial={{
+                width: 0,
+                opacity: 0,
+              }}
+              animate={{
+                width:
+                  typeof window !== 'undefined' && window.innerWidth < 1024
+                    ? '100%'
+                    : 340,
+                opacity: 1,
+              }}
+              exit={{
+                width: 0,
+                opacity: 0,
+              }}
+              transition={FAST}
+              className="flex-shrink-0 flex flex-col overflow-hidden max-lg:!mr-0 max-lg:mb-6 lg:mb-0 self-start w-full lg:w-[340px] lg:mr-6"
+            >
+              <AiSidebar
+                noteId={note.id}
+                getSource={getAiSource}
+                onInsert={handleAiInsert}
+                onClose={() => setIsAiOpen(false)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Main Editor Area */}
         <motion.div
           layout
@@ -466,6 +525,7 @@ export default function Editor({
                   if (!isSidebarOpen) {
                     setShowHistory(false);
                     setIsAttachmentsOpen(false);
+                    setIsAiOpen(false);
                   }
                 }}
                 variant="outline"
@@ -487,6 +547,7 @@ export default function Editor({
                   if (!isAttachmentsOpen) {
                     setShowHistory(false);
                     setIsSidebarOpen(false);
+                    setIsAiOpen(false);
                   }
                 }}
                 variant="outline"
@@ -509,6 +570,7 @@ export default function Editor({
                   if (!showHistory) {
                     setIsSidebarOpen(false);
                     setIsAttachmentsOpen(false);
+                    setIsAiOpen(false);
                   }
                 }}
                 variant="outline"
@@ -524,6 +586,31 @@ export default function Editor({
                   {showHistory ? t('closeHistory') : t('openHistory')}
                 </span>
               </Button>
+
+              {aiEnabled && (
+                <Button
+                  onClick={() => {
+                    setIsAiOpen(!isAiOpen);
+                    if (!isAiOpen) {
+                      setShowHistory(false);
+                      setIsSidebarOpen(false);
+                      setIsAttachmentsOpen(false);
+                    }
+                  }}
+                  variant="outline"
+                  className={`rounded-[12px] border-border shadow-sm font-[600] transition-all px-3 md:px-4 ${
+                    isAiOpen
+                      ? 'bg-accent text-accent-foreground'
+                      : 'bg-background text-foreground hover:bg-accent'
+                  }`}
+                  title={t('toggleAi')}
+                >
+                  <SparklesIcon className="h-5 w-5 md:mr-2 text-muted-foreground" />
+                  <span className="hidden md:inline">
+                    {isAiOpen ? t('closeAi') : t('openAi')}
+                  </span>
+                </Button>
+              )}
             </div>
 
             <div className="flex items-center gap-3">

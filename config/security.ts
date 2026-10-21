@@ -33,6 +33,10 @@ export const SECURITY_CONFIG = {
       WINDOW_MS: 60 * 1000, // 1 minute
       MAX_REQUESTS: 10,
     },
+    AI: {
+      WINDOW_MS: 60 * 1000, // 1 minute
+      MAX_REQUESTS: 10, // per user; each request is a paid model call
+    },
   },
 
   // MFA configuration

@@ -34,6 +34,7 @@ type CollabEditorProps = {
   currentUserId: number;
   currentUserName: string;
   enableCollab: boolean;
+  aiEnabled?: boolean;
 };
 
 type CollabState =
@@ -48,6 +49,7 @@ export default function CollabEditor({
   canDeleteHistory,
   currentUserId,
   enableCollab,
+  aiEnabled,
 }: CollabEditorProps) {
   const [remoteContent, setRemoteContent] = useState<string | null>(null);
   const [presenceMap, setPresenceMap] = useState<Map<number, PresenceEntry>>(
@@ -319,6 +321,7 @@ export default function CollabEditor({
       onContentChange={enableCollab ? handleContentChange : undefined}
       onCursorLineChange={enableCollab ? handleCursorLineChange : undefined}
       presenceUsers={enableCollab && collabState === 'CONNECTED' ? presenceEntries : undefined}
+      aiEnabled={aiEnabled}
     />
   );
 }

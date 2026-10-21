@@ -1,5 +1,4 @@
 import { getCurrentSession } from '@/app/login/lib/actions';
-import { prisma } from '@/prisma/client';
 import { NextRequest } from 'next/server';
 import {
   getOrInitRoom,
@@ -7,29 +6,12 @@ import {
   setPresence,
   publishEvent,
   loadNoteRoomContent,
+  hasEditAccess,
 } from '@/lib/noteCollaboration';
 import { computeDiff, applyPatch } from '@/utils/diff';
 import { parseId } from '@/utils/parseId';
 
 const MAX_PATCH_SIZE = 64 * 1024; // 64 KB
-
-async function hasEditAccess(noteId: number, userId: number): Promise<boolean> {
-  const asOwner = await prisma.note.findFirst({
-    where: { id: noteId, boards: { userId } },
-  });
-  if (asOwner) return true;
-
-  const asEditRecipient = await prisma.share.findFirst({
-    where: {
-      entityType: 'NOTE',
-      entityId: noteId,
-      canEdit: true,
-      scope: 'SPECIFIC',
-      recipients: { some: { userId } },
-    },
-  });
-  return !!asEditRecipient;
-}
 
 export async function POST(
   req: NextRequest,

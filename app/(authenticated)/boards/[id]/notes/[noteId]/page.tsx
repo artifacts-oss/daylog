@@ -18,6 +18,7 @@ import ShareDialog from '@/components/ShareDialog';
 import { getEntityPublicShare } from '@/app/(authenticated)/shared/lib/actions';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { parseId } from '@/utils/parseId';
+import { isAiEnabled } from '@/lib/ai';
 
 export default async function NotePage({
   params,
@@ -143,6 +144,7 @@ export default async function NotePage({
             currentUserId={user.id}
             currentUserName={user.name ?? user.email ?? ''}
             enableCollab={enableCollab}
+            aiEnabled={isAiEnabled() && (board.userId === user.id || canEditViaShare)}
           />
         )}
       </PageBody>
