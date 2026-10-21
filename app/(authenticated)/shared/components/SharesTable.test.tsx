@@ -103,7 +103,9 @@ describe('SharesTable', () => {
     const copyButtons = screen.getAllByTitle('Copy share link');
     const button = copyButtons[0];
 
-    fireEvent.click(button);
+    await act(async () => {
+      fireEvent.click(button);
+    });
 
     expect(mockClipboard.writeText).toHaveBeenCalledWith(
       expect.stringContaining('/share/s1'),
@@ -123,6 +125,23 @@ describe('SharesTable', () => {
     expect(button).not.toHaveClass('bg-emerald-500/10');
     
     vi.useRealTimers();
+  });
+
+  it('does not show success state when the clipboard write fails', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    Object.assign(navigator, {
+      clipboard: { writeText: vi.fn().mockRejectedValue(new Error('denied')) },
+    });
+
+    renderWithIntl(<SharesTable shares={mockShares} />);
+
+    const button = screen.getAllByTitle('Copy share link')[0];
+    await act(async () => {
+      fireEvent.click(button);
+    });
+
+    expect(button).not.toHaveClass('bg-emerald-500/10');
+    expect(error).toHaveBeenCalled();
   });
 
   it('shows revocation dialog when delete button is clicked', async () => {

@@ -68,10 +68,10 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
   useEffect(() => {
     if (scope === 'SPECIFIC' && users.length === 0) {
       setLoadingUsers(true);
-      void getShareableUsers().then((result) => {
-        setUsers(result);
-        setLoadingUsers(false);
-      });
+      getShareableUsers()
+        .then(setUsers)
+        .catch(console.error)
+        .finally(() => setLoadingUsers(false));
     }
   }, [scope, users.length]);
 
@@ -101,9 +101,13 @@ export default function ShareDialog({ entityType, entityId, trigger }: ShareDial
 
   const copyToClipboard = () => {
     if (shareLink) {
-      void navigator.clipboard.writeText(shareLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      navigator.clipboard
+        .writeText(shareLink)
+        .then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(console.error);
     }
   };
 

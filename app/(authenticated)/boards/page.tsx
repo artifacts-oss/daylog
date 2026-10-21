@@ -31,7 +31,8 @@ export default async function Boards({
   } = await searchParams;
 
   const currentSort = sort as string;
-  const currentPerPage = Number.parseInt(perPage as string);
+  const parsedPerPage = Number.parseInt(perPage as string, 10);
+  const currentPerPage = Number.isNaN(parsedPerPage) ? 12 : parsedPerPage;
   const openNewBoard = openNew === 'true';
   const boardCount = await getBoardsCount();
   const boards = await getBoards(currentSort, currentPerPage);

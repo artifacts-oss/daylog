@@ -59,13 +59,15 @@ export default function UsersTable({
   const [loading, setLoading] = useState(true);
 
   const loadData = async () => {
-    const users = await getUsers();
-    setUsers(users);
-    setLoading(false);
+    try {
+      setUsers(await getUsers());
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    void loadData();
+    loadData().catch(console.error);
   }, []);
 
   const handleClickRole = async (userId: number, role: string) => {

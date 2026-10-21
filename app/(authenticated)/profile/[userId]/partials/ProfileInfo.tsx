@@ -65,7 +65,7 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
     const cropper = new Cropper(image, { template: cropperTemplate });
     const cropperImage = cropper.getCropperImage();
     const selection = cropper.getCropperSelection();
-    void cropperImage?.$ready().then(() => {
+    cropperImage?.$ready().then(() => {
       const imageRect = cropperImage.getBoundingClientRect();
       const selectionRect = selection?.getBoundingClientRect();
       if (selectionRect) {
@@ -93,6 +93,10 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
           }
         }
       }) as EventListener);
+    }).catch((error) => {
+      console.error(error);
+      cropper.destroy();
+      if (cropperRef.current === cropper) cropperRef.current = null;
     });
     if (selection) {
       selection.aspectRatio = 1;

@@ -65,20 +65,23 @@ export default function BoardModalForm({
     }
   }, [externalOpen]);
 
-  const onSubmit: SubmitHandler<Board> = (data) => {
+  const onSubmit: SubmitHandler<Board> = async (data) => {
     setSubmiting(true);
-
-    if (mode === 'create') {
-      void createBoardHandler(data);
-    } else {
-      void updateBoardHandler(data);
+    try {
+      if (mode === 'create') {
+        await createBoardHandler(data);
+      } else {
+        await updateBoardHandler(data);
+      }
+      setOpen(false);
+      reset();
+      setImageFile(undefined);
+      setImageUrl('');
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSubmiting(false);
     }
-
-    setSubmiting(false);
-    setOpen(false);
-    reset();
-    setImageFile(undefined);
-    setImageUrl('');
   };
 
   async function uploadImage(boardId: number | null) {

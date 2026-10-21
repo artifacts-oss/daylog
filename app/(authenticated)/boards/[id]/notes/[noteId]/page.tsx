@@ -15,6 +15,7 @@ import { TrashIcon } from '@heroicons/react/24/outline';
 import ShareDialog from '@/components/ShareDialog';
 import { getEntityPublicShare } from '@/app/(authenticated)/shared/lib/actions';
 import { getLocale, getTranslations } from 'next-intl/server';
+import { parseId } from '@/utils/parseId';
 
 export default async function NotePage({
   params,
@@ -26,8 +27,13 @@ export default async function NotePage({
     return null;
   }
   const { id, noteId } = await params;
-  let board = await getBoard(Number.parseInt(id));
-  let note = await getNote(Number.parseInt(noteId));
+  const boardId = parseId(id);
+  const parsedNoteId = parseId(noteId);
+  if (Number.isNaN(boardId) || Number.isNaN(parsedNoteId)) {
+    return null;
+  }
+  let board = await getBoard(boardId);
+  let note = await getNote(parsedNoteId);
   const tNav = await getTranslations('Navigation');
   const tNotes = await getTranslations('NotesPage');
   const t = await getTranslations('NoteDetailPage');
@@ -37,10 +43,10 @@ export default async function NotePage({
   // If user isn't the owner, check if they have a canEdit share for this note
   let canEditViaShare = false;
   if (!note) {
-    const editShare = await getEditShareForNote(Number.parseInt(noteId));
+    const editShare = await getEditShareForNote(parsedNoteId);
     if (editShare) {
-      note = await getNoteForRecipient(Number.parseInt(noteId));
-      board = board ?? await getBoardForNoteRecipient(Number.parseInt(noteId));
+      note = await getNoteForRecipient(parsedNoteId);
+      board = board ?? await getBoardForNoteRecipient(parsedNoteId);
       canEditViaShare = true;
     }
   }

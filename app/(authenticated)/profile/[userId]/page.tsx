@@ -29,7 +29,10 @@ export default async function Profile({
     return redirect('/login');
   }
   const { userId } = await params;
-  const profile = await getProfile(Number.parseInt(userId));
+  const parsedUserId = Number.parseInt(userId, 10);
+  const profile = Number.isNaN(parsedUserId)
+    ? null
+    : await getProfile(parsedUserId);
   const tNav = await getTranslations('Navigation');
   const t = await getTranslations('ProfilePage');
 

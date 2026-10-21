@@ -93,9 +93,13 @@ export default function SharesTable({ shares }: { shares: SharedContent[] }) {
 
   const copyLink = (id: string) => {
     const url = `${window.location.origin}/share/${id}`;
-    void navigator.clipboard.writeText(url);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+      })
+      .catch(console.error);
   };
 
   const isPublic = (share: SharedContent) => share.scope === 'PUBLIC';

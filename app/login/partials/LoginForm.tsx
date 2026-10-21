@@ -22,9 +22,9 @@ export default function LoginForm() {
   const t = useTranslations('LoginPage');
 
   useEffect(() => {
-    void validateAllowRegistration().then((allowReg) => {
-      setIsRegAllowed(allowReg);
-    });
+    validateAllowRegistration()
+      .then((allowReg) => setIsRegAllowed(allowReg))
+      .catch(console.error);
   }, []);
 
   return (

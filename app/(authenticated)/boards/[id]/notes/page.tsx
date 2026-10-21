@@ -20,6 +20,7 @@ import { getImageUrlOrFile } from '@/utils/image';
 import ShareDialog from '@/components/ShareDialog';
 import { getEntityPublicShare } from '@/app/(authenticated)/shared/lib/actions';
 import { getLocale, getTranslations } from 'next-intl/server';
+import { parseId } from '@/utils/parseId';
 
 export default async function Notes({
   params,
@@ -33,7 +34,7 @@ export default async function Notes({
     return null;
   }
   const { id } = await params;
-  const boardId = Number.parseInt(id);
+  const boardId = parseId(id);
   const {
     sort = user.sortNotesBy || 'created_desc',
     perPage = 12,
@@ -46,7 +47,8 @@ export default async function Notes({
   }
 
   const currentSort = sort as string;
-  const currentPerPage = Number.parseInt(perPage as string);
+  const parsedPerPage = Number.parseInt(perPage as string, 10);
+  const currentPerPage = Number.isNaN(parsedPerPage) ? 12 : parsedPerPage;
   const openNewNote = openNew === 'true';
   const notesCount = await getNotesCount(boardId);
   const notes = await getNotes(currentSort, currentPerPage, boardId);
