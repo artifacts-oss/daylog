@@ -7,6 +7,8 @@ import PageHeader from '@/components/PageHeader';
 import { getNote, getEditShareForNote, getNoteForRecipient, renameNote } from '../lib/actions';
 import InlineTitleEditor from '@/components/InlineTitleEditor';
 import NoteModalDelete from '../components/NoteModalDelete';
+import NoteCoverDialog from '../components/NoteCoverDialog';
+import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
 import CollabEditor from './components/CollabEditor';
 import { prisma } from '@/prisma/client';
 import { getImageUrlOrFile } from '@/utils/image';
@@ -56,6 +58,7 @@ export default async function NotePage({
   }
 
   const _noteShare = await getEntityPublicShare('NOTE', note.id);
+  const settings = await getSettings();
 
   const hasEditShare = !!(await prisma.share.findFirst({
     where: { entityType: 'NOTE', entityId: note.id, canEdit: true, scope: 'SPECIFIC' },
@@ -102,6 +105,16 @@ export default async function NotePage({
           note?.imageUrl
             ? getImageUrlOrFile(encodeURI(note.imageUrl))
             : undefined
+        }
+        coverSlot={
+          board.userId === user.id || canEditViaShare ? (
+            <NoteCoverDialog
+              noteId={note.id}
+              noteTitle={note.title}
+              currentImageUrl={note.imageUrl}
+              isUnsplashAllowed={settings?.allowUnsplash}
+            />
+          ) : undefined
         }
         breadcrumbs={breadcrumbs}
       >

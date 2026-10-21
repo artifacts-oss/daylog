@@ -165,7 +165,14 @@
     "update": "Actualizar",
     "imageAlt": "Imagen de vista previa de {title}",
     "boardLabel": "Tablero",
-    "quickNote": "Nota rápida"
+    "quickNote": "Nota rápida",
+    "imageErrors": {
+      "decode": "Este archivo no se puede leer como imagen. Prueba con un JPG, PNG o WebP.",
+      "invalidFormat": "Ese formato de imagen no es compatible. Sube un archivo de imagen o elige una de Unsplash.",
+      "unauthorized": "No tienes permiso para cambiar la portada de esta nota.",
+      "storage": "El servidor no pudo guardar la imagen. Inténtalo más tarde o contacta con tu administrador.",
+      "unknown": "No se pudo guardar la imagen de portada. Revisa tu conexión e inténtalo de nuevo."
+    }
   },
   "NoteDelete": {
     "delete": "Eliminar nota",

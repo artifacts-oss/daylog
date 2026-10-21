@@ -165,7 +165,14 @@
     "update": "Mettre a jour",
     "imageAlt": "Image d'aperçu de {title}",
     "boardLabel": "Tableau",
-    "quickNote": "Note rapide"
+    "quickNote": "Note rapide",
+    "imageErrors": {
+      "decode": "Ce fichier ne peut pas être lu comme une image. Essayez un JPG, PNG ou WebP.",
+      "invalidFormat": "Ce format d'image n'est pas pris en charge. Importez un fichier image ou choisissez-en une sur Unsplash.",
+      "unauthorized": "Vous n'avez pas l'autorisation de modifier la couverture de cette note.",
+      "storage": "Le serveur n'a pas pu enregistrer l'image. Réessayez plus tard ou contactez votre administrateur.",
+      "unknown": "Impossible d'enregistrer l'image de couverture. Vérifiez votre connexion et réessayez."
+    }
   },
   "NoteDelete": {
     "delete": "Supprimer la note",

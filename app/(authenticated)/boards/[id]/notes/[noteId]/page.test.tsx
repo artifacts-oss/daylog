@@ -69,6 +69,14 @@ vi.mock('../components/NoteModalDelete', () => ({
   )),
 }));
 
+vi.mock('../components/NoteCoverDialog', () => ({
+  default: vi.fn(() => <div data-testid="note-cover" />),
+}));
+
+vi.mock('@/app/(authenticated)/admin/lib/actions', () => ({
+  getSettings: vi.fn().mockResolvedValue({ allowUnsplash: false }),
+}));
+
 vi.mock('./components/Editor', () => ({
   default: vi.fn(({ note, isOwner }: { note: Note; isOwner: boolean }) => (
     <div data-testid="note" data-is-owner={isOwner.toString()}>

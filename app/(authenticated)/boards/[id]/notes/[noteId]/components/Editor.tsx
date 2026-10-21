@@ -370,7 +370,7 @@ export default function Editor({
                         handlePlaceImage(getImageUrlOrFile(note.imageUrl!));
                       },
                       onDelete: async () => {
-                        await deleteImage(note.id, note.imageUrl);
+                        await deleteImage(note.id);
                         router.refresh();
                       },
                       deleteLabel: t('deletePicture'),

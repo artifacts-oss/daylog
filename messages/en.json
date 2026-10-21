@@ -165,7 +165,14 @@
     "update": "Update",
     "imageAlt": "Preview image of {title}",
     "boardLabel": "Board",
-    "quickNote": "Quick note"
+    "quickNote": "Quick note",
+    "imageErrors": {
+      "decode": "This file can't be read as an image. Try a JPG, PNG or WebP.",
+      "invalidFormat": "That image format isn't supported. Upload an image file or pick one from Unsplash.",
+      "unauthorized": "You don't have permission to change this note's cover.",
+      "storage": "The server couldn't store the image. Try again later or contact your administrator.",
+      "unknown": "Couldn't save the cover image. Check your connection and try again."
+    }
   },
   "NoteDelete": {
     "delete": "Delete note",

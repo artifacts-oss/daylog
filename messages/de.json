@@ -165,7 +165,14 @@
     "update": "Aktualisieren",
     "imageAlt": "Vorschaubild von {title}",
     "boardLabel": "Board",
-    "quickNote": "Schnellnotiz"
+    "quickNote": "Schnellnotiz",
+    "imageErrors": {
+      "decode": "Diese Datei kann nicht als Bild gelesen werden. Versuche ein JPG, PNG oder WebP.",
+      "invalidFormat": "Dieses Bildformat wird nicht unterstützt. Lade eine Bilddatei hoch oder wähle eines von Unsplash.",
+      "unauthorized": "Du hast keine Berechtigung, das Titelbild dieser Notiz zu ändern.",
+      "storage": "Der Server konnte das Bild nicht speichern. Versuche es später erneut oder wende dich an deinen Administrator.",
+      "unknown": "Das Titelbild konnte nicht gespeichert werden. Prüfe deine Verbindung und versuche es erneut."
+    }
   },
   "NoteDelete": {
     "delete": "Notiz löschen",

@@ -439,10 +439,7 @@ describe('Editor', () => {
 
       fireEvent.click(screen.getByTitle('Delete picture'));
       await waitFor(() => {
-        expect(mocks.deleteImage).toHaveBeenCalledWith(
-          noteWithImage.id,
-          noteWithImage.imageUrl,
-        );
+        expect(mocks.deleteImage).toHaveBeenCalledWith(noteWithImage.id);
       });
     });
 

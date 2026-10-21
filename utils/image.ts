@@ -2,10 +2,14 @@ export const resizeImage = (
   file: File,
   maxWidth: number,
   maxHeight: number,
-  callback: (resizedDataUrl: string) => void
+  callback: (resizedDataUrl: string) => void,
+  onError?: () => void,
 ) => {
   const img = new Image();
   const reader = new FileReader();
+
+  // Undecodable files (e.g. HEIC in Chrome) never reach img.onload.
+  reader.onerror = img.onerror = () => onError?.();
 
   // Read the image file as a data URL
   reader.onload = function (event) {

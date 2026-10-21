@@ -290,7 +290,7 @@ describe('Note Actions', () => {
 
     const result = await saveImage({ noteId, imageUrl: imageBase64 });
 
-    expect(result).toBe(imageBase64);
+    expect(result).toEqual({});
     expect(saveBase64File).toHaveBeenCalledWith(imageBase64);
     expect(prisma.note.update).toHaveBeenCalledWith({
       where: { id: noteId },
@@ -302,23 +302,37 @@ describe('Note Actions', () => {
     const noteId = 1;
     const fileurl = 'bad-url-or-base64';
     const result = await saveImage({ noteId, imageUrl: fileurl });
-    expect(result).toBeNull();
+    expect(result).toEqual({ error: 'invalidFormat' });
   });
 
-  it('should remove existent image when updating note', async () => {
-    mocks.existsSync.mockReturnValue(true);
+  it('rejects saving a cover without access to the note', async () => {
+    prismaMock.note.findUnique.mockResolvedValue(null);
+    const result = await saveImage({ noteId: 1, imageUrl: 'http://example.com/image.jpg' });
+    expect(result).toEqual({ error: 'unauthorized' });
+    expect(prisma.note.update).not.toHaveBeenCalled();
+  });
+
+  it('keeps the current cover when storing the new one fails', async () => {
+    mocks.saveBase64File.mockReturnValue(null);
+    prismaMock.note.findUnique.mockResolvedValue({ id: 1, boardsId: 1, imageUrl: 'old.png' } as Note);
+    prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
+
+    const result = await saveImage({ noteId: 1, imageUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA' });
+
+    expect(result).toEqual({ error: 'storage' });
+    expect(prisma.note.update).not.toHaveBeenCalled();
+    expect(removeFile).not.toHaveBeenCalled();
+  });
+
+  it('should remove the stored previous image after updating the cover', async () => {
     const noteId = 1;
     const filepath = 'http://example.com/image.jpg';
     const existentFilePath = 'path/to/existent/image.jpg';
-    prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
+    prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1, imageUrl: existentFilePath } as Note);
     prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
-    const result = await saveImage({
-      noteId,
-      imageUrl: filepath,
-      existentFileName: existentFilePath,
-    });
-    expect(result).toBe(filepath);
+    const result = await saveImage({ noteId, imageUrl: filepath });
+    expect(result).toEqual({});
     expect(mocks.removeFile).toHaveBeenCalledWith(existentFilePath);
   });
 
@@ -332,7 +346,7 @@ describe('Note Actions', () => {
 
     const result = await saveImage({ noteId, imageUrl: fileurl });
 
-    expect(result).toBe(fileurl);
+    expect(result).toEqual({});
     expect(prisma.note.update).toHaveBeenCalledWith({
       where: { id: noteId },
       data: { imageUrl: fileurl },
@@ -353,10 +367,10 @@ describe('Note Actions', () => {
     prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
 
-    const key = await saveImage({ noteId, imageUrl: imageBase64 });
+    const result = await saveImage({ noteId, imageUrl: imageBase64 });
 
     expect(mocks.uploadFileS3).toHaveBeenCalled();
-    expect(key).not.toBeNull();
+    expect(result).toEqual({});
   });
 
   it('should delete an image', async () => {
@@ -364,11 +378,11 @@ describe('Note Actions', () => {
     const filePath = 'path/to/image';
 
     mocks.removeFile.mockReturnValue(true);
-    prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1 } as Note);
+    prismaMock.note.findUnique.mockResolvedValue({ id: noteId, boardsId: 1, imageUrl: filePath } as Note);
     prismaMock.board.findFirst.mockResolvedValue({ id: 1 } as Board);
     prismaMock.note.update.mockResolvedValue({} as Note);
 
-    await deleteImage(noteId, filePath);
+    await deleteImage(noteId);
 
     expect(removeFile).toHaveBeenCalledWith(filePath);
     expect(prisma.note.update).toHaveBeenCalledWith({
