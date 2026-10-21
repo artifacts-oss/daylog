@@ -35,6 +35,9 @@ export default async function Notes({
   }
   const { id } = await params;
   const boardId = parseId(id);
+  if (Number.isNaN(boardId)) {
+    return null;
+  }
   const {
     sort = user.sortNotesBy || 'created_desc',
     perPage = 12,
