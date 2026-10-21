@@ -6,7 +6,7 @@ import {
   AI_MAX_INSTRUCTION_CHARS,
   isAiAction,
   isAiEnabled,
-  streamAiCompletion,
+  streamAiText,
 } from '@/lib/ai';
 import { aiRateLimiter, getRateLimitHeaders } from '@/utils/rateLimit';
 import { parseId } from '@/utils/parseId';
@@ -67,19 +67,15 @@ export async function POST(
   }
 
   // Client sends the live editor text (it may include unsaved or decrypted content).
-  const stream = streamAiCompletion(action, text, instruction);
+  const abort = new AbortController();
+  const chunks = streamAiText(action, text, instruction, abort.signal);
   const encoder = new TextEncoder();
 
   const readable = new ReadableStream<Uint8Array>({
     async start(controller) {
       try {
-        for await (const event of stream) {
-          if (
-            event.type === 'content_block_delta' &&
-            event.delta.type === 'text_delta'
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text));
-          }
+        for await (const chunk of chunks) {
+          controller.enqueue(encoder.encode(chunk));
         }
         controller.close();
       } catch (error) {
@@ -88,7 +84,7 @@ export async function POST(
       }
     },
     cancel() {
-      stream.abort();
+      abort.abort();
     },
   });
 

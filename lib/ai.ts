@@ -1,8 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-export const AI_MODEL = 'claude-opus-5-5';
 export const AI_MAX_INPUT_CHARS = 200_000;
 export const AI_MAX_INSTRUCTION_CHARS = 2_000;
+const DEFAULT_ANTHROPIC_MODEL = 'claude-opus-5-5';
 
 export const AI_ACTIONS = [
   'summarize',
@@ -13,8 +13,18 @@ export const AI_ACTIONS = [
 ] as const;
 export type AiAction = (typeof AI_ACTIONS)[number];
 
+type AiProvider = 'openai-compatible' | 'anthropic';
+
+// AI_BASE_URL selects any OpenAI-compatible server (llama.cpp, Ollama, LM Studio,
+// vLLM, OpenAI, OpenRouter...); otherwise ANTHROPIC_API_KEY selects Claude.
+function getAiProvider(): AiProvider | null {
+  if (process.env.AI_BASE_URL) return 'openai-compatible';
+  if (process.env.ANTHROPIC_API_KEY) return 'anthropic';
+  return null;
+}
+
 export function isAiEnabled(): boolean {
-  return !!process.env.ANTHROPIC_API_KEY;
+  return getAiProvider() !== null;
 }
 
 export function isAiAction(value: unknown): value is AiAction {
@@ -47,24 +57,103 @@ export function buildAiUserPrompt(
   return `<note>\n${text}\n</note>\n\n${task}`;
 }
 
-let client: Anthropic | null = null;
-
-export function streamAiCompletion(
+// Yields the model's answer as text chunks from whichever provider is configured.
+export function streamAiText(
   action: AiAction,
   text: string,
-  instruction?: string,
-) {
-  client ??= new Anthropic();
-  return client.beta.messages.stream({
-    model: AI_MODEL,
-    max_tokens: 16000,
-    // Note editing tasks don't need deep reasoning; low effort keeps latency down.
-    output_config: { effort: 'low' },
-    betas: ['server-side-fallback-2026-07-01'],
-    fallbacks: 'default',
-    system: AI_SYSTEM_PROMPT,
-    messages: [
-      { role: 'user', content: buildAiUserPrompt(action, text, instruction) },
-    ],
+  instruction: string | undefined,
+  signal: AbortSignal,
+): AsyncGenerator<string> {
+  const prompt = buildAiUserPrompt(action, text, instruction);
+  return getAiProvider() === 'openai-compatible'
+    ? streamOpenAiCompatible(prompt, signal)
+    : streamAnthropic(prompt, signal);
+}
+
+let anthropicClient: Anthropic | null = null;
+
+async function* streamAnthropic(
+  prompt: string,
+  signal: AbortSignal,
+): AsyncGenerator<string> {
+  anthropicClient ??= new Anthropic();
+  const model = process.env.AI_MODEL || DEFAULT_ANTHROPIC_MODEL;
+  const stream = anthropicClient.beta.messages.stream(
+    {
+      model,
+      max_tokens: 16000,
+      // Tuned for the default model; older Claude models reject these params.
+      ...(model === DEFAULT_ANTHROPIC_MODEL && {
+        output_config: { effort: 'low' as const },
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default' as const,
+      }),
+      system: AI_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: prompt }],
+    },
+    { signal },
+  );
+  for await (const event of stream) {
+    if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+      yield event.delta.text;
+    }
+  }
+}
+
+async function* streamOpenAiCompatible(
+  prompt: string,
+  signal: AbortSignal,
+): AsyncGenerator<string> {
+  const baseUrl = (process.env.AI_BASE_URL ?? '').replace(/\/+$/, '');
+  const apiKey = process.env.AI_API_KEY;
+  const res = await fetch(`${baseUrl}/chat/completions`, {
+    method: 'POST',
+    signal,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(apiKey && { Authorization: `Bearer ${apiKey}` }),
+    },
+    body: JSON.stringify({
+      // llama.cpp serves its loaded model whatever the name; Ollama/OpenAI need a real one.
+      model: process.env.AI_MODEL || 'default',
+      stream: true,
+      messages: [
+        { role: 'system', content: AI_SYSTEM_PROMPT },
+        { role: 'user', content: prompt },
+      ],
+    }),
   });
+  if (!res.ok || !res.body) {
+    throw new Error(`AI provider responded with status ${res.status}`);
+  }
+  yield* parseChatCompletionStream(res.body);
+}
+
+type ChatCompletionChunk = {
+  choices?: { delta?: { content?: string | null } }[];
+};
+
+// Parses an OpenAI-style SSE stream ("data: {...}" lines, ending with "data: [DONE]").
+export async function* parseChatCompletionStream(
+  body: ReadableStream<Uint8Array>,
+): AsyncGenerator<string> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  for (;;) {
+    const { done, value } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done });
+    const lines = buffer.split('\n');
+    buffer = done ? '' : (lines.pop() ?? '');
+    for (const line of lines) {
+      const data = line.trim();
+      if (!data.startsWith('data:')) continue;
+      const payload = data.slice(5).trim();
+      if (payload === '[DONE]') return;
+      const chunk = JSON.parse(payload) as ChatCompletionChunk;
+      const content = chunk.choices?.[0]?.delta?.content;
+      if (content) yield content;
+    }
+    if (done) return;
+  }
 }
