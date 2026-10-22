@@ -1,6 +1,6 @@
-import { render, screen, waitFor, within, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ShareDialog from './ShareDialog';
 import { createShare, getShareableUsers } from '@/app/(authenticated)/shared/lib/actions';
 
@@ -14,12 +14,9 @@ const users = [
   { id: 3, name: null, email: 'bob@x.com', profileImage: null },
 ];
 
-afterEach(cleanup);
-
 describe('ShareDialog', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    vi.mocked(createShare).mockResolvedValue({ id: 'tok123' } as never);
+    vi.mocked(createShare).mockResolvedValue({ id: 'tok123' } as Awaited<ReturnType<typeof createShare>>);
     vi.mocked(getShareableUsers).mockResolvedValue(users);
   });
 
@@ -30,7 +27,7 @@ describe('ShareDialog', () => {
     return { user, dialog: await screen.findByRole('dialog') };
   }
 
-  it('creates a public link with the trimmed-to-undefined password and shows it', async () => {
+  it('creates a public link, sending an empty password as undefined, and shows it', async () => {
     const { user, dialog } = await openDialog();
 
     await user.click(within(dialog).getByRole('button', { name: 'Create Secure Link' }));
@@ -153,6 +150,7 @@ describe('ShareDialog', () => {
     await waitFor(() => expect(consoleError).toHaveBeenCalled());
     expect(within(dialog).queryByText('Link Shared Successfully')).not.toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Create Secure Link' })).toBeEnabled();
+    consoleError.mockRestore();
   });
 
   it('copies the public link to the clipboard', async () => {

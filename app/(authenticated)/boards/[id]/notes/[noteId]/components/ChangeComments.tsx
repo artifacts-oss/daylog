@@ -46,8 +46,14 @@ export default function ChangeComments({
     if (!newComment.trim()) return;
 
     setIsSubmitting(true);
-    const comment = await addChangeComment(changeId, newComment.trim());
-    setIsSubmitting(false);
+    let comment;
+    try {
+      comment = await addChangeComment(changeId, newComment.trim());
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
 
     if (comment) {
       setNewComment('');

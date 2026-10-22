@@ -1,8 +1,9 @@
-import { render, screen, waitFor, cleanup, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import ChangeComments from './ChangeComments';
 import { addChangeComment } from '../../lib/actions';
+import type { ChangeCommentWithUser } from '../../lib/types';
 
 vi.mock('../../lib/actions', () => ({
   addChangeComment: vi.fn(),
@@ -20,15 +21,9 @@ const makeComment = (id: number, userId: number, content: string): Comment => ({
   user: { id: userId, name: `User ${userId}`, email: `u${userId}@x.com`, profileImage: null },
 });
 
-afterEach(cleanup);
-
 describe('ChangeComments', () => {
   const onRefresh = vi.fn();
   const onDeleteRequest = vi.fn();
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
 
   const renderComments = (props: Partial<Props> = {}) =>
     render(
@@ -47,13 +42,13 @@ describe('ChangeComments', () => {
   });
 
   it('submits the trimmed comment, clears the input and refreshes', async () => {
-    vi.mocked(addChangeComment).mockResolvedValue({ id: 5 } as never);
+    vi.mocked(addChangeComment).mockResolvedValue({ id: 5 } as ChangeCommentWithUser);
     const user = userEvent.setup();
     renderComments();
 
     const input = screen.getByPlaceholderText('Add a comment...');
     await user.type(input, '  hello  ');
-    fireEvent.submit(input.closest('form')!);
+    fireEvent.click(screen.getByRole('button'));
 
     await waitFor(() => expect(addChangeComment).toHaveBeenCalledWith(1, 'hello'));
     expect(input).toHaveValue('');
@@ -64,7 +59,9 @@ describe('ChangeComments', () => {
     const user = userEvent.setup();
     renderComments();
 
-    await user.type(screen.getByPlaceholderText('Add a comment...'), '   ');
+    const input = screen.getByPlaceholderText('Add a comment...');
+    await user.type(input, '   ');
+    fireEvent.submit(input.closest('form')!);
 
     expect(addChangeComment).not.toHaveBeenCalled();
     expect(screen.getByRole('button')).toBeDisabled();
@@ -77,11 +74,27 @@ describe('ChangeComments', () => {
 
     const input = screen.getByPlaceholderText('Add a comment...');
     await user.type(input, 'hello');
-    fireEvent.submit(input.closest('form')!);
+    fireEvent.click(screen.getByRole('button'));
 
     await waitFor(() => expect(addChangeComment).toHaveBeenCalled());
     expect(input).toHaveValue('hello');
     expect(onRefresh).not.toHaveBeenCalled();
+  });
+
+  it('re-enables the form and keeps the text when the request fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.mocked(addChangeComment).mockRejectedValue(new Error('network'));
+    const user = userEvent.setup();
+    renderComments();
+
+    const input = screen.getByPlaceholderText('Add a comment...');
+    await user.type(input, 'hello');
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => expect(input).toBeEnabled());
+    expect(input).toHaveValue('hello');
+    expect(onRefresh).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('lets only the author delete a comment', async () => {

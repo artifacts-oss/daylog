@@ -162,6 +162,13 @@ export async function deleteNote(note: Note): Promise<Note | null> {
     return null;
   }
 
+  // Ownership check before touching shares: the action is callable with any note id.
+  const owned = await prisma.note.findFirst({
+    where: { id: note.id, boards: { userId: user.id } },
+    select: { id: true },
+  });
+  if (!owned) return null;
+
   await prisma.share.deleteMany({ where: { entityType: 'NOTE', entityId: note.id } });
 
   const deleted = await prisma.note.delete({

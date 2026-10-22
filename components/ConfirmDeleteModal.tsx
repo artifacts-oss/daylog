@@ -42,8 +42,14 @@ export default function ConfirmDeleteModal({
 
   const handleDeleteClick = async () => {
     setDeleting(true);
-    await onDelete();
-    setDeleting(false);
+    try {
+      await onDelete();
+    } catch (error) {
+      console.error('Delete failed:', error);
+      return;
+    } finally {
+      setDeleting(false);
+    }
     setOpen(false);
     if (onSuccess) onSuccess();
     else router.refresh();

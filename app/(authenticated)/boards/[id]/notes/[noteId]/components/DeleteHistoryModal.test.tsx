@@ -1,6 +1,6 @@
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import DeleteHistoryModal from './DeleteHistoryModal';
 
 type Props = Parameters<typeof DeleteHistoryModal>[0];
@@ -20,8 +20,6 @@ function setup(overrides: Partial<Props> = {}) {
   render(<DeleteHistoryModal {...props} />);
   return { props, user: userEvent.setup() };
 }
-
-afterEach(cleanup);
 
 describe('DeleteHistoryModal', () => {
   it('renders nothing while closed', () => {

@@ -1,6 +1,6 @@
-import { render, screen, cleanup } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import LocaleSwitcher from './LocaleSwitcher';
 import { changeLocale } from '@/lib/locale';
 import { locales } from '@/i18n/config';
@@ -9,13 +9,7 @@ vi.mock('@/lib/locale', () => ({
   changeLocale: vi.fn(),
 }));
 
-afterEach(cleanup);
-
 describe('LocaleSwitcher', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('lists every configured locale with the current one checked', async () => {
     const user = userEvent.setup();
     render(<LocaleSwitcher />);

@@ -79,6 +79,13 @@ export async function deleteBoard(board: Board): Promise<Board | null> {
     return null;
   }
 
+  // Ownership check before touching shares: the action is callable with any board id.
+  const owned = await prisma.board.findFirst({
+    where: { id: board.id, userId: user.id },
+    select: { id: true },
+  });
+  if (!owned) return null;
+
   // Delete shares for the board and all its notes (Share uses entityId/entityType, no DB cascade)
   const noteIds = (await prisma.note.findMany({ where: { boardsId: board.id }, select: { id: true } })).map((n) => n.id);
   await prisma.share.deleteMany({

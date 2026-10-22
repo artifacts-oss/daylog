@@ -1,6 +1,6 @@
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import ChangeHistorySidebar from './ChangeHistorySidebar';
 import {
   getNoteChanges,
@@ -40,14 +40,11 @@ vi.mock('./ChangeHistoryItem', () => ({
 const changes = (n: number) =>
   Array.from({ length: n }, (_, i) => ({ id: i + 1 })) as unknown as NoteChangeWithUser[];
 
-afterEach(cleanup);
-
 describe('ChangeHistorySidebar', () => {
   const onClose = vi.fn();
   const onRestoreSuccess = vi.fn();
 
   beforeEach(() => {
-    vi.clearAllMocks();
     vi.mocked(getNoteChanges).mockResolvedValue(changes(2));
     vi.mocked(clearNoteHistory).mockResolvedValue(true);
     vi.mocked(deleteNoteChange).mockResolvedValue(true);

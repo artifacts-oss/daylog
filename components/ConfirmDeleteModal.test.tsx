@@ -1,6 +1,6 @@
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, Mock, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import { useRouter } from 'next/navigation';
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 
@@ -11,13 +11,10 @@ vi.mock('next/navigation', () => ({
 // Unknown namespace: the mocked translator returns the message key.
 const NAMESPACE = 'ConfirmDeleteModalTest';
 
-afterEach(cleanup);
-
 describe('ConfirmDeleteModal', () => {
   const refresh = vi.fn();
 
   beforeEach(() => {
-    vi.clearAllMocks();
     (useRouter as Mock).mockReturnValue({ refresh });
   });
 
@@ -68,6 +65,20 @@ describe('ConfirmDeleteModal', () => {
 
     await waitFor(() => expect(onSuccess).toHaveBeenCalledTimes(1));
     expect(refresh).not.toHaveBeenCalled();
+  });
+
+  it('re-enables the dialog without refreshing when the delete fails', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const onDelete = vi.fn().mockRejectedValue(new Error('not found'));
+    render(<ConfirmDeleteModal namespace={NAMESPACE} entityTitle="Foo" onDelete={onDelete} />);
+
+    const user = await openDialog();
+    await user.click(screen.getByRole('button', { name: 'confirm' }));
+
+    expect(await screen.findByRole('button', { name: 'confirm' })).toBeEnabled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(refresh).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('disables both actions and shows the deleting label while the delete is pending', async () => {

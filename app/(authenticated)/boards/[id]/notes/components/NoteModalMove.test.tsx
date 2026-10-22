@@ -1,9 +1,9 @@
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, Mock, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { Note } from '@/prisma/generated/client';
+import { Board, Note } from '@/prisma/generated/client';
 import { getBoards } from '@/app/(authenticated)/boards/lib/actions';
 import { moveNote } from '../lib/actions';
 import NoteModalMove from './NoteModalMove';
@@ -56,19 +56,25 @@ vi.mock('@/components/ui/select', () => ({
 
 const note = { id: 10, boardsId: 1 } as unknown as Note;
 
-const boardsPage = (from: number, count: number) =>
-  Array.from({ length: count }, (_, i) => ({ id: from + i, title: `Board ${from + i}` }));
-
-afterEach(cleanup);
+const boardsPage = (from: number, count: number): Board[] =>
+  Array.from({ length: count }, (_, i) => ({
+    id: from + i,
+    title: `Board ${from + i}`,
+    description: null,
+    imageUrl: null,
+    favorite: false,
+    userId: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }));
 
 describe('NoteModalMove', () => {
   const refresh = vi.fn();
 
   beforeEach(() => {
-    vi.clearAllMocks();
     (useRouter as Mock).mockReturnValue({ refresh });
-    vi.mocked(getBoards).mockResolvedValue(boardsPage(1, 3) as never);
-    vi.mocked(moveNote).mockResolvedValue(true as never);
+    vi.mocked(getBoards).mockResolvedValue(boardsPage(1, 3));
+    vi.mocked(moveNote).mockResolvedValue(true);
   });
 
   async function openDialog() {
@@ -90,8 +96,8 @@ describe('NoteModalMove', () => {
 
   it('pages through all boards until a short page is returned', async () => {
     vi.mocked(getBoards)
-      .mockResolvedValueOnce(boardsPage(1, 100) as never)
-      .mockResolvedValueOnce(boardsPage(101, 5) as never);
+      .mockResolvedValueOnce(boardsPage(1, 100))
+      .mockResolvedValueOnce(boardsPage(101, 5));
     render(<NoteModalMove note={note} />);
     await openDialog();
 
@@ -113,7 +119,7 @@ describe('NoteModalMove', () => {
   });
 
   it('keeps the dialog open and does not refresh when the move fails', async () => {
-    vi.mocked(moveNote).mockResolvedValue(false as never);
+    vi.mocked(moveNote).mockResolvedValue(false);
     render(<NoteModalMove note={note} />);
     const user = await openDialog();
 

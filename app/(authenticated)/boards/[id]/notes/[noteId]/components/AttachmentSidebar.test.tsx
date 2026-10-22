@@ -1,6 +1,6 @@
-import { render, screen, waitFor, cleanup } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import type { Attachment } from '@/prisma/generated/client';
 import AttachmentSidebar from './AttachmentSidebar';
 import { saveAttachment, deleteAttachment } from '../../lib/actions';
@@ -22,16 +22,10 @@ const makeAttachment = (overrides: Partial<Attachment> = {}): Attachment => ({
   ...overrides,
 });
 
-afterEach(cleanup);
-
 describe('AttachmentSidebar', () => {
   const onAttachmentsChange = vi.fn();
   const onInsertLink = vi.fn();
   const onClose = vi.fn();
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
 
   const renderSidebar = (attachments: Attachment[] = []) =>
     render(
@@ -86,7 +80,7 @@ describe('AttachmentSidebar', () => {
   });
 
   it('uploads the selected file as a data URL and notifies on success', async () => {
-    vi.mocked(saveAttachment).mockResolvedValue({ success: true } as never);
+    vi.mocked(saveAttachment).mockResolvedValue({ success: true, attachment: makeAttachment() });
     const user = userEvent.setup();
     const { container } = renderSidebar();
 
@@ -101,7 +95,7 @@ describe('AttachmentSidebar', () => {
   });
 
   it('shows the server error and does not notify when the upload is rejected', async () => {
-    vi.mocked(saveAttachment).mockResolvedValue({ success: false, error: 'Too big' } as never);
+    vi.mocked(saveAttachment).mockResolvedValue({ success: false, error: 'Too big' });
     const user = userEvent.setup();
     const { container } = renderSidebar();
 
@@ -113,7 +107,7 @@ describe('AttachmentSidebar', () => {
   });
 
   it('shows a generic error when the upload throws', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(saveAttachment).mockRejectedValue(new Error('boom'));
     const user = userEvent.setup();
     const { container } = renderSidebar();
@@ -124,6 +118,7 @@ describe('AttachmentSidebar', () => {
       await screen.findByText('An error occurred while uploading the file.'),
     ).toBeInTheDocument();
     expect(onAttachmentsChange).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   it('deletes an attachment then notifies', async () => {
@@ -138,7 +133,7 @@ describe('AttachmentSidebar', () => {
   });
 
   it('does not notify when deletion fails', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(deleteAttachment).mockRejectedValue(new Error('boom'));
     const user = userEvent.setup();
     renderSidebar([makeAttachment({ id: 42 })]);
@@ -147,5 +142,6 @@ describe('AttachmentSidebar', () => {
 
     await waitFor(() => expect(deleteAttachment).toHaveBeenCalled());
     expect(onAttachmentsChange).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 });

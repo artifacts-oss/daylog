@@ -1,5 +1,5 @@
-import { render, cleanup } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import LocaleStorageSync from './LocaleStorageSync';
 import { localeStorageKey } from '@/i18n/config';
 
@@ -8,8 +8,6 @@ let mockLocale = 'en';
 vi.mock('next-intl', () => ({
   useLocale: () => mockLocale,
 }));
-
-afterEach(cleanup);
 
 describe('LocaleStorageSync', () => {
   beforeEach(() => {
