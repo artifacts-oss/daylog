@@ -33,7 +33,7 @@ function isPublicPath(pathname: string): boolean {
   return false;
 }
 
-export async function middleware(request: NextRequest): Promise<NextResponse> {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   // Use internal URL for server-side fetches to avoid SSL errors behind a reverse proxy

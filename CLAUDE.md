@@ -43,7 +43,7 @@ Mutations are handled by a mix of **Next.js Server Actions** (e.g. `updateNote`)
 
 ### Middleware
 
-`middleware.ts` runs on every request and is the first line of routing/security: it applies general rate limiting (via `utils/rateLimit`), resolves the locale cookie (`i18n/config`), and gates auth by maintaining the `PUBLIC_PATHS` allowlist. It also rewrites server-side fetches to `INTERNAL_APP_URL` to avoid SSL errors behind a reverse proxy. New public/unauthenticated routes must be added to its allowlist.
+`proxy.ts` (Next.js 16 successor of `middleware.ts`) runs on every request and is the first line of routing/security: it applies general rate limiting (via `utils/rateLimit`), resolves the locale cookie (`i18n/config`), and gates auth by maintaining the `PUBLIC_PATHS` allowlist. It also rewrites server-side fetches to `INTERNAL_APP_URL` to avoid SSL errors behind a reverse proxy. New public/unauthenticated routes must be added to its allowlist.
 
 ### Data Models (Prisma)
 
