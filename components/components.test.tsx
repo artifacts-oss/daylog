@@ -1,5 +1,6 @@
 import { User } from '@/prisma/generated/client';
 import { cleanup, render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import FormField from './FormField';
 import Loader from './Loader';
@@ -62,10 +63,17 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+type OTPInputRenderProps = {
+  slots: [];
+};
+
 vi.mock('input-otp', () => ({
   __esModule: true,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  OTPInput: ({ render }: { render: any }) => {
+  OTPInput: ({
+    render,
+  }: {
+    render: (props: OTPInputRenderProps) => ReactNode;
+  }) => {
     return <div>{render({ slots: [] })}</div>;
   },
   SlotProps: ({ char, isActive }: { char: string; isActive: boolean }) => (
