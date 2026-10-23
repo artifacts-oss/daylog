@@ -787,6 +787,7 @@
     "openAttachments": "Anhänge öffnen",
     "closeAttachments": "Anhänge schließen",
     "uploadError": "Beim Hochladen der Datei ist ein Fehler aufgetreten.",
+    "commentError": "Der Kommentar konnte nicht hinzugefügt werden. Bitte versuche es erneut.",
     "noPictures": "Keine Bilder",
     "uploadPicture": "Bild hochladen",
     "deletePicture": "Bild löschen",

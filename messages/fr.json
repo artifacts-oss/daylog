@@ -787,6 +787,7 @@
     "openAttachments": "Ouvrir les pièces jointes",
     "closeAttachments": "Fermer les pièces jointes",
     "uploadError": "Une erreur s'est produite lors du televersement du fichier.",
+    "commentError": "Impossible d'ajouter le commentaire. Veuillez réessayer.",
     "noPictures": "Aucune image",
     "uploadPicture": "Televerser une image",
     "deletePicture": "Supprimer l'image",

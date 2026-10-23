@@ -786,6 +786,7 @@
     "openAttachments": "Abrir adjuntos",
     "closeAttachments": "Cerrar adjuntos",
     "uploadError": "Ocurrió un error al subir el archivo.",
+    "commentError": "No se pudo agregar el comentario. Inténtalo de nuevo.",
     "noPictures": "No hay imágenes",
     "uploadPicture": "Subir imagen",
     "deletePicture": "Eliminar imagen",

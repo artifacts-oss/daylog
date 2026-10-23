@@ -200,14 +200,36 @@ describe('Note Actions', () => {
   it('should delete a note', async () => {
     const note: Partial<Note> = { id: 1 };
 
+    prismaMock.note.findFirst.mockResolvedValue(note as Note);
     prismaMock.note.delete.mockResolvedValue(note as Note);
 
     const result = await deleteNote(note as Note);
 
     expect(result).toEqual(note);
+    expect(prismaMock.share.deleteMany).toHaveBeenCalledWith({
+      where: { entityType: 'NOTE', entityId: note.id },
+    });
     expect(prisma.note.delete).toHaveBeenCalledWith({
       where: { id: note.id, boards: { userId: user.id } },
     });
+  });
+
+  it('should reject a note without an id before querying', async () => {
+    expect(await deleteNote({} as Note)).toBeNull();
+    expect(prismaMock.note.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.share.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('should not delete shares or the note when the user does not own it', async () => {
+    prismaMock.note.findFirst.mockResolvedValue(null);
+
+    expect(await deleteNote({ id: 99 } as Note)).toBeNull();
+    expect(prismaMock.note.findFirst).toHaveBeenCalledWith({
+      where: { id: 99, boards: { userId: user.id } },
+      select: { id: true },
+    });
+    expect(prismaMock.share.deleteMany).not.toHaveBeenCalled();
+    expect(prismaMock.note.delete).not.toHaveBeenCalled();
   });
 
   it('should get notes with boards', async () => {
