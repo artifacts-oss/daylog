@@ -786,6 +786,7 @@
     "openAttachments": "Open Attachments",
     "closeAttachments": "Close Attachments",
     "uploadError": "An error occurred while uploading the file.",
+    "commentError": "Could not add the comment. Please try again.",
     "noPictures": "No pictures",
     "uploadPicture": "Upload Picture",
     "deletePicture": "Delete picture",

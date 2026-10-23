@@ -162,6 +162,9 @@ export async function deleteNote(note: Note): Promise<Note | null> {
     return null;
   }
 
+  // Prisma drops undefined filters, so a missing id would match every note.
+  if (!Number.isInteger(note?.id)) return null;
+
   // Ownership check before touching shares: the action is callable with any note id.
   const owned = await prisma.note.findFirst({
     where: { id: note.id, boards: { userId: user.id } },

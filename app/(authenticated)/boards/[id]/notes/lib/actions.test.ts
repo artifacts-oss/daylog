@@ -214,6 +214,12 @@ describe('Note Actions', () => {
     });
   });
 
+  it('should reject a note without an id before querying', async () => {
+    expect(await deleteNote({} as Note)).toBeNull();
+    expect(prismaMock.note.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.share.deleteMany).not.toHaveBeenCalled();
+  });
+
   it('should not delete shares or the note when the user does not own it', async () => {
     prismaMock.note.findFirst.mockResolvedValue(null);
 

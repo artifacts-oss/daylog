@@ -132,7 +132,9 @@ describe('AttachmentSidebar', () => {
     expect(deleteAttachment).toHaveBeenCalledWith(7, 42);
   });
 
-  it('does not notify when deletion fails', async () => {
+  // deleteAttachment swallows server-side errors and resolves (the list refresh then shows
+  // the attachment is still there); only a transport failure rejects.
+  it('does not notify when the delete request itself fails', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mocked(deleteAttachment).mockRejectedValue(new Error('boom'));
     const user = userEvent.setup();

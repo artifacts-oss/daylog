@@ -53,6 +53,7 @@ describe('ChangeComments', () => {
     await waitFor(() => expect(addChangeComment).toHaveBeenCalledWith(1, 'hello'));
     expect(input).toHaveValue('');
     expect(onRefresh).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('does not submit whitespace-only input', async () => {
@@ -76,9 +77,12 @@ describe('ChangeComments', () => {
     await user.type(input, 'hello');
     fireEvent.click(screen.getByRole('button'));
 
-    await waitFor(() => expect(addChangeComment).toHaveBeenCalled());
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not add the comment');
     expect(input).toHaveValue('hello');
     expect(onRefresh).not.toHaveBeenCalled();
+
+    await user.type(input, '!');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('re-enables the form and keeps the text when the request fails', async () => {
@@ -91,7 +95,8 @@ describe('ChangeComments', () => {
     await user.type(input, 'hello');
     fireEvent.click(screen.getByRole('button'));
 
-    await waitFor(() => expect(input).toBeEnabled());
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not add the comment');
+    expect(input).toBeEnabled();
     expect(input).toHaveValue('hello');
     expect(onRefresh).not.toHaveBeenCalled();
     consoleError.mockRestore();

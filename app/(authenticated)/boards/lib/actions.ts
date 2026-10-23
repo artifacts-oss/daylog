@@ -79,6 +79,9 @@ export async function deleteBoard(board: Board): Promise<Board | null> {
     return null;
   }
 
+  // Prisma drops undefined filters, so a missing id would match every board.
+  if (!Number.isInteger(board?.id)) return null;
+
   // Ownership check before touching shares: the action is callable with any board id.
   const owned = await prisma.board.findFirst({
     where: { id: board.id, userId: user.id },

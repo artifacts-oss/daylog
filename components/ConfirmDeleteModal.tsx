@@ -42,14 +42,17 @@ export default function ConfirmDeleteModal({
 
   const handleDeleteClick = async () => {
     setDeleting(true);
+    let deleted: unknown;
     try {
-      await onDelete();
+      deleted = await onDelete();
     } catch (error) {
       console.error('Delete failed:', error);
       return;
     } finally {
       setDeleting(false);
     }
+    // Delete actions return null when the user may not delete the entity.
+    if (deleted === null) return;
     setOpen(false);
     if (onSuccess) onSuccess();
     else router.refresh();

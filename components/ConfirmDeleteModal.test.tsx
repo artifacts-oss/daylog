@@ -67,6 +67,26 @@ describe('ConfirmDeleteModal', () => {
     expect(refresh).not.toHaveBeenCalled();
   });
 
+  it('keeps the dialog open when the delete is refused (null result)', async () => {
+    const onSuccess = vi.fn();
+    render(
+      <ConfirmDeleteModal
+        namespace={NAMESPACE}
+        entityTitle="Foo"
+        onDelete={vi.fn().mockResolvedValue(null)}
+        onSuccess={onSuccess}
+      />,
+    );
+
+    const user = await openDialog();
+    await user.click(screen.getByRole('button', { name: 'confirm' }));
+
+    expect(await screen.findByRole('button', { name: 'confirm' })).toBeEnabled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(refresh).not.toHaveBeenCalled();
+  });
+
   it('re-enables the dialog without refreshing when the delete fails', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     const onDelete = vi.fn().mockRejectedValue(new Error('not found'));

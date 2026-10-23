@@ -138,6 +138,12 @@ describe('Board Actions', () => {
     });
   });
 
+  it('should reject a board without an id before querying', async () => {
+    expect(await deleteBoard({} as Board)).toBeNull();
+    expect(prismaMock.board.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.share.deleteMany).not.toHaveBeenCalled();
+  });
+
   it('should not delete shares or the board when the user does not own it', async () => {
     prismaMock.board.findFirst.mockResolvedValue(null);
 
