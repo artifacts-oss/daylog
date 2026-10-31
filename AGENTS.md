@@ -9,7 +9,7 @@ npm run dev       # next dev --webpack (http://localhost:3000)
 npm run build     # next build --webpack
 npm start         # Start production server
 npm run lint      # eslint app components lib (only these dirs; CI runs it)
-npm run test      # Vitest in WATCH mode (stays running)
+npm run test      # `vitest`: WATCH mode in an interactive terminal (stays running); run-once and exits in CI (`CI` env set)
 npm run coverage  # vitest run --coverage (one-shot, emits coverage/lcov.info for SonarCloud)
 ```
 
@@ -26,7 +26,7 @@ Runtime: Node 22 (Dockerfile + CI). Env vars: see `.env.example` (`DATABASE_URL`
 
 ## Architecture
 
-**daylog** is a self-hosted, multi-user notes and boards application: Next.js 16 App Router (React 19), Prisma 5 + PostgreSQL, Redis, Tailwind CSS v4. Runtime depends on **both** PostgreSQL and Redis — `lib/redis.ts` throws at import if `REDIS_URL` is unset.
+**daylog** is a self-hosted, multi-user notes and boards application: Next.js 16 App Router (React 19), Prisma 5 + PostgreSQL, Redis, Tailwind CSS v4. PostgreSQL is the default database; Redis is required for real-time collaboration only — `lib/redis.ts` throws at import if `REDIS_URL` is unset, and only `lib/noteCollaboration.ts` and the `notes/[noteId]/{stream,sync}` routes import it.
 
 Mutations use a mix of **Server Actions** (`'use server'` files in route-local `lib/` dirs, e.g. `updateNote`, `createShare`) and **REST routes** under `app/api/v1/`. Follow the pattern of the surrounding feature.
 
@@ -43,7 +43,7 @@ Next.js 16 successor of `middleware.ts`; runs on every request: general rate lim
 
 ### Data Models (`prisma/schema.prisma`)
 
-`User` (email/password, TOTP, lockout, role), `Session` (server-side; holds wrapped encryption key), `Board`, `Note` (markdown; belongs to a Board), `Picture` (note images), `Attachment` (note files: `fileUrl`, `fileName`, `mimeType`, `size`), `NoteChange` (diff-match-patch history), `ChangeComment`, `Share` (`entityType` BOARD|NOTE, `scope` PUBLIC|ALL|SPECIFIC, optional password/expiry, `oneTime`, `canEdit`, decrypted `snapshot`), `ShareRecipient` (SPECIFIC scope users), `ShareView` (hashed IP+UA view tracking), `Setting` (global key-value). Schema changes need a migration in `prisma/migrations/`.
+`User` (email/password, TOTP, lockout, role), `Session` (server-side; holds wrapped encryption key), `Board`, `Note` (markdown; optionally belongs to a Board — `boardsId`/`boards` are nullable, handle null), `Picture` (note images), `Attachment` (note files: `fileUrl`, `fileName`, `mimeType`, `size`), `NoteChange` (diff-match-patch history), `ChangeComment`, `Share` (`entityType` BOARD|NOTE, `scope` PUBLIC|ALL|SPECIFIC, optional password/expiry, `oneTime`, `canEdit`, decrypted `snapshot`), `ShareRecipient` (SPECIFIC scope users), `ShareView` (hashed IP+UA view tracking), `Setting` (global key-value). Schema changes need a migration in `prisma/migrations/`.
 
 ### Authentication & Security
 
@@ -78,7 +78,7 @@ next-intl; messages in `messages/{en,es,fr,de}.json`, setup in `i18n/`. All user
 
 ### Design System
 
-See `STYLE_GUIDE.md` (semantic color tokens, typography, component specs). Dark/light via class-based Tailwind dark mode, persisted per user.
+See `STYLE_GUIDE.md` (semantic color tokens, typography, component specs). Dark/light via class-based Tailwind dark mode (`next-themes` `ThemeProvider` in `app/partials/MainLayout.tsx`); persisted in the browser (shared `theme` localStorage key), not per user account.
 
 ## Testing
 
