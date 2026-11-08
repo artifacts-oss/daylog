@@ -136,6 +136,7 @@ export default function NavSearch() {
           </div>
           <div
             ref={resultsRef}
+            role="presentation"
             className="max-h-[400px] overflow-y-auto pr-2 custom-scrollbar space-y-1"
             onKeyDown={(e) => handleKeyDown(e.key)}
           >

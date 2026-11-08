@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   createNote: vi.fn(),
   saveImage: vi.fn(),
   push: vi.fn(),
+  refresh: vi.fn(),
 }));
 
 vi.mock('@/app/(authenticated)/boards/[id]/notes/lib/actions', () => ({
@@ -16,7 +17,7 @@ vi.mock('@/app/(authenticated)/boards/[id]/notes/lib/actions', () => ({
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: vi.fn(() => ({ refresh: vi.fn(), push: mocks.push })),
+  useRouter: vi.fn(() => ({ refresh: mocks.refresh, push: mocks.push })),
 }));
 
 type ImageSectionStubProps = { onImageUrlChange: (url: string) => void };
@@ -55,23 +56,50 @@ describe('NoteModalForm create outcomes', () => {
     expect(mocks.push).not.toHaveBeenCalled();
   });
 
-  it('opens the created note when the image upload fails', async () => {
+  it('opens the created note once the cover is saved', async () => {
     mocks.createNote.mockResolvedValue(5);
-    mocks.saveImage.mockRejectedValue(new Error('upload failed'));
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mocks.saveImage.mockResolvedValue({});
     render(<NoteModalForm boardId={1} modalId="m" mode="create" open={true} />);
 
     fireEvent.click(screen.getByText('pick image'));
     fillAndSubmit();
 
-    await waitFor(() =>
-      expect(mocks.push).toHaveBeenCalledWith('/boards/1/notes/5'),
-    );
-    expect(mocks.saveImage).toHaveBeenCalledWith(
-      expect.objectContaining({ noteId: 5, imageUrl: 'https://img.test/a.jpg' }),
-    );
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith('/boards/1/notes/5'));
+    expect(mocks.saveImage).toHaveBeenCalledWith({ noteId: 5, imageUrl: 'https://img.test/a.jpg' });
+  });
+
+  it('explains a failed cover upload and retries it without duplicating the note', async () => {
+    mocks.createNote.mockResolvedValue(5);
+    mocks.saveImage.mockResolvedValueOnce({ error: 'storage' }).mockResolvedValueOnce({});
+    render(<NoteModalForm boardId={1} modalId="m" mode="create" open={true} />);
+
+    fireEvent.click(screen.getByText('pick image'));
+    fillAndSubmit();
+
+    expect(await screen.findByRole('alert')).toHaveTextContent("The server couldn't store the image");
+    expect(screen.getByText('Create note')).toBeInTheDocument();
+    expect(mocks.push).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByText('Create'));
+
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith('/boards/1/notes/5'));
     expect(mocks.createNote).toHaveBeenCalledTimes(1);
-    expect(screen.queryByText('Create note')).not.toBeInTheDocument();
-    consoleError.mockRestore();
+    expect(mocks.saveImage).toHaveBeenCalledTimes(2);
+  });
+
+  it('refreshes the list when closed after a failed cover upload', async () => {
+    mocks.createNote.mockResolvedValue(5);
+    mocks.saveImage.mockResolvedValue({ error: 'unauthorized' });
+    render(<NoteModalForm boardId={1} modalId="m" mode="create" open={true} />);
+
+    fireEvent.click(screen.getByText('pick image'));
+    fillAndSubmit();
+    await screen.findByRole('alert');
+
+    // Footer button and the dialog's X both read "Close"; either one closes it.
+    fireEvent.click(screen.getAllByRole('button', { name: 'Close' })[0]);
+
+    await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
+    expect(mocks.push).not.toHaveBeenCalled();
   });
 });

@@ -99,4 +99,19 @@ describe('HomeSections empty states', () => {
       container.querySelector(`[style*="${stringToColor('My note')}"]`),
     ).not.toBeNull();
   });
+
+  it('colors on-this-day cards without a cover with stringToColor', async () => {
+    mocks.getOnThisDay.mockResolvedValue([
+      { id: 1, boardsId: 2, title: 'Trip', imageUrl: null, monthsAgo: 1 },
+    ]);
+
+    render(await OnThisDaySection());
+
+    // Compare through a reference element so jsdom normalizes hsl() the same way.
+    const expected = document.createElement('div');
+    expected.style.backgroundColor = stringToColor('Trip');
+    expect(screen.getByRole('link')).toHaveStyle({
+      backgroundColor: expected.style.backgroundColor,
+    });
+  });
 });

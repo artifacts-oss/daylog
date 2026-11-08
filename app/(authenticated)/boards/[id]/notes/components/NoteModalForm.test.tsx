@@ -60,6 +60,7 @@ if (!URL.revokeObjectURL) {
 describe('NoteModalForm', () => {
   beforeEach(() => {
     cleanup();
+    mocks.saveImage.mockResolvedValue({});
   });
 
   it('renders create note form', () => {
@@ -237,7 +238,6 @@ describe('NoteModalForm', () => {
       expect(mocks.saveImage).toHaveBeenCalledWith({
         noteId: 1,
         imageUrl: 'resizedDataUrl',
-        existentFileName: 'test.jpg',
       });
     });
   });
@@ -264,7 +264,7 @@ describe('NoteModalForm', () => {
     fireEvent.click(screen.getByText('Update'));
 
     await waitFor(() => {
-      expect(mocks.deleteImage).toHaveBeenCalledWith(1, 'test.jpg');
+      expect(mocks.deleteImage).toHaveBeenCalledWith(1);
     });
   });
 });

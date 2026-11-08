@@ -9,6 +9,7 @@ import {
   loadNoteRoomContent,
 } from '@/lib/noteCollaboration';
 import { computeDiff, applyPatch } from '@/utils/diff';
+import { parseId } from '@/utils/parseId';
 
 const MAX_PATCH_SIZE = 64 * 1024; // 64 KB
 
@@ -40,8 +41,8 @@ export async function POST(
   }
 
   const { noteId: noteIdStr } = await params;
-  const noteId = parseInt(noteIdStr);
-  if (isNaN(noteId)) {
+  const noteId = parseId(noteIdStr);
+  if (Number.isNaN(noteId)) {
     return Response.json({ error: 'Invalid note ID' }, { status: 400 });
   }
 

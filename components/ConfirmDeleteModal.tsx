@@ -2,7 +2,7 @@
 
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -20,16 +20,20 @@ type ConfirmDeleteModalProps = {
   namespace: string;
   entityTitle: string;
   onDelete: () => Promise<unknown>;
+  onSuccess?: () => void;
   triggerClassName?: string;
   triggerIconClassName?: string;
+  trigger?: ReactNode;
 };
 
 export default function ConfirmDeleteModal({
   namespace,
   entityTitle,
   onDelete,
+  onSuccess,
   triggerClassName = 'h-8 w-8',
   triggerIconClassName = 'h-4 w-4',
+  trigger,
 }: ConfirmDeleteModalProps) {
   const t = useTranslations(namespace);
   const router = useRouter();
@@ -38,19 +42,31 @@ export default function ConfirmDeleteModal({
 
   const handleDeleteClick = async () => {
     setDeleting(true);
-    await onDelete();
-    router.refresh();
-    setDeleting(false);
+    let deleted: unknown;
+    try {
+      deleted = await onDelete();
+    } catch (error) {
+      console.error('Delete failed:', error);
+      return;
+    } finally {
+      setDeleting(false);
+    }
+    // Delete actions return null when the user may not delete the entity.
+    if (deleted === null) return;
     setOpen(false);
+    if (onSuccess) onSuccess();
+    else router.refresh();
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className={triggerClassName}>
-          <TrashIcon className={triggerIconClassName} />
-          <span className="sr-only">{t('delete')}</span>
-        </Button>
+        {trigger || (
+          <Button variant="ghost" size="icon" className={triggerClassName}>
+            <TrashIcon className={triggerIconClassName} />
+            <span className="sr-only">{t('delete')}</span>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="p-10 max-w-[480px]">
         <DialogHeader className="mb-6">

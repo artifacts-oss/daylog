@@ -6,12 +6,18 @@ import PageFooter from '@/components/PageFooter';
 import PageHeader from '@/components/PageHeader';
 import { getNote, getEditShareForNote, getNoteForRecipient, renameNote } from '../lib/actions';
 import InlineTitleEditor from '@/components/InlineTitleEditor';
+import NoteModalDelete from '../components/NoteModalDelete';
+import NoteCoverDialog from '../components/NoteCoverDialog';
+import { getSettings } from '@/app/(authenticated)/admin/lib/actions';
 import CollabEditor from './components/CollabEditor';
 import { prisma } from '@/prisma/client';
 import { getImageUrlOrFile } from '@/utils/image';
+import { Button } from '@/components/ui/button';
+import { TrashIcon } from '@heroicons/react/24/outline';
 import ShareDialog from '@/components/ShareDialog';
 import { getEntityPublicShare } from '@/app/(authenticated)/shared/lib/actions';
 import { getLocale, getTranslations } from 'next-intl/server';
+import { parseId } from '@/utils/parseId';
 
 export default async function NotePage({
   params,
@@ -23,20 +29,26 @@ export default async function NotePage({
     return null;
   }
   const { id, noteId } = await params;
-  let board = await getBoard(parseInt(id));
-  let note = await getNote(parseInt(noteId));
+  const boardId = parseId(id);
+  const parsedNoteId = parseId(noteId);
+  if (Number.isNaN(boardId) || Number.isNaN(parsedNoteId)) {
+    return null;
+  }
+  let board = await getBoard(boardId);
+  let note = await getNote(parsedNoteId);
   const tNav = await getTranslations('Navigation');
   const tNotes = await getTranslations('NotesPage');
   const t = await getTranslations('NoteDetailPage');
+  const tDelete = await getTranslations('NoteDelete');
   const locale = await getLocale();
 
   // If user isn't the owner, check if they have a canEdit share for this note
   let canEditViaShare = false;
   if (!note) {
-    const editShare = await getEditShareForNote(parseInt(noteId));
+    const editShare = await getEditShareForNote(parsedNoteId);
     if (editShare) {
-      note = await getNoteForRecipient(parseInt(noteId));
-      board = board ?? await getBoardForNoteRecipient(parseInt(noteId));
+      note = await getNoteForRecipient(parsedNoteId);
+      board = board ?? await getBoardForNoteRecipient(parsedNoteId);
       canEditViaShare = true;
     }
   }
@@ -46,6 +58,7 @@ export default async function NotePage({
   }
 
   const _noteShare = await getEntityPublicShare('NOTE', note.id);
+  const settings = await getSettings();
 
   const hasEditShare = !!(await prisma.share.findFirst({
     where: { entityType: 'NOTE', entityId: note.id, canEdit: true, scope: 'SPECIFIC' },
@@ -93,10 +106,32 @@ export default async function NotePage({
             ? getImageUrlOrFile(encodeURI(note.imageUrl))
             : undefined
         }
+        coverSlot={
+          board.userId === user.id || canEditViaShare ? (
+            <NoteCoverDialog
+              noteId={note.id}
+              noteTitle={note.title}
+              currentImageUrl={note.imageUrl}
+              isUnsplashAllowed={settings?.allowUnsplash}
+            />
+          ) : undefined
+        }
         breadcrumbs={breadcrumbs}
       >
         <div className="flex items-center gap-1.5 sm:gap-3">
           <ShareDialog entityType="NOTE" entityId={note.id} />
+          {board.userId === user.id && !canEditViaShare && (
+            <NoteModalDelete
+              note={note}
+              redirectTo={`/boards/${board.id}/notes`}
+              trigger={
+                <Button variant="outline" className="h-12 w-12 px-0 rounded-xl bg-background/50 backdrop-blur-sm border-border hover:bg-muted transition-all shrink-0 shadow-sm">
+                  <TrashIcon className="h-4 w-4 text-destructive shrink-0" />
+                  <span className="sr-only">{tDelete('delete')}</span>
+                </Button>
+              }
+            />
+          )}
         </div>
       </PageHeader>
       <PageBody>

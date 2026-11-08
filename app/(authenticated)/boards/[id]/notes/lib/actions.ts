@@ -10,7 +10,6 @@ import { isBase64, isUrl } from '@/utils/text';
 import { SECURITY_CONFIG } from '@/config/security';
 import { encryptNoteFields, decryptNoteFields, decryptBoardFields, encryptField, decryptField } from '@/utils/encryption';
 
-import fs from 'fs';
 import path from 'path';
 import { NoteWithBoards } from './types';
 import getSorting from '@/utils/sorting';
@@ -163,6 +162,16 @@ export async function deleteNote(note: Note): Promise<Note | null> {
     return null;
   }
 
+  // Prisma drops undefined filters, so a missing id would match every note.
+  if (!Number.isInteger(note?.id)) return null;
+
+  // Ownership check before touching shares: the action is callable with any note id.
+  const owned = await prisma.note.findFirst({
+    where: { id: note.id, boards: { userId: user.id } },
+    select: { id: true },
+  });
+  if (!owned) return null;
+
   await prisma.share.deleteMany({ where: { entityType: 'NOTE', entityId: note.id } });
 
   const deleted = await prisma.note.delete({
@@ -275,53 +284,43 @@ export async function getNoteForRecipient(noteId: number): Promise<Note | null> 
   return note;
 }
 
+export type SaveImageError = 'unauthorized' | 'invalidFormat' | 'storage';
+
 export async function saveImage({
   noteId,
   imageUrl,
-  existentFileName,
 }: {
   noteId: number;
   imageUrl: string;
-  existentFileName?: string | null;
-}): Promise<string | null> {
+}): Promise<{ error?: SaveImageError }> {
+  const { user } = await getCurrentSession();
+  if (!user) return { error: 'unauthorized' };
+
+  if (!isBase64(imageUrl) && !isUrl(imageUrl)) return { error: 'invalidFormat' };
+
+  const note = await getNoteWithAccess(noteId, user.id);
+  if (!note) return { error: 'unauthorized' };
+
   try {
-    const { user } = await getCurrentSession();
-
-    if (!user) {
-      return null;
-    }
-
-    if (!isBase64(imageUrl) && !isUrl(imageUrl)) {
-      throw new Error(
-        'Invalid image format. Must be a valid URL or Base64 string.',
-      );
-    }
-
-    if (existentFileName && fs.existsSync(existentFileName)) {
-      removeFile(existentFileName);
-    }
-
-    const note = await getNoteWithAccess(noteId, user.id);
-    if (!note) return null;
-
     const urlKeyOrPath = await saveAndGetImageFile(imageUrl);
+    if (!urlKeyOrPath) return { error: 'storage' };
 
     await prisma.note.update({
       where: { id: noteId },
       data: { imageUrl: urlKeyOrPath },
     });
-
-    return imageUrl;
   } catch (e) {
     console.error(e);
-    return null;
+    return { error: 'storage' };
   }
+
+  // The old file path comes from the DB, never the client, and is only dropped
+  // once the new cover is stored so a failed save keeps the current one.
+  removeFile(note.imageUrl);
+  return {};
 }
 
-export async function deleteImage(
-  noteId: number,
-  filePath?: string | null,
-): Promise<void> {
+export async function deleteImage(noteId: number): Promise<void> {
   try {
     const { user } = await getCurrentSession();
 
@@ -332,7 +331,7 @@ export async function deleteImage(
     const note = await getNoteWithAccess(noteId, user.id);
     if (!note) return;
 
-    const removed = removeFile(filePath);
+    const removed = removeFile(note.imageUrl);
     if (removed) {
       await prisma.note.update({
         where: { id: noteId },

@@ -93,6 +93,10 @@ export default function ProfileInfo({ profile }: ProfileInfoType) {
           }
         }
       }) as EventListener);
+    }).catch((error) => {
+      console.error(error);
+      cropper.destroy();
+      if (cropperRef.current === cropper) cropperRef.current = null;
     });
     if (selection) {
       selection.aspectRatio = 1;

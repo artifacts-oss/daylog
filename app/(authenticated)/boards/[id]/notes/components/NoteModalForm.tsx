@@ -1,11 +1,11 @@
 'use client';
 
 import { Note } from '@/prisma/generated/client';
-import { resizeImage } from '@/utils/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { createNote, deleteImage, saveImage, updateNote } from '../lib/actions';
+import { createNote, deleteImage, updateNote } from '../lib/actions';
+import { CoverError, uploadCover } from '../lib/uploadCover';
 import {
   Dialog,
   DialogContent,
@@ -57,6 +57,9 @@ export default function NoteModalForm({
   const [imageFile, setImageFile] = useState<File>();
   const [imageUrl, setImageUrl] = useState<string>('');
   const [targetBoardId, setTargetBoardId] = useState(boardId);
+  const [imageError, setImageError] = useState<CoverError | null>(null);
+  // Set once the note exists, so retrying a failed cover upload doesn't create a duplicate.
+  const [createdNoteId, setCreatedNoteId] = useState<number | null>(null);
 
   const {
     register,
@@ -67,14 +70,15 @@ export default function NoteModalForm({
 
   const onSubmit: SubmitHandler<Note> = async (data) => {
     setSubmiting(true);
+    setImageError(null);
 
     try {
-      if (mode === 'create') {
-        // Keep the modal and draft open so the user can retry.
-        if (!(await createNoteHandler(data, targetBoardId))) return;
-      } else {
-        await updateNoteHandler(data);
-      }
+      // On failure keep the modal and draft open so the user can retry.
+      const done =
+        mode === 'create'
+          ? await createNoteHandler(data, targetBoardId)
+          : await updateNoteHandler(data);
+      if (!done) return;
       setOpen(false);
       setImageFile(undefined);
       setImageUrl('');
@@ -84,44 +88,45 @@ export default function NoteModalForm({
     }
   };
 
-  async function uploadImage(noteId: number | null) {
-    if ((!imageFile && !imageUrl) || !noteId) return;
-    if (imageFile) {
-      resizeImage(imageFile, 1920, 1080, async (resizedDataUrl) => {
-        await saveImage({
-          noteId,
-          imageUrl: resizedDataUrl,
-          existentFileName: note?.imageUrl,
-        });
-        router.refresh();
-      });
-    } else {
-      await saveImage({ noteId, imageUrl, existentFileName: note?.imageUrl });
-      router.refresh();
-    }
+  // Returns false, showing why, when the picked cover couldn't be saved.
+  async function uploadImage(noteId: number): Promise<boolean> {
+    const image = imageFile ?? imageUrl;
+    if (!image) return true;
+    const failure = await uploadCover(noteId, image);
+    setImageError(failure);
+    return !failure;
   }
 
   const createNoteHandler = async (
     data: Note,
     boardId: number,
   ): Promise<boolean> => {
-    const noteId = await createNote(data, boardId);
+    const noteId = createdNoteId ?? (await createNote(data, boardId));
     if (!noteId) return false;
-    try {
-      await uploadImage(noteId);
-    } catch (error) {
-      // The note exists: don't fail the submit, or a retry would create a duplicate.
-      console.error('Image upload failed for new note', noteId, error);
-    }
+    setCreatedNoteId(noteId);
+    if (!(await uploadImage(noteId))) return false;
+    setCreatedNoteId(null);
     // Land in the editor so the user can keep writing right away.
     router.push(`/boards/${boardId}/notes/${noteId}`);
     return true;
   };
 
-  const updateNoteHandler = async (data: Note) => {
+  const updateNoteHandler = async (data: Note): Promise<boolean> => {
     await updateNote(data);
-    await uploadImage(data.id);
+    const uploaded = await uploadImage(data.id);
     router.refresh();
+    return uploaded;
+  };
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    setImageError(null);
+    // Closing after a failed cover upload: the note was created, so show it in the list.
+    if (!next && createdNoteId) {
+      setCreatedNoteId(null);
+      reset();
+      router.refresh();
+    }
   };
 
   useEffect(() => {
@@ -142,7 +147,7 @@ export default function NoteModalForm({
   }, [note, reset]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       {trigger ? (
         <DialogTrigger asChild>{trigger}</DialogTrigger>
       ) : mode === 'update' ? (
@@ -231,17 +236,22 @@ export default function NoteModalForm({
             onDeleteImage={
               note?.id && note.imageUrl
                 ? async () => {
-                    await deleteImage(note.id, note.imageUrl);
+                    await deleteImage(note.id);
                     router.refresh();
                   }
                 : undefined
             }
           />
+          {imageError && (
+            <p role="alert" className="text-[12px] text-accent-red">
+              {t(`imageErrors.${imageError}`)}
+            </p>
+          )}
           <DialogFooter>
             <Button
               type="button"
               variant="outline"
-              onClick={() => setOpen(false)}
+              onClick={() => handleOpenChange(false)}
             >
               {t('close')}
             </Button>

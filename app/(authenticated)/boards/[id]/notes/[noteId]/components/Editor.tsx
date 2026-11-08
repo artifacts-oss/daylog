@@ -94,13 +94,19 @@ export default function Editor({
   const { theme } = useTheme();
 
   const loadPictures = useCallback(async () => {
-    const pictures = (await getPictures(note.id)) ?? [];
-    setPictures(pictures);
+    try {
+      setPictures((await getPictures(note.id)) ?? []);
+    } catch (error) {
+      console.error(error);
+    }
   }, [note.id]);
 
   const loadAttachments = useCallback(async () => {
-    const attachments = (await getAttachments(note.id)) ?? [];
-    setAttachments(attachments);
+    try {
+      setAttachments((await getAttachments(note.id)) ?? []);
+    } catch (error) {
+      console.error(error);
+    }
   }, [note.id]);
 
   useEffect(() => {
@@ -112,8 +118,8 @@ export default function Editor({
         }
       }
     });
-    loadPictures();
-    loadAttachments();
+    void loadPictures();
+    void loadAttachments();
   }, [note.id, loadPictures, loadAttachments]);
 
   // Sync local state only when the user navigates to a *different* note
@@ -154,8 +160,7 @@ export default function Editor({
 
       // Set a new timer
       debounceTimerRef.current = setTimeout(() => {
-        updateNoteHandler(content);
-        callback();
+        updateNoteHandler(content).catch(console.error).finally(callback);
       }, 1000); // Waits for 1 second of inactivity before saving
     },
     [updateNoteHandler],
@@ -365,7 +370,7 @@ export default function Editor({
                         handlePlaceImage(getImageUrlOrFile(note.imageUrl!));
                       },
                       onDelete: async () => {
-                        await deleteImage(note.id, note.imageUrl);
+                        await deleteImage(note.id);
                         router.refresh();
                       },
                       deleteLabel: t('deletePicture'),
@@ -611,12 +616,12 @@ const PicturePreview = ({
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            onDelete();
+            void onDelete();
           }
         }}
         onClick={(e) => {
           e.stopPropagation();
-          onDelete();
+          void onDelete();
         }}
         title={deleteLabel}
       >

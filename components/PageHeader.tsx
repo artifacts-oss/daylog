@@ -17,6 +17,7 @@ type PageHeader = {
   titleSlot?: ReactNode; // replaces the title text, e.g. an inline editor
   description?: string | null;
   imageUrl?: string | null;
+  coverSlot?: ReactNode; // pinned to the cover's top-end corner, e.g. an edit control
   breadcrumbs?: Array<{ name: string; href: string }>;
 };
 
@@ -37,6 +38,10 @@ export default function PageHeader({
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background to-transparent" />
         </div>
+      )}
+
+      {props.coverSlot && (
+        <div className="absolute top-3 end-3 z-20">{props.coverSlot}</div>
       )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-10">

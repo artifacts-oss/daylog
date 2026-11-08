@@ -50,7 +50,7 @@ describe('canAccessFile', () => {
 
   it('grants access to a SPECIFIC share recipient of the note', async () => {
     prismaMock.note.findMany.mockResolvedValue([{ id: 7 }] as Note[]);
-    prismaMock.share.findFirst.mockResolvedValue({ id: 1 } as Share);
+    prismaMock.share.findFirst.mockResolvedValue({ id: 1 } as unknown as Share);
 
     expect(await canAccessFile(2, REF)).toBe(true);
     expect(prismaMock.share.findFirst).toHaveBeenCalledWith(

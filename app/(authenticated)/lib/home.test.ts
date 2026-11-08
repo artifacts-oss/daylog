@@ -73,6 +73,22 @@ describe('getContinueNote', () => {
     expect(note).toMatchObject({ id: 3, boardTitle: 'Work', snippet: 'Heading Some bold text' });
   });
 
+  it('cuts the snippet to 30 characters with an ellipsis', async () => {
+    mocks.getNotes.mockResolvedValue([
+      {
+        id: 3,
+        boardsId: 2,
+        title: 'Plan',
+        content: 'x'.repeat(100),
+        imageUrl: null,
+        updatedAt: NOW,
+        boards: null,
+      },
+    ] as NoteWithBoards[]);
+
+    expect((await getContinueNote())?.snippet).toBe(`${'x'.repeat(30)}…`);
+  });
+
   it('returns null when there are no notes', async () => {
     mocks.getNotes.mockResolvedValue([]);
     expect(await getContinueNote()).toBeNull();

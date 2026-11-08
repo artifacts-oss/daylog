@@ -16,6 +16,7 @@ import {
   type CollabEvent,
 } from '@/lib/noteCollaboration';
 import { createSubscriber } from '@/lib/redis';
+import { parseId } from '@/utils/parseId';
 
 async function hasNoteAccess(noteId: number, userId: number): Promise<boolean> {
   const asOwner = await prisma.note.findFirst({
@@ -43,8 +44,8 @@ export async function GET(
   }
 
   const { noteId: noteIdStr } = await params;
-  const noteId = parseInt(noteIdStr);
-  if (isNaN(noteId)) {
+  const noteId = parseId(noteIdStr);
+  if (Number.isNaN(noteId)) {
     return Response.json({ error: 'Invalid note ID' }, { status: 400 });
   }
 
@@ -95,12 +96,20 @@ export async function GET(
     }
     try {
       await subscriber.unsubscribe();
-      subscriber.quit();
+      await subscriber.quit();
     } catch {
       // Ignore errors on teardown
     }
-    await removePresence(noteId, user.id);
-    await publishEvent(noteId, { type: 'leave', data: { userId: user.id } });
+    try {
+      await removePresence(noteId, user.id);
+    } catch {
+      // Ignore errors on teardown
+    }
+    try {
+      await publishEvent(noteId, { type: 'leave', data: { userId: user.id } });
+    } catch {
+      // Ignore errors on teardown
+    }
   };
 
   const stream = new ReadableStream({
@@ -118,7 +127,7 @@ export async function GET(
 
       // Send initial state (exclude self from presence)
       const presenceWithoutSelf = Object.fromEntries(
-        Object.entries(presence).filter(([uid]) => parseInt(uid) !== user.id),
+        Object.entries(presence).filter(([uid]) => Number.parseInt(uid) !== user.id),
       );
       controller.enqueue(
         formatSSE('init', { revision, content, presence: presenceWithoutSelf }),

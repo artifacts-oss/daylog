@@ -8,12 +8,9 @@ export default defineConfig({
     clearMocks: true,
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
-    reporters: [
-      'default', // Terminal output,
-      ['vitest-sonar-reporter', { outputFile: 'sonar-report.xml' }],
-    ],
+    reporters: ['default'],
     coverage: {
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: ['text', 'lcov'],
       exclude: [
         'components/icons/**',
         '**/*.js',
@@ -28,4 +25,3 @@ export default defineConfig({
     },
   },
 });
-

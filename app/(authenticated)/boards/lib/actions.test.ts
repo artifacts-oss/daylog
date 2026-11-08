@@ -127,6 +127,7 @@ describe('Board Actions', () => {
   });
 
   it('should delete a board', async () => {
+    prismaMock.board.findFirst.mockResolvedValue(board as Board);
     prismaMock.note.findMany.mockResolvedValue([]);
     prismaMock.share.deleteMany.mockResolvedValue({ count: 0 });
     prismaMock.board.delete.mockResolvedValue(board as Board);
@@ -135,6 +136,24 @@ describe('Board Actions', () => {
     expect(prismaMock.board.delete).toHaveBeenCalledWith({
       where: { id: board.id, userId: user.id },
     });
+  });
+
+  it('should reject a board without an id before querying', async () => {
+    expect(await deleteBoard({} as Board)).toBeNull();
+    expect(prismaMock.board.findFirst).not.toHaveBeenCalled();
+    expect(prismaMock.share.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('should not delete shares or the board when the user does not own it', async () => {
+    prismaMock.board.findFirst.mockResolvedValue(null);
+
+    expect(await deleteBoard({ id: 99 } as Board)).toBeNull();
+    expect(prismaMock.board.findFirst).toHaveBeenCalledWith({
+      where: { id: 99, userId: user.id },
+      select: { id: true },
+    });
+    expect(prismaMock.share.deleteMany).not.toHaveBeenCalled();
+    expect(prismaMock.board.delete).not.toHaveBeenCalled();
   });
 
   it('should get boards count', async () => {

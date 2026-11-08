@@ -17,7 +17,7 @@ const nextConfig: NextConfig = {
     // however api/v1/images and api/v1/storage are optimized with Sharp https://github.com/lovell/sharp
     unoptimized: true,
   },
-  // CORS is handled in middleware.ts, which validates the request Origin
+  // CORS is handled in proxy.ts, which validates the request Origin
   // against SECURITY_CONFIG.CORS.ALLOWED_ORIGINS. A static wildcard
   // (Access-Control-Allow-Origin: *) here would override that and is unsafe.
   experimental: {

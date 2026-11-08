@@ -1,7 +1,8 @@
 // Vitest setup file
 import '@testing-library/jest-dom/vitest';
 import './prisma/singleton';
-import { vi } from 'vitest';
+import { afterEach, vi } from 'vitest';
+import { cleanup } from '@testing-library/react';
 import messages from '@/messages/en.json';
 import type { PropsWithChildren } from 'react';
 
@@ -78,7 +79,7 @@ vi.mock('next-intl', () => ({
 
 // Mock browser globals for Radix UI
 if (!globalThis.PointerEvent) {
-  globalThis.PointerEvent = MockPointerEvent as any;
+  globalThis.PointerEvent = MockPointerEvent as unknown as typeof PointerEvent;
 }
 window.scrollTo = vi.fn();
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
@@ -101,3 +102,5 @@ const localStorageMock = (() => {
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 Object.defineProperty(window, 'sessionStorage', { value: localStorageMock });
 
+// RTL auto-cleanup needs globals; unmount explicitly so Radix portals don't leak between tests.
+afterEach(cleanup);

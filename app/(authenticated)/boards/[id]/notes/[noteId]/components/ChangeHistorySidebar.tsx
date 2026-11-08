@@ -99,7 +99,7 @@ export default function ChangeHistorySidebar({
 
   useEffect(() => {
     if (isOpen) {
-      loadChanges();
+      void loadChanges();
       setVisibleCount(4);
     }
   }, [isOpen, loadChanges, refreshKey]);

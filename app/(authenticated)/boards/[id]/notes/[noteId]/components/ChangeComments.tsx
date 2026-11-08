@@ -40,18 +40,28 @@ export default function ChangeComments({
   const t = useTranslations('NoteEditor');
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
     setIsSubmitting(true);
-    const comment = await addChangeComment(changeId, newComment.trim());
-    setIsSubmitting(false);
+    setError(false);
+    let comment;
+    try {
+      comment = await addChangeComment(changeId, newComment.trim());
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
 
     if (comment) {
       setNewComment('');
       onRefresh();
+    } else {
+      setError(true);
     }
   };
 
@@ -125,7 +135,10 @@ export default function ChangeComments({
           className="w-full h-8 pl-2.5 pr-8 text-[12px] rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50"
           placeholder={t('addComment')}
           value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
+          onChange={(e) => {
+            setNewComment(e.target.value);
+            setError(false);
+          }}
           disabled={isSubmitting}
         />
         <Button
@@ -138,6 +151,11 @@ export default function ChangeComments({
           <Send className="h-3 w-3" />
         </Button>
       </form>
+      {error && (
+        <p role="alert" className="text-[11px] text-destructive">
+          {t('commentError')}
+        </p>
+      )}
     </div>
   );
 }
