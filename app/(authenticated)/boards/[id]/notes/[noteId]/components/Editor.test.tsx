@@ -361,7 +361,7 @@ describe('Editor', () => {
       await waitFor(() => expect(screen.getByRole('textbox')).toHaveValue('Initial content'));
 
       localStorage.setItem(`note-${mockNote.id}`, 'From another tab');
-      window.dispatchEvent(new StorageEvent('storage', { key: `note-${mockNote.id}` }));
+      window.dispatchEvent(new window.StorageEvent('storage', { key: `note-${mockNote.id}` }));
 
       await waitFor(() => {
         expect(screen.getByRole('textbox')).toHaveValue('From another tab');
@@ -387,7 +387,7 @@ describe('Editor', () => {
       vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
       renderWithIntl(<Editor note={mockNote} />);
       fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Pending save' } });
-      window.dispatchEvent(new Event('beforeunload'));
+      window.dispatchEvent(new window.Event('beforeunload'));
       expect(mocks.updateNote).toHaveBeenCalledWith({
         ...mockNote,
         content: 'Pending save',

@@ -6,7 +6,7 @@ import { cleanup } from '@testing-library/react';
 import messages from '@/messages/en.json';
 import type { PropsWithChildren } from 'react';
 
-class MockPointerEvent extends Event {
+class MockPointerEvent extends window.Event {
   button: number;
   ctrlKey: boolean;
   pointerType: string;
