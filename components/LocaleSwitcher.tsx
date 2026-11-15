@@ -45,8 +45,21 @@ export default function LocaleSwitcher() {
         <DropdownMenuLabel>{t('title')}</DropdownMenuLabel>
         <DropdownMenuRadioGroup value={locale} onValueChange={handleChange}>
           {locales.map((optionLocale) => (
-            <DropdownMenuRadioItem key={optionLocale} value={optionLocale}>
-              {t(`options.${optionLocale}`)}
+            <DropdownMenuRadioItem
+              key={optionLocale}
+              value={optionLocale}
+              className="w-full min-h-[48px] py-1"
+            >
+              <span className="flex min-w-0 flex-col items-start leading-tight">
+                <span>{t(`options.${optionLocale}`)}</span>
+                {optionLocale !== locale && (
+                  <span aria-hidden="true" className="mt-0.5 text-xs text-muted-foreground">
+                    {new Intl.DisplayNames([optionLocale], { type: 'language' })
+                      .of(optionLocale)
+                      ?.replace(/^./u, (firstLetter) => firstLetter.toLocaleUpperCase(optionLocale))}
+                  </span>
+                )}
+              </span>
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
