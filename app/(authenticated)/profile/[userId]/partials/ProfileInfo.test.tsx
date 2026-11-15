@@ -30,6 +30,7 @@ vi.mock('cropperjs', () => ({
     getCropperImage() {
       return {
         $ready: async () => {},
+        $center: vi.fn(),
         $getTransform: () => [1, 0, 0, 1, 0, 0],
         $zoom: vi.fn(),
         getBoundingClientRect: () => ({ width: 500, height: 500 }),
