@@ -5,7 +5,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { renderWithIntl } from '@/utils/test/renderWithIntl';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import NavSearch from './NavSearch';
 
 const mocks = vi.hoisted(() => ({
@@ -35,6 +35,14 @@ describe('NavSearch', () => {
   beforeEach(() => {
     cleanup();
     vi.useFakeTimers({ toFake: ['setTimeout'], shouldAdvanceTime: true });
+  });
+
+  // Radix FocusScope dispatches a CustomEvent from a setTimeout(0) on unmount; flush it
+  // while jsdom is alive or it fires after teardown with a non-jsdom Event.
+  afterEach(() => {
+    cleanup();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('show searching text when search is loading', async () => {
